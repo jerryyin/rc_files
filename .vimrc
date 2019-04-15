@@ -9,6 +9,8 @@ set smarttab
 set clipboard=unnamed
 ""set colorcolumn=100
 set autochdir
+""Auto reload file on disk
+set autoread | au CursorHold * checktime | call feedkeys("lh")
 
 ""eclim
 ""filetype plugin indent on
