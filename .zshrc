@@ -91,3 +91,19 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+# TMUX
+# # If not running interactively, do not do anything
+# # This configuration allows multiple tmux sessions
+[[ $- != *i* ]] && return
+[[ -z "$TMUX" ]] && exec tmux""
+#
+# This configuration allows only one tmux session(new terminal will try to attach)
+# if which tmux >/dev/null 2>&1; then
+#      # if no session is started, start a new session
+#      test -z ${TMUX} && tmux
+#
+#      # when quitting tmux, try to attach
+#      while test -z ${TMUX}; do
+#          tmux attach || break
+#      done
+# fi
