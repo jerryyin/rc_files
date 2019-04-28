@@ -1,8 +1,13 @@
+set tabstop=2
 set autoindent
-set smartindent
-set cinoptions=(3
-set shiftwidth=3
-set softtabstop=3
+"" Doesn't work well with python
+""set smartindent
+set cinoptions=(2
+set shiftwidth=2
+set softtabstop=2
+filetype indent on
+filetype plugin on
+set shiftwidth=2
 set expandtab
 set smarttab
 ""set ai
@@ -12,25 +17,19 @@ set autochdir
 ""Auto reload file on disk
 set autoread | au CursorHold * checktime | call feedkeys("lh")
 
-""eclim
-""filetype plugin indent on
-set guioptions-=m " turn off menu bar
-set guioptions-=T " turn off toolbar
-set guioptions-=L " turn off left scrollbar
-set guioptions-=l
-let g:EclimTempFilesEnable=0
+""Eliminating delays on ESC in vim and zsh
+set timeoutlen=1000 ttimeoutlen=0
+
+"Vundle plugin manager
+"Plugin 'lvuts/vim-rtags'
 
 "spelling
 "not sure how this part interact with code
 ""set nospell
-autocmd BufRead,BufNewFile *.tex setlocal spell
-autocmd BufRead,BufNewFile *.tex setlocal spell spelllang=en_us
+""autocmd BufRead,BufNewFile *.tex setlocal spell
+""autocmd BufRead,BufNewFile *.tex setlocal spell spelllang=en_us
 autocmd FileType gitcommit setlocal spell
 autocmd FileType gitcommit setlocal spell spelllang=en_us
-"languagetooll
-set nocompatible
-filetype plugin on
-let g:languagetool_jar='$HOME/.vim/LanguageTool-2.7/languagetool-commandline.jar'
 
 "might be a conflict with existing scheme"
 syntax on
@@ -42,8 +41,6 @@ set t_Co=256
 set mouse=a
 ""hi LineNr ctermfg=grey
 colorscheme ir_black
-"set scrolloff=3
-"set scrolloff=999
 set showmode
 set showcmd
 set cursorline
@@ -61,10 +58,8 @@ execute "set scroll=" . winheight('.') / 3
 set backspace=indent,eol,start
 
 ""ctags
-""map <C-F12>:!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
-"" find /d/perforce/ \( -name "*.h" -or -name "*.cpp" \) \( -not -path "*/development/**" -and -not -path "*/dev/**" \) >tags.files
-"" ctags -R --c++-kinds=+p --fields=+ias --extra=+q -L tags.files
- set tags=./tags,tags;$HOME
+map <C-F12>:!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
+set tags=./tags,tags;$HOME
 
 ""taglist
 let Tlist_Show_One_File=1
@@ -72,8 +67,9 @@ let Tlist_Exit_OnlyWindow=1
 nnoremap<silent><F8> : TlistToggle<CR>
 
 ""cscope
-cs add /d/perforce/cscope.out /d/perforce/
-set cscopequickfix=s-,c+,d-,i-,t-,e-
+""set cscopequickfix=s-,c+,d-,i-,t-,e-
+
+""mini buffer explorer
 let g:miniBufExplMapWindowNavVim = 1
 let g:miniBufExplMapWindowNavArrows = 1
 let g:miniBufExplForceSyntaxEnable = 1
