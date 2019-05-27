@@ -95,7 +95,7 @@ source $ZSH/oh-my-zsh.sh
 # # If not running interactively, do not do anything
 # # This configuration allows multiple tmux sessions
 [[ $- != *i* ]] && return
-[[ -z "$TMUX" ]] && exec tmux""
+[[ -z "$TMUX" ]] && exec tmux || :
 #
 # This configuration allows only one tmux session(new terminal will try to attach)
 # if which tmux >/dev/null 2>&1; then
