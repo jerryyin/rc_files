@@ -3,13 +3,16 @@ set autoindent
 "" Doesn't work well with python
 ""set smartindent
 set cinoptions=(2
-set shiftwidth=2
+set shiftwidth=4
 set softtabstop=2
 filetype indent on
 filetype plugin on
 set shiftwidth=2
 set expandtab
 set smarttab
+"" It hides buffers instead of closing them. This means that you can have unwritten changes
+"" to a file and open a new file using :e, without being forced to write or undo your changes first.
+set hidden
 ""set ai
 set clipboard=unnamed
 ""set colorcolumn=100
