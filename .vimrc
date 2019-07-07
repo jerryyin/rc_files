@@ -70,7 +70,7 @@ let Tlist_Exit_OnlyWindow=1
 nnoremap<silent><F8> : TlistToggle<CR>
 
 ""cscope
-""set cscopequickfix=s-,c+,d-,i-,t-,e-
+set cscopequickfix=s-,c-,d-,i-,t-,e-
 
 ""mini buffer explorer
 let g:miniBufExplMapWindowNavVim = 1
