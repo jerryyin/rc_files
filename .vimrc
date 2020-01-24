@@ -16,12 +16,12 @@ set expandtab
 set smarttab
 
 " Color scheme
-syntax on
+"syntax on
 "set colorcolumn=100
 "hi LineNr ctermfg=grey
 " Might be a conflict with existing scheme"
 " Does not look good
-set t_Co=256
+"set t_Co=256
 ""highlight Normal guifg=#bfca1d
 "set background=dark
 ""hi Search ctermbg=gray
