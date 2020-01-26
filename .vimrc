@@ -15,15 +15,6 @@ set shiftwidth=2
 set expandtab
 set smarttab
 
-" Color scheme
-"syntax on
-"set colorcolumn=100
-"hi LineNr ctermfg=grey
-" Might be a conflict with existing scheme"
-" Reduce the number of colors, but make backgroud visible
-""highlight Normal guifg=#bfca1d
-""hi Search ctermbg=gray
-
 " Cursor and mouse
 set mouse=a
 set showmode
@@ -82,6 +73,7 @@ nnoremap <C-right> <C-W>>
 call plug#begin('~/.vim/plugged')
 " cscope key mappings
 Plug 'dr-kino/cscope-maps'
+Plug 'jsfaint/gen_tags.vim'
 " mini buffer explorer
 Plug 'fholgado/minibufexpl.vim'
 " ir_black color theme
@@ -89,6 +81,8 @@ Plug 'fholgado/minibufexpl.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
 " NERD tree navigator sidebar
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+" Auto inserts or deletes bracket, parens, quotes in pair
+Plug 'jiangmiao/auto-pairs'
 " Google code formating tool
 Plug 'google/vim-maktaba'
 Plug 'google/vim-codefmt'
@@ -105,23 +99,34 @@ let g:cpp_experimental_template_highlight = 1
 " Below are lines picked from colorscheme ir_black
 " For cterfg256 color refer to here: https://jonasjacek.github.io/colors/
 hi CursorLine  guifg=NONE     guibg=#121212  gui=NONE      ctermfg=NONE       ctermbg=NONE        cterm=BOLD
-hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242  ctermbg=NONE        cterm=NONE
+hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242        ctermbg=NONE        cterm=NONE
 hi Search      guifg=NONE     guibg=#2F2F00  gui=underline ctermfg=NONE       ctermbg=NONE	      cterm=underline
 hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray   ctermbg=darkgray    cterm=NONE
 hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white      ctermbg=darkgray    cterm=NONE
+hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue       ctermbg=darkgray    cterm=NONE
 hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray   ctermbg=NONE        cterm=NONE
-hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=27  ctermbg=NONE        cterm=NONE
+hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=27         ctermbg=NONE        cterm=NONE
+hi Constant    guifg=#99CC99  guibg=NONE     gui=NONE      ctermfg=201        ctermbg=NONE        cterm=NONE
+hi Identifier  guifg=#C6C5FE  guibg=NONE     gui=NONE      ctermfg=215        ctermbg=NONE        cterm=NONE
+
+" Output the current syntax group
+nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
 " NERDTree
 nnoremap<silent><F8> : NERDTreeToggle<CR>
 
-""cscope
-set cscopequickfix=s-,c-,d-,i-,t-,e-
-""Auto load cscope.out database
+let g:gen_tags#gtags_default_map = 1
+"cscope
+" set cscopequickfix=s-,c-,d-,i-,t-,e-
+" Auto load cscope.out database
 function! LoadCscope()
-  let db = findfile("cscope.out", ".;")
+ "let db = findfile("cscope.out", ".;")
+  let db = findfile("GTAGS", ".;")
   if (!empty(db))
-    let path = strpart(db, 0, match(db, "/cscope.out$"))
+   "let path = strpart(db, 0, match(db, "/cscope.out$"))
+    let path = strpart(db, 0, match(db, "/GTAGS$"))
     set nocscopeverbose " suppress 'duplicate connection' error
       exe "cs add " . db . " " . path
       set cscopeverbose
