@@ -21,9 +21,7 @@ set smarttab
 "hi LineNr ctermfg=grey
 " Might be a conflict with existing scheme"
 " Reduce the number of colors, but make backgroud visible
-set t_Co=256
 ""highlight Normal guifg=#bfca1d
-"set background=dark
 ""hi Search ctermbg=gray
 
 " Cursor and mouse
@@ -87,7 +85,8 @@ Plug 'dr-kino/cscope-maps'
 " mini buffer explorer
 Plug 'fholgado/minibufexpl.vim'
 " ir_black color theme
-Plug 'twerth/ir_black'
+" Plug 'twerth/ir_black'
+Plug 'octol/vim-cpp-enhanced-highlight'
 " NERD tree navigator sidebar
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 " Google code formating tool
@@ -97,7 +96,21 @@ Plug 'google/vim-codefmt'
 Plug 'google/vim-glaive'
 call plug#end()
 
-colorscheme ir_black
+set t_Co=256
+set background=dark
+" Color Scheme settings from vim cpp enhanced highlight plugin
+let g:cpp_class_scope_highlight = 1
+let g:cpp_member_variable_highlight = 1
+let g:cpp_experimental_template_highlight = 1
+" Below are lines picked from colorscheme ir_black
+" For cterfg256 color refer to here: https://jonasjacek.github.io/colors/
+hi CursorLine  guifg=NONE     guibg=#121212  gui=NONE      ctermfg=NONE       ctermbg=NONE        cterm=BOLD
+hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242  ctermbg=NONE        cterm=NONE
+hi Search      guifg=NONE     guibg=#2F2F00  gui=underline ctermfg=NONE       ctermbg=NONE	      cterm=underline
+hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray   ctermbg=darkgray    cterm=NONE
+hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white      ctermbg=darkgray    cterm=NONE
+hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray   ctermbg=NONE        cterm=NONE
+hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=27  ctermbg=NONE        cterm=NONE
 
 " NERDTree
 nnoremap<silent><F8> : NERDTreeToggle<CR>
