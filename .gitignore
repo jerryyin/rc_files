@@ -1,2 +1,7 @@
 cscope.*
 tags
+.tags
+GPATH
+GSYMS
+GTAGS
+GRTAGS
