@@ -98,6 +98,8 @@ let g:cpp_member_variable_highlight = 1
 let g:cpp_experimental_template_highlight = 1
 " Below are lines picked from colorscheme ir_black
 " For cterfg256 color refer to here: https://jonasjacek.github.io/colors/
+" Or https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
+hi link markdownItalic Normal
 hi CursorLine  guifg=NONE     guibg=#121212  gui=NONE      ctermfg=NONE       ctermbg=NONE        cterm=BOLD
 hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242        ctermbg=NONE        cterm=NONE
 hi Search      guifg=NONE     guibg=#2F2F00  gui=underline ctermfg=NONE       ctermbg=NONE	      cterm=underline
