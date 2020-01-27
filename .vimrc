@@ -73,7 +73,7 @@ nnoremap <C-right> <C-W>>
 call plug#begin('~/.vim/plugged')
 " cscope key mappings
 Plug 'dr-kino/cscope-maps'
-Plug 'jsfaint/gen_tags.vim'
+Plug 'ludovicchabant/vim-gutentags'
 " mini buffer explorer
 Plug 'fholgado/minibufexpl.vim'
 " ir_black color theme
@@ -105,7 +105,7 @@ hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray   ct
 hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white      ctermbg=darkgray    cterm=NONE
 hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue       ctermbg=darkgray    cterm=NONE
 hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray   ctermbg=NONE        cterm=NONE
-hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=27         ctermbg=NONE        cterm=NONE
+hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=33         ctermbg=NONE        cterm=NONE
 hi Constant    guifg=#99CC99  guibg=NONE     gui=NONE      ctermfg=201        ctermbg=NONE        cterm=NONE
 hi Identifier  guifg=#C6C5FE  guibg=NONE     gui=NONE      ctermfg=215        ctermbg=NONE        cterm=NONE
 
@@ -117,22 +117,21 @@ nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 " NERDTree
 nnoremap<silent><F8> : NERDTreeToggle<CR>
 
-let g:gen_tags#gtags_default_map = 1
-"cscope
-" set cscopequickfix=s-,c-,d-,i-,t-,e-
-" Auto load cscope.out database
-function! LoadCscope()
- "let db = findfile("cscope.out", ".;")
-  let db = findfile("GTAGS", ".;")
-  if (!empty(db))
-   "let path = strpart(db, 0, match(db, "/cscope.out$"))
-    let path = strpart(db, 0, match(db, "/GTAGS$"))
-    set nocscopeverbose " suppress 'duplicate connection' error
-      exe "cs add " . db . " " . path
-      set cscopeverbose
-  endif
-endfunction
-au BufEnter /* call LoadCscope()
+" gutentags settings
+set cscoperelative
+let g:gutentags_generate_on_new = 1
+let g:gutentags_generate_on_missing = 1
+let g:gutentags_generate_on_write = 1
+let g:gutentags_generate_on_empty_buffer = 0
+let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+let g:gutentags_ctags_tagfile = '.tags'
+let g:gutentags_modules = []
+if executable('ctags')
+    let g:gutentags_modules += ['ctags']
+endif
+if executable('gtags-cscope') && executable('gtags')
+    let g:gutentags_modules += ['gtags_cscope']
+endif
 
 ""au BufWrite * :call SetAuto()
 au BufWrite * :%s/\s\+$//e
