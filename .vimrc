@@ -88,6 +88,8 @@ Plug 'google/vim-maktaba'
 Plug 'google/vim-codefmt'
 " Configure codefmt's maktaba flags
 Plug 'google/vim-glaive'
+" llvm plugin
+Plug 'rhysd/vim-llvm'
 call plug#end()
 
 set t_Co=256
