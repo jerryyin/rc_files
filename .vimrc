@@ -5,15 +5,14 @@ set autochdir
 set clipboard=unnamed
 
 " Coding styles
-set tabstop=2
 set autoindent
 set smartindent
-set cinoptions=(2
-set shiftwidth=4
-set softtabstop=2
-set shiftwidth=2
 set expandtab
 set smarttab
+set tabstop=2
+set cinoptions=(2
+set shiftwidth=2
+set softtabstop=2
 
 " Cursor and mouse
 set mouse=a
@@ -57,13 +56,13 @@ set number
 :au FocusLost * :set number
 :au FocusGained * :set relativenumber
 
-" Moving around
+" Moving around with ctrl + jkhl
 noremap <C-J> <C-W>j
 noremap <C-K> <C-W>k
 noremap <C-H> <C-W>h
 noremap <C-L> <C-W>l
 
-" Resizing windows
+" Resizing windows with ctrl + direction
 nnoremap <C-up> <C-W>+
 nnoremap <C-down> <C-W>-
 nnoremap <C-left> <C-W><
