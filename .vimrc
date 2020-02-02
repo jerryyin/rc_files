@@ -62,16 +62,16 @@ set number
 :au FocusGained * :set relativenumber
 
 " Moving around with ctrl + jkhl
-noremap <C-J> <C-W>j
-noremap <C-K> <C-W>k
-noremap <C-H> <C-W>h
-noremap <C-L> <C-W>l
+nnoremap <C-J> <C-W>j
+nnoremap <C-K> <C-W>k
+nnoremap <C-H> <C-W>h
+nnoremap <C-L> <C-W>l
 
 " Resizing windows with ctrl + direction
-nnoremap <C-up> <C-W>+
-nnoremap <C-down> <C-W>-
-nnoremap <C-left> <C-W><
-nnoremap <C-right> <C-W>>
+nnoremap <C-Up> <C-W>+
+nnoremap <C-Down> <C-W>-
+nnoremap <C-Left> <C-W><
+nnoremap <C-Right> <C-W>>
 
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
@@ -87,11 +87,8 @@ Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 " Auto inserts or deletes bracket, parens, quotes in pair
 Plug 'jiangmiao/auto-pairs'
-" Google code formating tool
-Plug 'google/vim-maktaba'
-Plug 'google/vim-codefmt'
-" Configure codefmt's maktaba flags
-Plug 'google/vim-glaive'
+" Code formating tool
+Plug 'rhysd/vim-clang-format'
 " llvm plugin
 Plug 'rhysd/vim-llvm'
 call plug#end()
@@ -107,6 +104,7 @@ let g:cpp_experimental_template_highlight = 1
 " Or https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 hi link markdownItalic Normal
 hi CursorLine  guifg=NONE     guibg=#121212  gui=NONE      ctermfg=NONE       ctermbg=NONE        cterm=BOLD
+hi CursorLineNr guifg=NONE    guibg=#121212  gui=NONE      ctermfg=NONE       ctermbg=NONE        cterm=NONE
 hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242        ctermbg=NONE        cterm=NONE
 hi Search      guifg=NONE     guibg=#2F2F00  gui=underline ctermfg=NONE       ctermbg=NONE	      cterm=underline
 hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray   ctermbg=darkgray    cterm=NONE
@@ -141,21 +139,10 @@ if executable('gtags-cscope') && executable('gtags')
     let g:gutentags_modules += ['gtags_cscope']
 endif
 
-""au BufWrite * :call SetAuto()
-au BufWrite * :%s/\s\+$//e
-func! SetAuto()
-   let l:winview = winsaveview()
-   Autoformat
-   "single line of ); increase indent"
-   :silent %s/^);$\|^   \+);$/   &/e
-   "single line of ) increase indent"
-   :silent %s/^)$\|^   \+)$/   &/e
-   "special case of reference on the second line, add indent
-   /->\n\_.\{-});
-   :silent let @a="gn=nn"
-   :silent %normal @a
-   :noh
-   call winrestview(l:winview)
-endfunction
-noremap <F12> :call SetAuto()<CR>
+" vim clang format plugin
+let g:clang_format#detect_style_file = 1
+" Aggressively re-formatting, alternative: autocmd FileType c,cc,cpp,objc ClangFormatAutoEnable
+let g:clang_format#auto_format_on_insert_leave = 1
+let g:clang_format#auto_formatexpr = 1
+
 
