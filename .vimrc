@@ -91,6 +91,14 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'rhysd/vim-clang-format'
 " llvm plugin
 Plug 'rhysd/vim-llvm'
+" diff plugin
+Plug 'mhinz/vim-signify'
+" Function list, file fuzzy match
+Plug 'Yggdroot/LeaderF', {'do': '.\install.sh'}
+" Convert the line to comment
+Plug 'tomtom/tcomment_vim'
+" Improve status bar
+Plug 'itchyny/lightline.vim'
 call plug#end()
 
 set t_Co=256
@@ -145,4 +153,18 @@ let g:clang_format#detect_style_file = 1
 let g:clang_format#auto_format_on_insert_leave = 1
 let g:clang_format#auto_formatexpr = 1
 
+" LeaderF
+" By default enabled: 
+"noremap <leader>f :LeaderFile<cr>
+noremap <leader>i :LeaderfFunction!<cr>
+noremap <leader>t :LeaderfTag<cr>
+let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 
+let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
+let g:Lf_WorkingDirectoryMode = 'Ac'
+let g:Lf_WindowHeight = 0.30
+let g:Lf_CacheDirectory = $HOME
+let g:Lf_ShowRelativePath = 0
+let g:Lf_HideHelp = 1
+let g:Lf_StlColorscheme = 'powerline'
+let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
