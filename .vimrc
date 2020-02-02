@@ -5,14 +5,20 @@ set autochdir
 set clipboard=unnamed
 
 " Coding styles
+" Apply indentation of current line to next
 set autoindent
+" Autoindent must be on, react to syntax/style of code
 set smartindent
+" Don't use the tab character
 set expandtab
 set smarttab
+" Determines how long a tab appear to be
 set tabstop=2
+" Stricter rules for C
+set cindent
 set cinoptions=(2
+" Indentation via >> will indent 2 characters
 set shiftwidth=2
-set softtabstop=2
 
 " Cursor and mouse
 set mouse=a
@@ -27,7 +33,6 @@ set ignorecase
 set smartcase
 set incsearch
 set showmatch
-nmap <space> i_<esc>r
 
 " Make backspace behavior match normal editor
 set backspace=indent,eol,start
