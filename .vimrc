@@ -154,10 +154,11 @@ let g:clang_format#auto_format_on_insert_leave = 1
 let g:clang_format#auto_formatexpr = 1
 
 " LeaderF
-" By default enabled: 
+" By default enabled: Global search files and tags
 "noremap <leader>f :LeaderFile<cr>
-noremap <leader>i :LeaderfFunction!<cr>
 noremap <leader>t :LeaderfTag<cr>
+" Search functions in oened buffer
+noremap <leader>i :LeaderfFunction!<cr>
 let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 
 let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
