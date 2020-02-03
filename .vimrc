@@ -67,12 +67,6 @@ nnoremap <C-K> <C-W>k
 nnoremap <C-H> <C-W>h
 nnoremap <C-L> <C-W>l
 
-" Resizing windows with ctrl + direction
-nnoremap <C-Up> <C-W>+
-nnoremap <C-Down> <C-W>-
-nnoremap <C-Left> <C-W><
-nnoremap <C-Right> <C-W>>
-
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
 " cscope key mappings
@@ -99,6 +93,8 @@ Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 Plug 'tomtom/tcomment_vim'
 " Improve status bar
 Plug 'itchyny/lightline.vim'
+" Integrate with git
+Plug 'tpope/vim-fugitive'
 call plug#end()
 
 set t_Co=256
