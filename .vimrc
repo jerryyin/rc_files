@@ -94,7 +94,7 @@ Plug 'rhysd/vim-llvm'
 " diff plugin
 Plug 'mhinz/vim-signify'
 " Function list, file fuzzy match
-Plug 'Yggdroot/LeaderF', {'do': '.\install.sh'}
+Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 " Convert the line to comment
 Plug 'tomtom/tcomment_vim'
 " Improve status bar
