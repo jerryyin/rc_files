@@ -127,6 +127,9 @@ nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 " NERDTree
 nnoremap<silent><F8> : NERDTreeToggle<CR>
 
+" Auto-pair
+let g:AutoPairsFlyMode = 1
+
 " gutentags settings
 set cscoperelative
 let g:gutentags_generate_on_new = 1
