@@ -73,7 +73,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'dr-kino/cscope-maps'
 Plug 'ludovicchabant/vim-gutentags'
 " mini buffer explorer
-Plug 'fholgado/minibufexpl.vim'
+Plug 'weynhamz/vim-plugin-minibufexpl'
 " ir_black color theme
 " Plug 'twerth/ir_black'
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -92,7 +92,8 @@ Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 " Convert the line to comment
 Plug 'tomtom/tcomment_vim'
 " Improve status bar
-Plug 'itchyny/lightline.vim'
+" Plug 'itchyny/lightline.vim'
+Plug 'vim-airline/vim-airline'
 " Integrate with git
 Plug 'tpope/vim-fugitive'
 call plug#end()
@@ -155,11 +156,11 @@ let g:clang_format#auto_formatexpr = 1
 " LeaderF
 " By default enabled: Global search files and tags
 "noremap <leader>f :LeaderFile<cr>
+"noremap <leader>b :LeaderBuffer<cr>
 noremap <leader>t :LeaderfTag<cr>
 " Search functions in oened buffer
 noremap <leader>i :LeaderfFunction!<cr>
 let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
-
 let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
 let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_WindowHeight = 0.30
@@ -168,3 +169,6 @@ let g:Lf_ShowRelativePath = 0
 let g:Lf_HideHelp = 1
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
+
+" Fugitive
+autocmd BufReadPost fugitive://* set bufhidden=delete
