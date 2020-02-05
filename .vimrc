@@ -62,10 +62,10 @@ set number
 :au FocusGained * :set relativenumber
 
 " Moving around with ctrl + jkhl
-nnoremap <C-J> <C-W>j
-nnoremap <C-K> <C-W>k
-nnoremap <C-H> <C-W>h
-nnoremap <C-L> <C-W>l
+noremap <C-J> <C-W>j
+noremap <C-K> <C-W>k
+noremap <C-H> <C-W>h
+noremap <C-L> <C-W>l
 
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
