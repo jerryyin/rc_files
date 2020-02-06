@@ -172,3 +172,7 @@ let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
 
 " Fugitive
 autocmd BufReadPost fugitive://* set bufhidden=delete
+
+" Airline
+let g:airline_extensions = ['branch']
+let g:airline_highlighting_cache = 1
