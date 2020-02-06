@@ -149,8 +149,8 @@ endif
 
 " vim clang format plugin
 let g:clang_format#detect_style_file = 1
-" Aggressively re-formatting, alternative: autocmd FileType c,cc,cpp,objc ClangFormatAutoEnable
-let g:clang_format#auto_format_on_insert_leave = 1
+" Auto format on save
+let g:clang_format#auto_format = 1
 let g:clang_format#auto_formatexpr = 1
 
 " LeaderF
