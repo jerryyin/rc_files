@@ -91,6 +91,8 @@ Plug 'tomtom/tcomment_vim'
 Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 " Integrate with git
 Plug 'tpope/vim-fugitive'
+" Insert mode completions
+Plug 'ervandew/supertab'
 
 " Tags
 " cscope key mappings
