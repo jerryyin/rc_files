@@ -120,17 +120,23 @@ let g:cpp_experimental_template_highlight = 1
 " For cterfg256 color refer to here: https://jonasjacek.github.io/colors/
 " Or https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 hi link markdownItalic Normal
-hi CursorLine  guifg=NONE     guibg=#121212  gui=NONE      ctermfg=NONE       ctermbg=NONE        cterm=BOLD
-hi CursorLineNr guifg=NONE    guibg=#121212  gui=NONE      ctermfg=NONE       ctermbg=NONE        cterm=NONE
-hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242        ctermbg=NONE        cterm=NONE
-hi Search      guifg=NONE     guibg=#2F2F00  gui=underline ctermfg=NONE       ctermbg=NONE	      cterm=underline
-hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray   ctermbg=darkgray    cterm=NONE
-hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white      ctermbg=darkgray    cterm=NONE
-hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue       ctermbg=darkgray    cterm=NONE
-hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray   ctermbg=NONE        cterm=NONE
-hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=33         ctermbg=NONE        cterm=NONE
-hi Constant    guifg=#99CC99  guibg=NONE     gui=NONE      ctermfg=201        ctermbg=NONE        cterm=NONE
-hi Identifier  guifg=#C6C5FE  guibg=NONE     gui=NONE      ctermfg=215        ctermbg=NONE        cterm=NONE
+hi CursorLine  guifg=NONE     guibg=#121212  gui=NONE      ctermfg=NONE      ctermbg=NONE      cterm=BOLD
+hi CursorLineNr guifg=NONE    guibg=#121212  gui=NONE      ctermfg=NONE      ctermbg=NONE      cterm=NONE
+hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242       ctermbg=NONE      cterm=NONE
+hi Search      guifg=NONE     guibg=#2F2F00  gui=underline ctermfg=NONE      ctermbg=NONE      cterm=underline
+hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray  ctermbg=darkgray  cterm=NONE
+hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white     ctermbg=darkgray  cterm=NONE
+hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue      ctermbg=darkgray  cterm=NONE
+hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
+hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=33        ctermbg=NONE      cterm=NONE
+hi Constant    guifg=#99CC99  guibg=NONE     gui=NONE      ctermfg=201       ctermbg=NONE      cterm=NONE
+hi Identifier  guifg=#C6C5FE  guibg=NONE     gui=NONE      ctermfg=215       ctermbg=NONE      cterm=NONE
+
+" Vimdiff addd: blue; delete: red; change: green
+hi DiffText    ctermbg=0
+hi DiffAdd     ctermbg=17
+hi DiffDelete  ctermbg=88
+hi DiffChange  ctermbg=22
 
 " Output the current syntax group
 nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
