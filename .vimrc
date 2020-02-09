@@ -5,20 +5,15 @@ set autochdir
 set clipboard=unnamed
 
 " Coding styles
+" shiftwidth: >> indent; tabstop: how long a tab is
+autocmd FileType python set shiftwidth=2 tabstop=2 expandtab
+autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
 " Apply indentation of current line to next
 set autoindent
 " Autoindent must be on, react to syntax/style of code
 set smartindent
 " Don't use the tab character
-set expandtab
 set smarttab
-" Determines how long a tab appear to be
-set tabstop=2
-" Stricter rules for C
-set cindent
-set cinoptions=(2
-" Indentation via >> will indent 2 characters
-set shiftwidth=2
 
 " Cursor and mouse
 set mouse=a
@@ -76,15 +71,13 @@ Plug 'ludovicchabant/vim-gutentags'
 Plug 'weynhamz/vim-plugin-minibufexpl'
 " ir_black color theme
 " Plug 'twerth/ir_black'
-Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 " NERD tree navigator sidebar
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 " Auto inserts or deletes bracket, parens, quotes in pair
 Plug 'jiangmiao/auto-pairs'
-" Code formating tool
-Plug 'rhysd/vim-clang-format'
 " llvm plugin
-Plug 'rhysd/vim-llvm'
+Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
 " diff plugin
 Plug 'mhinz/vim-signify'
 " Function list, file fuzzy match
@@ -96,6 +89,12 @@ Plug 'tomtom/tcomment_vim'
 Plug 'vim-airline/vim-airline'
 " Integrate with git
 Plug 'tpope/vim-fugitive'
+" Code formating tool
+Plug 'rhysd/vim-clang-format'
+Plug 'tell-k/vim-autopep8', { 'on': 'Autopep8' }
+" Help correctly indent file in edit mode
+Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/indent/python.vim' }
+Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
 call plug#end()
 
 set t_Co=256
@@ -176,3 +175,9 @@ autocmd BufReadPost fugitive://* set bufhidden=delete
 " Airline
 let g:airline_extensions = ['branch']
 let g:airline_highlighting_cache = 1
+
+" Autopep8 (slow): dependency: autopep8
+let g:autopep8_indent_size = 2
+" Ignore all indentation fixes, pep8 and google python misaligns
+let g:autopep8_ignore = "E11,E121,E122,E124,E125,E126,E127,E128,E129,E131,E133"
+let g:autopep8_disable_show_diff = 1
