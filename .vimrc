@@ -64,38 +64,49 @@ noremap <C-L> <C-W>l
 
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
-" cscope key mappings
-Plug 'dr-kino/cscope-maps'
-Plug 'ludovicchabant/vim-gutentags'
-" mini buffer explorer
-Plug 'weynhamz/vim-plugin-minibufexpl'
+" Syntax highlighting
 " ir_black color theme
 " Plug 'twerth/ir_black'
 Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
-" NERD tree navigator sidebar
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
-" Auto inserts or deletes bracket, parens, quotes in pair
-Plug 'jiangmiao/auto-pairs'
 " llvm plugin
 Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
+
+" Display
+" NERD tree navigator sidebar
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 " diff plugin
 Plug 'mhinz/vim-signify'
-" Function list, file fuzzy match
-Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
-" Convert the line to comment
-Plug 'tomtom/tcomment_vim'
+" mini buffer explorer
+Plug 'weynhamz/vim-plugin-minibufexpl'
 " Improve status bar
 " Plug 'itchyny/lightline.vim'
 Plug 'vim-airline/vim-airline'
+
+" Utility
+" Auto inserts or deletes bracket, parens, quotes in pair
+Plug 'jiangmiao/auto-pairs'
+" Convert the line to comment
+Plug 'tomtom/tcomment_vim'
+" Function list, file fuzzy match
+Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 " Integrate with git
 Plug 'tpope/vim-fugitive'
-" Code formating tool
+
+" Tags
+" cscope key mappings
+Plug 'dr-kino/cscope-maps'
+Plug 'ludovicchabant/vim-gutentags'
+
+" Code formating
 Plug 'rhysd/vim-clang-format'
 Plug 'tell-k/vim-autopep8', { 'on': 'Autopep8' }
 " Help correctly indent file in edit mode
 Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/indent/python.vim' }
 Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
 call plug#end()
+
+" vim signify: shorter time for async update
+set updatetime=100
 
 set t_Co=256
 set background=dark
@@ -181,3 +192,4 @@ let g:autopep8_indent_size = 2
 " Ignore all indentation fixes, pep8 and google python misaligns
 let g:autopep8_ignore = "E11,E121,E122,E124,E125,E126,E127,E128,E129,E131,E133"
 let g:autopep8_disable_show_diff = 1
+
