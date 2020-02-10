@@ -100,8 +100,7 @@ Plug 'dr-kino/cscope-maps'
 Plug 'ludovicchabant/vim-gutentags'
 
 " Code formating
-Plug 'rhysd/vim-clang-format'
-Plug 'tell-k/vim-autopep8', { 'on': 'Autopep8' }
+Plug 'Chiel92/vim-autoformat'
 " Help correctly indent file in edit mode
 Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/indent/python.vim' }
 Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
@@ -165,11 +164,9 @@ if executable('gtags-cscope') && executable('gtags')
     let g:gutentags_modules += ['gtags_cscope']
 endif
 
-" vim clang format plugin
-let g:clang_format#detect_style_file = 1
-" Auto format on save
-let g:clang_format#auto_format = 1
-let g:clang_format#auto_formatexpr = 1
+" auto-format plugin
+" Disable auto format on save
+noremap <silent> == V:Autoformat<CR>
 
 " LeaderF
 " By default enabled: Global search files and tags
@@ -194,10 +191,4 @@ autocmd BufReadPost fugitive://* set bufhidden=delete
 " Airline
 let g:airline_extensions = ['branch']
 let g:airline_highlighting_cache = 1
-
-" Autopep8 (slow): dependency: autopep8
-let g:autopep8_indent_size = 2
-" Ignore all indentation fixes, pep8 and google python misaligns
-let g:autopep8_ignore = "E11,E121,E122,E124,E125,E126,E127,E128,E129,E131,E133"
-let g:autopep8_disable_show_diff = 1
 
