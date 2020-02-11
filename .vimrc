@@ -76,8 +76,6 @@ Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 " diff plugin
 Plug 'mhinz/vim-signify'
-" mini buffer explorer
-Plug 'weynhamz/vim-plugin-minibufexpl'
 " Improve status bar
 " Plug 'itchyny/lightline.vim'
 Plug 'vim-airline/vim-airline'
@@ -190,6 +188,17 @@ let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
 autocmd BufReadPost fugitive://* set bufhidden=delete
 
 " Airline
-let g:airline_extensions = ['branch']
+let g:airline_extensions = ['branch','tabline']
 let g:airline_highlighting_cache = 1
+let g:airline#extensions#tabline#show_buffers = 1
+let g:airline#extensions#tabline#show_tabs = 0
+let g:airline#extensions#tabline#show_tab_type = 0
+let g:airline#extensions#tabline#buffer_nr_show = 1
+let g:airline#extensions#tabline#formatter = 'unique_tail'
+" Use gb#Num for buffer transition
+let c = 1
+while c <= 99
+    execute "nnoremap " . c . "gb :" . c . "b\<CR>"
+    let c += 1
+endwhile
 
