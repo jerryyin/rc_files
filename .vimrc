@@ -106,9 +106,6 @@ Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/inde
 Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
 call plug#end()
 
-" vim signify: shorter time for async update
-set updatetime=100
-
 set t_Co=256
 set background=dark
 " Color Scheme settings from vim cpp enhanced highlight plugin
