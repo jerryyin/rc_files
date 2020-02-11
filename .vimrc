@@ -67,6 +67,7 @@ tnoremap <C-J> <C-W>j
 tnoremap <C-K> <C-W>k
 tnoremap <C-H> <C-W>h
 tnoremap <C-L> <C-W>l
+tnoremap <Esc> <C-\><C-N>
 
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
