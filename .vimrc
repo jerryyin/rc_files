@@ -21,6 +21,8 @@ set showmode
 set showcmd
 set cursorline
 set ruler
+set splitbelow
+set splitright
 
 " Search
 set hlsearch
