@@ -63,6 +63,10 @@ noremap <C-J> <C-W>j
 noremap <C-K> <C-W>k
 noremap <C-H> <C-W>h
 noremap <C-L> <C-W>l
+tnoremap <C-J> <C-W>j
+tnoremap <C-K> <C-W>k
+tnoremap <C-H> <C-W>h
+tnoremap <C-L> <C-W>l
 
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
