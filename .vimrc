@@ -173,6 +173,9 @@ endif
 " auto-format plugin
 " Disable auto format on save
 noremap <silent> == V:Autoformat<CR>
+" Disable fallback to vim's indent file, only remove trailing whitespace
+let g:autoformat_autoindent = 0
+let g:autoformat_retab = 0
 
 " LeaderF
 " By default enabled: Global search files and tags
