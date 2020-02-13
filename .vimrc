@@ -212,3 +212,37 @@ while c <= 99
     let c += 1
 endwhile
 
+" Automatically deletes least recently used buffer
+" A combination of https://www.vim.org/scripts/script.php?script_id=2346
+" and
+" https://vi.stackexchange.com/questions/2193/automatically-close-oldest-buffers
+let g:nb_buffers_to_keep = 10
+
+function! s:SortTimeStamps(lhs, rhs)
+  return a:lhs[1] < a:rhs[1] ? 1
+     \   : a:lhs[1] > a:rhs[1] ? -1
+     \   : 0
+endfunction
+
+function! s:Close(nb_to_keep)
+  "" If the lenth of buffer list is small, return early
+  if a:nb_to_keep >= len(g:bufmru_bnrs)
+    return
+  endif
+  let nb_to_strip = len(g:bufmru_bnrs) - a:nb_to_keep
+  let buflru_bnrs = reverse(copy(g:bufmru_bnrs))
+  " May need to filter out modified buffers
+  " Right now will error out and not delete modified buffer
+  "filter(buflru_bnrs, 'buflisted(v:val) && !getbufvar(v:val, "&modified")')
+  let buffers_to_strip = buflru_bnrs[0:(nb_to_strip-1)]
+  exe 'bw '.join(buffers_to_strip, ' ')
+  let g:bufmru_bnrs = reverse(buflru_bnrs[nb_to_strip:(len(buflru_bnrs)-1)])
+endfunction
+
+" Manually
+"command! -nargs=1 CloseOldBuffers call s:Close(<args>)
+" Automatically
+augroup CloseOldBuffers
+  au!
+  au BufNew * call s:Close(g:nb_buffers_to_keep)
+augroup END
