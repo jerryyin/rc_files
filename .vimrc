@@ -98,6 +98,8 @@ Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 Plug 'tpope/vim-fugitive'
 " Insert mode completions
 Plug 'ervandew/supertab'
+" MRU buffer
+Plug 'mildred/vim-bufmru'
 
 " Tags
 " cscope key mappings
@@ -198,7 +200,7 @@ let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
 autocmd BufReadPost fugitive://* set bufhidden=delete
 
 " Airline
-let g:airline_extensions = ['branch','tabline']
+let g:airline_extensions = ['branch','tabline','gutentags',"fugitiveline"]
 let g:airline_highlighting_cache = 1
 let g:airline#extensions#tabline#show_buffers = 1
 let g:airline#extensions#tabline#show_tabs = 0
@@ -216,27 +218,22 @@ endwhile
 " A combination of https://www.vim.org/scripts/script.php?script_id=2346
 " and
 " https://vi.stackexchange.com/questions/2193/automatically-close-oldest-buffers
-let g:nb_buffers_to_keep = 10
-
-function! s:SortTimeStamps(lhs, rhs)
-  return a:lhs[1] < a:rhs[1] ? 1
-     \   : a:lhs[1] > a:rhs[1] ? -1
-     \   : 0
-endfunction
+let g:nb_buffers_to_keep = 12
 
 function! s:Close(nb_to_keep)
   "" If the lenth of buffer list is small, return early
-  if a:nb_to_keep >= len(g:bufmru_bnrs)
+  let bufmru_bnrs = BufMRUList()
+  if a:nb_to_keep >= len(bufmru_bnrs)
     return
   endif
-  let nb_to_strip = len(g:bufmru_bnrs) - a:nb_to_keep
-  let buflru_bnrs = reverse(copy(g:bufmru_bnrs))
+  let nb_to_strip = len(bufmru_bnrs) - a:nb_to_keep
+  " The newly opened one is ranked last, remove it
+  let buflru_bnrs = reverse(copy(bufmru_bnrs[0:-2]))
   " May need to filter out modified buffers
   " Right now will error out and not delete modified buffer
   "filter(buflru_bnrs, 'buflisted(v:val) && !getbufvar(v:val, "&modified")')
   let buffers_to_strip = buflru_bnrs[0:(nb_to_strip-1)]
   exe 'bw '.join(buffers_to_strip, ' ')
-  let g:bufmru_bnrs = reverse(buflru_bnrs[nb_to_strip:(len(buflru_bnrs)-1)])
 endfunction
 
 " Manually
