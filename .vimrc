@@ -87,7 +87,7 @@ Plug 'mhinz/vim-signify'
 " Plug 'itchyny/lightline.vim'
 Plug 'vim-airline/vim-airline'
 " Color terminal: Ansi escape sequences
-Plug 'chrisbra/Colorizer'
+Plug 'powerman/vim-plugin-AnsiEsc'
 
 " Utility
 " Auto inserts or deletes bracket, parens, quotes in pair
