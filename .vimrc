@@ -47,9 +47,6 @@ set timeoutlen=1000 ttimeoutlen=0
 " Scroll 1/3 of the screen height
 execute "set scroll=" . winheight('.') / 3
 
-" ctags
-set tags=./tags,tags;$HOME
-
 " Relative number move
 set relativenumber
 set number
@@ -104,8 +101,6 @@ Plug 'ervandew/supertab'
 Plug 'mildred/vim-bufmru'
 
 " Tags
-" cscope key mappings
-Plug 'dr-kino/cscope-maps'
 Plug 'ludovicchabant/vim-gutentags'
 
 " Code formating
@@ -158,8 +153,30 @@ nnoremap<silent><F8> : NERDTreeToggle<CR>
 " Auto-pair
 let g:AutoPairsFlyMode = 0
 
-" gutentags settings
+" cscope settings
 set cscoperelative
+set cscopetag
+set cscopeverbose  
+" The following maps all invoke one of the following cscope search types:
+"
+"   's'   symbol: find all references to the token under cursor
+"   'g'   global: find global definition(s) of the token under cursor
+"   'c'   calls:  find all calls to the function name under cursor
+"   't'   text:   find all instances of the text under cursor
+"   'e'   egrep:  egrep search for the word under cursor
+"   'f'   file:   open the filename under cursor
+"   'i'   includes: find files that include the filename under cursor
+"   'd'   called: find functions that function under cursor calls
+nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>	
+nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>	
+nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>	
+nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>	
+nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>	
+nmap <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>	
+nmap <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>	
+
+" gutentags settings
 let g:gutentags_generate_on_new = 1
 let g:gutentags_generate_on_missing = 1
 let g:gutentags_generate_on_write = 1

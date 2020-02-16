@@ -1,6 +1,7 @@
 cscope.*
 tags
 .tags
+gtags.files
 GPATH
 GSYMS
 GTAGS
