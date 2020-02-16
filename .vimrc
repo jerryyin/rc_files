@@ -99,6 +99,8 @@ Plug 'tpope/vim-fugitive'
 Plug 'ervandew/supertab'
 " MRU buffer
 Plug 'mildred/vim-bufmru'
+" Dispath async support
+Plug 'tpope/vim-dispatch'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -147,16 +149,13 @@ nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
-" NERDTree
-nnoremap<silent><F8> : NERDTreeToggle<CR>
-
 " Auto-pair
 let g:AutoPairsFlyMode = 0
 
 " cscope settings
 set cscoperelative
 set cscopetag
-set cscopeverbose  
+set cscopeverbose
 " The following maps all invoke one of the following cscope search types:
 "
 "   's'   symbol: find all references to the token under cursor
@@ -167,14 +166,14 @@ set cscopeverbose
 "   'f'   file:   open the filename under cursor
 "   'i'   includes: find files that include the filename under cursor
 "   'd'   called: find functions that function under cursor calls
-nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>	
-nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>	
-nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>	
-nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>	
-nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>	
-nmap <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>	
+nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nmap <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>	
+nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
 
 " gutentags settings
 let g:gutentags_generate_on_new = 1
