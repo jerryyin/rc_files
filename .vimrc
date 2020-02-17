@@ -228,7 +228,7 @@ let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 " Use gb#Num for buffer transition
 let c = 1
-while c <= 99
+while c <= 50
     execute "nnoremap " . c . "gb :" . c . "b\<CR>"
     let c += 1
 endwhile
