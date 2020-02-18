@@ -76,8 +76,8 @@ Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
 
 " Display
-" NERD tree navigator sidebar
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+" Project drawer directory browser
+Plug 'tpope/vim-vinegar'
 " diff plugin
 Plug 'mhinz/vim-signify'
 " Improve status bar
