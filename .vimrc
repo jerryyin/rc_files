@@ -154,9 +154,6 @@ nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 let g:AutoPairsFlyMode = 0
 
 " cscope settings
-set cscoperelative
-set cscopetag
-set cscopeverbose
 " The following maps all invoke one of the following cscope search types:
 "
 "   's'   symbol: find all references to the token under cursor
@@ -190,6 +187,8 @@ endif
 if executable('gtags-cscope') && executable('gtags')
     let g:gutentags_modules += ['gtags_cscope']
 endif
+" Do not use relative path for cscope
+set nocsre
 
 " auto-format plugin
 " Disable auto format on save
