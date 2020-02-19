@@ -101,6 +101,8 @@ Plug 'ervandew/supertab'
 Plug 'mildred/vim-bufmru'
 " Dispath async support
 Plug 'tpope/vim-dispatch'
+" Grep async support
+Plug 'mhinz/vim-grepper'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
