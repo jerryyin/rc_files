@@ -1,7 +1,6 @@
 " General settings
 filetype indent on
 filetype plugin on
-set autochdir
 set clipboard=unnamed
 
 " Coding styles
