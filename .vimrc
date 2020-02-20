@@ -218,6 +218,11 @@ let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
 " Fugitive
 autocmd BufReadPost fugitive://* set bufhidden=delete
 
+" Grepper
+let g:grepper.dir = 'repo'
+let g:grepper.highlight = 1
+nnoremap <leader>g :Grepper<cr>
+
 " Airline
 let g:airline_extensions = ['branch','tabline','gutentags',"fugitiveline"]
 let g:airline_highlighting_cache = 1
