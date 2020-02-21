@@ -188,8 +188,8 @@ endif
 if executable('gtags-cscope') && executable('gtags')
     let g:gutentags_modules += ['gtags_cscope']
 endif
-" Do not use relative path for cscope
-set nocsre
+" Project root directory will be used as the prefix to construct an absolute path.
+set csre
 
 " auto-format plugin
 " Disable auto format on save
