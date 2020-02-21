@@ -232,7 +232,7 @@ let g:airline#extensions#tabline#show_tab_type = 0
 let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 " Use gb#Num (instead of <ctrl>-<shift>-6) for buffer transition
-noremap <C-b> <C-6>
+noremap <C-e> <C-6>
 
 " Automatically deletes least recently used buffer
 " A combination of https://www.vim.org/scripts/script.php?script_id=2346
