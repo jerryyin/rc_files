@@ -219,6 +219,7 @@ let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
 autocmd BufReadPost fugitive://* set bufhidden=delete
 
 " Grepper
+let g:grepper = {}
 let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
 nnoremap <leader>g :Grepper<cr>
