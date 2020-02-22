@@ -1,7 +1,17 @@
 " General settings
+set nocompatible                " Vim defaults rather than vi ones. Keep at top.
 filetype indent on
 filetype plugin on
 set clipboard=unnamed
+syntax on                       " Enable syntax highlighting.
+set wrap                        " Wrap long lines.
+set laststatus=2                " Always show the statusline.
+set ruler                       " Show the ruler in the statusline.
+set display=lastline            " Show as much of the line as will fit.
+set wildmenu                    " Better tab completion in the commandline.
+set wildmode=list:longest,full  " List all matches and complete to the longest match.
+set nrformats-=octal            " Remove octal support from 'nrformats'.
+set formatoptions+=ncroqj       " Control automatic formatting.
 
 " Coding styles
 " shiftwidth: >> indent; tabstop: how long a tab is
