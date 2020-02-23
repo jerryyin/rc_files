@@ -131,8 +131,6 @@ call plug#end()
 
 set t_Co=256
 set background=dark
-" Make vertical split | separator go away
-set fillchars+=vert:\
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
 let g:cpp_member_variable_highlight = 1
