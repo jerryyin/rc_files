@@ -235,7 +235,7 @@ let g:grepper.highlight = 1
 nnoremap <leader>g :Grepper<cr>
 
 " Airline
-let g:airline_extensions = ['branch','tabline','gutentags',"fugitiveline"]
+let g:airline_extensions = ['branch','tabline','gutentags','fugitiveline','grepper','netrw']
 let g:airline_highlighting_cache = 1
 let g:airline#extensions#tabline#show_buffers = 1
 let g:airline#extensions#tabline#show_tabs = 0
