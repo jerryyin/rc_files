@@ -113,6 +113,8 @@ Plug 'mildred/vim-bufmru'
 Plug 'tpope/vim-dispatch'
 " Grep async support
 Plug 'mhinz/vim-grepper'
+" File switch between cpp and header
+Plug 'derekwyatt/vim-fswitch'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -245,6 +247,10 @@ let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 " Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
 noremap <C-e> <C-6>
+
+" FSwitch
+au! BufEnter *.cc let b:fswitchdst = 'hpp,h' 
+nmap <silent> <Leader>of :FSHere<cr>
 
 " Automatically deletes least recently used buffer
 " A combination of https://www.vim.org/scripts/script.php?script_id=2346
