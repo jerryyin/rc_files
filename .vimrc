@@ -94,7 +94,10 @@ Plug 'mhinz/vim-signify'
 Plug 'vim-airline/vim-airline'
 " Color terminal: Ansi escape sequences
 Plug 'powerman/vim-plugin-AnsiEsc'
+" Startup window and session management
 Plug 'mhinz/vim-startify'
+" Auto resize split
+Plug 'camspiers/lens.vim'
 
 " Utility
 " Auto inserts or deletes bracket, parens, quotes in pair
@@ -128,6 +131,8 @@ call plug#end()
 
 set t_Co=256
 set background=dark
+" Make vertical split | separator go away
+set fillchars+=vert:\
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
 let g:cpp_member_variable_highlight = 1
@@ -140,7 +145,7 @@ hi CursorLine  guifg=NONE     guibg=#121212  gui=NONE      ctermfg=NONE      cte
 hi CursorLineNr guifg=NONE    guibg=#121212  gui=NONE      ctermfg=NONE      ctermbg=NONE      cterm=NONE
 hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242       ctermbg=NONE      cterm=NONE
 hi Search      guifg=NONE     guibg=#2F2F00  gui=reverse   ctermfg=NONE      ctermbg=NONE      cterm=reverse
-hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray  ctermbg=darkgray  cterm=NONE
+hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
 hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white     ctermbg=darkgray  cterm=NONE
 hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue      ctermbg=darkgray  cterm=NONE
 hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
@@ -166,6 +171,9 @@ nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 
 " Auto-pair
 let g:AutoPairsFlyMode = 0
+
+" Lens
+let g:lens#width_resize_max = 85
 
 " cscope settings
 " The following maps all invoke one of the following cscope search types:
@@ -249,7 +257,7 @@ let g:airline#extensions#tabline#formatter = 'unique_tail'
 noremap <C-e> <C-6>
 
 " FSwitch
-au! BufEnter *.cc let b:fswitchdst = 'hpp,h' 
+au! BufEnter *.cc let b:fswitchdst = 'hpp,h'
 nmap <silent> <Leader>of :FSHere<cr>
 
 " Automatically deletes least recently used buffer
