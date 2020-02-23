@@ -145,6 +145,7 @@ hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray  cte
 hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=33        ctermbg=NONE      cterm=NONE
 hi Constant    guifg=#99CC99  guibg=NONE     gui=NONE      ctermfg=201       ctermbg=NONE      cterm=NONE
 hi Identifier  guifg=#C6C5FE  guibg=NONE     gui=NONE      ctermfg=215       ctermbg=NONE      cterm=NONE
+hi Visual      guifg=NONE     guibg=#262D51  gui=NONE      ctermfg=NONE      ctermbg=234       cterm=REVERSE
 
 " Vimdiff addd: blue; delete: red; change: green
 hi DiffText    ctermbg=0
@@ -242,7 +243,7 @@ let g:airline#extensions#tabline#show_tabs = 0
 let g:airline#extensions#tabline#show_tab_type = 0
 let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
-" Use gb#Num (instead of <ctrl>-<shift>-6) for buffer transition
+" Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
 noremap <C-e> <C-6>
 
 " Automatically deletes least recently used buffer
