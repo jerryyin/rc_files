@@ -2,6 +2,15 @@ cscope.*
 tags
 .tags
 gtags.files
+.vim/plugged
+.docker
+.cache
+.oh-my-zsh
+.ssh
+.profile
+.netrwhist
+.zsh_*
+.bash_*
 GPATH
 GSYMS
 GTAGS
