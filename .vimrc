@@ -60,10 +60,6 @@ execute "set scroll=" . winheight('.') / 3
 set relativenumber
 set number
 
-" When lose focus, set absolute number
-:au FocusLost * :set number
-:au FocusGained * :set relativenumber
-
 " Moving around with ctrl + jkhl
 noremap <C-J> <C-W>j
 noremap <C-K> <C-W>k
@@ -118,6 +114,11 @@ Plug 'tpope/vim-dispatch'
 Plug 'mhinz/vim-grepper'
 " File switch between cpp and header
 Plug 'derekwyatt/vim-fswitch'
+" System clipboard support
+" OSX - pbcopy and pbpaste
+" Windows - clip and paste
+" Linux - xsel
+Plug 'christoomey/vim-system-copy'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -144,8 +145,10 @@ hi CursorLineNr guifg=NONE    guibg=#121212  gui=NONE      ctermfg=NONE      cte
 hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242       ctermbg=NONE      cterm=NONE
 hi Search      guifg=NONE     guibg=#2F2F00  gui=reverse   ctermfg=NONE      ctermbg=NONE      cterm=reverse
 hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
-hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white     ctermbg=darkgray  cterm=NONE
-hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue      ctermbg=darkgray  cterm=NONE
+"hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white     ctermbg=darkgray  cterm=NONE
+hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white     ctermbg=None      cterm=NONE
+"hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue      ctermbg=darkgray  cterm=NONE
+hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue      ctermbg=NONE      cterm=NONE
 hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
 hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=33        ctermbg=NONE      cterm=NONE
 hi Constant    guifg=#99CC99  guibg=NONE     gui=NONE      ctermfg=201       ctermbg=NONE      cterm=NONE
@@ -280,10 +283,3 @@ function! s:Close(nb_to_keep)
   exe 'bw '.join(buffers_to_strip, ' ')
 endfunction
 
-" Manually
-"command! -nargs=1 CloseOldBuffers call s:Close(<args>)
-" Automatically
-augroup CloseOldBuffers
-  au!
-  au BufNew * call s:Close(g:nb_buffers_to_keep)
-augroup END
