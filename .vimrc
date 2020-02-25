@@ -58,7 +58,6 @@ execute "set scroll=" . winheight('.') / 3
 
 " Relative number move
 set relativenumber
-set number
 
 " Moving around with ctrl + jkhl
 noremap <C-J> <C-W>j
@@ -130,30 +129,33 @@ Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/inde
 Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
 call plug#end()
 
-set t_Co=256
 set background=dark
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
 let g:cpp_member_variable_highlight = 1
 let g:cpp_experimental_template_highlight = 1
-" Below are lines picked from colorscheme ir_black
+
+"set t_Co=256
 " For cterfg256 color refer to here: https://jonasjacek.github.io/colors/
 " Or https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
-hi link markdownItalic Normal
-hi CursorLine  guifg=NONE     guibg=#121212  gui=NONE      ctermfg=NONE      ctermbg=NONE      cterm=BOLD
-hi CursorLineNr guifg=NONE    guibg=#121212  gui=NONE      ctermfg=NONE      ctermbg=NONE      cterm=NONE
-hi Comment     guifg=#7C7C7C  guibg=NONE     gui=NONE      ctermfg=242       ctermbg=NONE      cterm=NONE
-hi Search      guifg=NONE     guibg=#2F2F00  gui=reverse   ctermfg=NONE      ctermbg=NONE      cterm=reverse
-hi VertSplit   guifg=#202020  guibg=#202020  gui=NONE      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
-"hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white     ctermbg=darkgray  cterm=NONE
-hi StatusLine  guifg=#CCCCCC  guibg=#202020  gui=italic    ctermfg=white     ctermbg=None      cterm=NONE
-"hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue      ctermbg=darkgray  cterm=NONE
-hi StatusLineNC guifg=black   guibg=#202020  gui=NONE      ctermfg=blue      ctermbg=NONE      cterm=NONE
-hi LineNr      guifg=#3D3D3D  guibg=black    gui=NONE      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
-hi Statement   guifg=#6699CC  guibg=NONE     gui=NONE      ctermfg=33        ctermbg=NONE      cterm=NONE
-hi Constant    guifg=#99CC99  guibg=NONE     gui=NONE      ctermfg=201       ctermbg=NONE      cterm=NONE
-hi Identifier  guifg=#C6C5FE  guibg=NONE     gui=NONE      ctermfg=215       ctermbg=NONE      cterm=NONE
-hi Visual      guifg=NONE     guibg=#262D51  gui=NONE      ctermfg=NONE      ctermbg=234       cterm=REVERSE
+"hi link markdownItalic Normal
+"hi CursorLine     ctermfg=NONE      ctermbg=NONE      cterm=BOLD
+"hi CursorLineNr   ctermfg=NONE      ctermbg=NONE      cterm=NONE
+"hi Comment        ctermfg=242       ctermbg=NONE      cterm=NONE
+"hi Search         ctermfg=NONE      ctermbg=NONE      cterm=REVERSE
+"hi VertSplit      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
+"hi StatusLine     ctermfg=white     ctermbg=None      cterm=NONE
+"hi StatusLineNC   ctermfg=blue      ctermbg=NONE      cterm=NONE
+"hi LineNr         ctermfg=darkgray  ctermbg=NONE      cterm=NONE
+"hi Statement      ctermfg=33        ctermbg=NONE      cterm=NONE
+"hi Constant       ctermfg=201       ctermbg=NONE      cterm=NONE
+"hi Identifier     ctermfg=215       ctermbg=NONE      cterm=NONE
+"hi Visual         ctermfg=NONE      ctermbg=234       cterm=REVERSE
+
+" This is only necessary if you use "set termguicolors" in tmux
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+set termguicolors
 
 " Vimdiff addd: blue; delete: red; change: green
 hi DiffText    ctermbg=0
