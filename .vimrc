@@ -75,7 +75,7 @@ call plug#begin('~/.vim/plugged')
 " Syntax highlighting
 " ir_black color theme
 " Plug 'twerth/ir_black'
-Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
+Plug 'bfrg/vim-cpp-modern', { 'for': ['c', 'cpp'] }
 " llvm plugin
 Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
 
@@ -130,10 +130,6 @@ Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vi
 call plug#end()
 
 set background=dark
-" Color Scheme settings from vim cpp enhanced highlight plugin
-let g:cpp_class_scope_highlight = 1
-let g:cpp_member_variable_highlight = 1
-let g:cpp_experimental_template_highlight = 1
 
 "set t_Co=256
 " For cterfg256 color refer to here: https://jonasjacek.github.io/colors/
