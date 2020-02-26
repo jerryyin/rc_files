@@ -72,9 +72,9 @@ tnoremap <Esc> <C-\><C-N>
 
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
+" gruvbox color scheme
+Plug 'morhetz/gruvbox'
 " Syntax highlighting
-" ir_black color theme
-" Plug 'twerth/ir_black'
 Plug 'bfrg/vim-cpp-modern', { 'for': ['c', 'cpp'] }
 " llvm plugin
 Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
@@ -129,39 +129,39 @@ Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/inde
 Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
 call plug#end()
 
-set background=dark
-
 "set t_Co=256
 " For cterfg256 color refer to here: https://jonasjacek.github.io/colors/
 " Or https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 "hi link markdownItalic Normal
-"hi CursorLine     ctermfg=NONE      ctermbg=NONE      cterm=BOLD
-"hi CursorLineNr   ctermfg=NONE      ctermbg=NONE      cterm=NONE
-"hi Comment        ctermfg=242       ctermbg=NONE      cterm=NONE
-"hi Search         ctermfg=NONE      ctermbg=NONE      cterm=REVERSE
-"hi VertSplit      ctermfg=darkgray  ctermbg=NONE      cterm=NONE
-"hi StatusLine     ctermfg=white     ctermbg=None      cterm=NONE
-"hi StatusLineNC   ctermfg=blue      ctermbg=NONE      cterm=NONE
-"hi LineNr         ctermfg=darkgray  ctermbg=NONE      cterm=NONE
-"hi Statement      ctermfg=33        ctermbg=NONE      cterm=NONE
-"hi Constant       ctermfg=201       ctermbg=NONE      cterm=NONE
-"hi Identifier     ctermfg=215       ctermbg=NONE      cterm=NONE
-"hi Visual         ctermfg=NONE      ctermbg=234       cterm=REVERSE
+"hi CursorLine     ctermfg=NONE      ctermbg=NONE  cterm=BOLD
+"hi CursorLineNr   ctermfg=NONE      ctermbg=NONE  cterm=NONE
+"hi Comment        ctermfg=242       ctermbg=NONE  cterm=NONE
+"hi Search         ctermfg=NONE      ctermbg=NONE  cterm=REVERSE
+"hi VertSplit      ctermfg=darkgray  ctermbg=NONE  cterm=NONE
+"hi StatusLine     ctermfg=white     ctermbg=None  cterm=NONE
+"hi StatusLineNC   ctermfg=blue      ctermbg=NONE  cterm=NONE
+"hi LineNr         ctermfg=darkgray  ctermbg=NONE  cterm=NONE
+"hi Statement      ctermfg=33        ctermbg=NONE  cterm=NONE
+"hi Constant       ctermfg=201       ctermbg=NONE  cterm=NONE
+"hi Identifier     ctermfg=215       ctermbg=NONE  cterm=NONE
+"hi Visual         ctermfg=NONE      ctermbg=234   cterm=REVERSE
+" Vimdiff addd: blue; delete: red; change: green
+"hi DiffText       ctermfg=NONE      ctermbg=0     cterm=NONE
+"hi DiffAdd        ctermfg=NONE      ctermbg=17    cterm=NONE
+"hi DiffDelete     ctermfg=NONE      ctermbg=88    cterm=NONE
+"hi DiffChange     ctermfg=NONE      ctermbg=22    cterm=NONE
+" Inline diff:
+"hi DiffAdded      ctermfg=NONE      ctermfg=10    cterm=NONE
+"hi DiffRemoved    ctermfg=NONE      ctermfg=9     cterm=NONE
 
 " This is only necessary if you use "set termguicolors" in tmux
+set background=dark
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 set termguicolors
-
-" Vimdiff addd: blue; delete: red; change: green
-hi DiffText    ctermbg=0
-hi DiffAdd     ctermbg=17
-hi DiffDelete  ctermbg=88
-hi DiffChange  ctermbg=22
-
-" Inline diff:
-hi DiffAdded   ctermfg=10
-hi DiffRemoved ctermfg=9
+let g:gruvbox_contrast_dark = 'hard'
+let g:gruvbox_contrast_light = 'hard'
+colorscheme gruvbox
 
 " Output the current syntax group
 nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
