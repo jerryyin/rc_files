@@ -175,7 +175,7 @@ let g:AutoPairsFlyMode = 0
 let g:lens#width_resize_max = 85
 
 " Dispatch, disallow tmux pane capture trick
-set shellpipe += \ 
+set shellpipe+=\ 
 
 " cscope settings
 " The following maps all invoke one of the following cscope search types:
