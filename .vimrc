@@ -15,8 +15,13 @@ set formatoptions+=ncroqj       " Control automatic formatting.
 
 " Coding styles
 " shiftwidth: >> indent; tabstop: how long a tab is
-autocmd FileType python set shiftwidth=2 tabstop=2 expandtab
-autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
+augroup ft
+    au!
+    autocmd FileType python set shiftwidth=2 tabstop=2 expandtab
+    autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
+    autocmd BufNewFile,BufRead *.mlir set syntax=mlir
+augroup end
+
 " Apply indentation of current line to next
 set autoindent
 " Autoindent must be on, react to syntax/style of code
@@ -127,6 +132,8 @@ Plug 'Chiel92/vim-autoformat'
 " Help correctly indent file in edit mode
 Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/indent/python.vim' }
 Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
+Plug 'https://gist.github.com/jerryyin/ac01c9f2471446927d290f28cd9e2608.git',
+    \ { 'as': 'vim-mlir', 'do': 'mkdir -p after/syntax; cp -f *.vim after/syntax/' }
 call plug#end()
 
 "set t_Co=256
