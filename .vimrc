@@ -136,31 +136,6 @@ Plug 'https://gist.github.com/jerryyin/ac01c9f2471446927d290f28cd9e2608.git',
     \ { 'as': 'vim-mlir', 'do': 'mkdir -p after/syntax; cp -f *.vim after/syntax/' }
 call plug#end()
 
-"set t_Co=256
-" For cterfg256 color refer to here: https://jonasjacek.github.io/colors/
-" Or https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
-"hi link markdownItalic Normal
-"hi CursorLine     ctermfg=NONE      ctermbg=NONE  cterm=BOLD
-"hi CursorLineNr   ctermfg=NONE      ctermbg=NONE  cterm=NONE
-"hi Comment        ctermfg=242       ctermbg=NONE  cterm=NONE
-"hi Search         ctermfg=NONE      ctermbg=NONE  cterm=REVERSE
-"hi VertSplit      ctermfg=darkgray  ctermbg=NONE  cterm=NONE
-"hi StatusLine     ctermfg=white     ctermbg=None  cterm=NONE
-"hi StatusLineNC   ctermfg=blue      ctermbg=NONE  cterm=NONE
-"hi LineNr         ctermfg=darkgray  ctermbg=NONE  cterm=NONE
-"hi Statement      ctermfg=33        ctermbg=NONE  cterm=NONE
-"hi Constant       ctermfg=201       ctermbg=NONE  cterm=NONE
-"hi Identifier     ctermfg=215       ctermbg=NONE  cterm=NONE
-"hi Visual         ctermfg=NONE      ctermbg=234   cterm=REVERSE
-" Vimdiff addd: blue; delete: red; change: green
-"hi DiffText       ctermfg=NONE      ctermbg=0     cterm=NONE
-"hi DiffAdd        ctermfg=NONE      ctermbg=17    cterm=NONE
-"hi DiffDelete     ctermfg=NONE      ctermbg=88    cterm=NONE
-"hi DiffChange     ctermfg=NONE      ctermbg=22    cterm=NONE
-" Inline diff:
-"hi DiffAdded      ctermfg=NONE      ctermfg=10    cterm=NONE
-"hi DiffRemoved    ctermfg=NONE      ctermfg=9     cterm=NONE
-
 " This is only necessary if you use "set termguicolors" in tmux
 set background=dark
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
