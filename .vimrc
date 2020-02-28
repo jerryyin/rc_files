@@ -278,3 +278,10 @@ function! s:Close(nb_to_keep)
   exe 'bw '.join(buffers_to_strip, ' ')
 endfunction
 
+" Manually
+"command! -nargs=1 CloseOldBuffers call s:Close(<args>)
+" Automatically
+augroup CloseOldBuffers
+  au!
+  au BufNew * call s:Close(g:nb_buffers_to_keep)
+augroup END
