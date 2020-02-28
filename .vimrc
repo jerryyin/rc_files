@@ -123,6 +123,8 @@ Plug 'derekwyatt/vim-fswitch'
 " Windows - clip and paste
 " Linux - xsel
 Plug 'christoomey/vim-system-copy'
+" Add more text objects to vim
+Plug 'wellle/targets.vim'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
