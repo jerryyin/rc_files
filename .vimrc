@@ -62,7 +62,7 @@ set timeoutlen=1000 ttimeoutlen=0
 execute "set scroll=" . winheight('.') / 3
 
 " Relative number move
-set relativenumber
+set number relativenumber
 
 " Moving around with ctrl + jkhl
 noremap <C-J> <C-W>j
@@ -89,6 +89,8 @@ Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
 Plug 'tpope/vim-vinegar'
 " diff plugin
 Plug 'mhinz/vim-signify'
+" Show marks
+Plug 'kshenoy/vim-signature' 
 " Improve status bar
 " Plug 'itchyny/lightline.vim'
 Plug 'vim-airline/vim-airline'
@@ -98,6 +100,8 @@ Plug 'powerman/vim-plugin-AnsiEsc'
 Plug 'mhinz/vim-startify'
 " Auto resize split
 Plug 'camspiers/lens.vim'
+"Toggle line number
+Plug 'jeffkreeftmeijer/vim-numbertoggle'
 
 " Utility
 " Auto inserts or deletes bracket, parens, quotes in pair
@@ -164,6 +168,7 @@ let g:lens#width_resize_max = 85
 
 " Dispatch, disallow tmux pane capture trick
 set shellpipe+=\ 
+let g:dispatch_no_maps = 1
 
 " cscope settings
 " The following maps all invoke one of the following cscope search types:
