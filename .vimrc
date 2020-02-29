@@ -273,6 +273,10 @@ noremap <C-e> <C-6>
 augroup fswitch
   autocmd!
   autocmd BufEnter *.cc let b:fswitchdst = 'hpp,h'
+  autocmd BufEnter *.h let b:fswitchdst = 'cpp,cc'
+  " MLIR Dialect specific re
+  autocmd BufEnter *.h let b:fswitchlocs = 'reg:|include/mlir|lib|'
+  autocmd BufEnter *.cpp let b:fswitchlocs = 'reg:|lib|include/mlir|'
 augroup END
 nmap <silent> <Leader>of :FSHere<cr>
 
