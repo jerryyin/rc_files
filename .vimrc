@@ -21,6 +21,7 @@ augroup ft
     autocmd FileType python set shiftwidth=2 tabstop=2 expandtab
     autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
     autocmd BufNewFile,BufRead *.mlir set syntax=mlir
+    autocmd FileType * AnyFoldActivate
 augroup end
 
 " Apply indentation of current line to next
@@ -101,8 +102,10 @@ Plug 'powerman/vim-plugin-AnsiEsc'
 Plug 'mhinz/vim-startify'
 " Auto resize split
 Plug 'camspiers/lens.vim'
-"Toggle line number
+" Toggle line number
 Plug 'jeffkreeftmeijer/vim-numbertoggle'
+" Better folding
+Plug 'pseewald/vim-anyfold'
 
 " Utility
 " Auto inserts or deletes bracket, parens, quotes in pair
