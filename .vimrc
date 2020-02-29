@@ -23,7 +23,7 @@ augroup ft
     autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
     autocmd BufNewFile,BufRead *.mlir set syntax=mlir
     autocmd FileType * AnyFoldActivate
-augroup end
+augroup END
 
 " disable anyfold for large files
 let g:LargeFile = 1000000 " file is large if size greater than 1MB
@@ -247,7 +247,10 @@ let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
 
 " Fugitive
-autocmd BufReadPost fugitive://* set bufhidden=delete
+augroup fuDeleteBuffer
+  autocmd!
+  autocmd BufReadPost fugitive://* set bufhidden=delete
+augroup END
 
 " Grepper
 let g:grepper = {}
@@ -267,7 +270,10 @@ let g:airline#extensions#tabline#formatter = 'unique_tail'
 noremap <C-e> <C-6>
 
 " FSwitch
-au! BufEnter *.cc let b:fswitchdst = 'hpp,h'
+augroup fswitch
+  autocmd!
+  autocmd BufEnter *.cc let b:fswitchdst = 'hpp,h'
+augroup END
 nmap <silent> <Leader>of :FSHere<cr>
 
 " Automatically deletes least recently used buffer
@@ -295,7 +301,7 @@ endfunction
 " Manually
 "command! -nargs=1 CloseOldBuffers call s:Close(<args>)
 " Automatically
-augroup CloseOldBuffers
-  au!
-  au BufNew * call s:Close(g:nb_buffers_to_keep)
+augroup closeOldBuffers
+  autocmd!
+  autocmd BufNew * call s:Close(g:nb_buffers_to_keep)
 augroup END
