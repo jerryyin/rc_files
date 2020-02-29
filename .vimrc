@@ -164,7 +164,7 @@ let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 set termguicolors
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_contrast_light = 'hard'
-colorscheme gruvbox
+silent! colorscheme gruvbox
 
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
