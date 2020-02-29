@@ -13,6 +13,7 @@ set wildmode=list:longest,full  " List all matches and complete to the longest m
 set nrformats-=octal            " Remove octal support from 'nrformats'.
 "set formatoptions+=ncroqj      " Control automatic formatting.
 set linebreak                   " Wrap long lines and make text easier to read
+set foldlevel=2
 
 " Coding styles
 " shiftwidth: >> indent; tabstop: how long a tab is
