@@ -18,21 +18,26 @@ set foldlevel=2
 " Coding styles
 " shiftwidth: >> indent; tabstop: how long a tab is
 augroup ft
-    au!
-    autocmd FileType python set shiftwidth=2 tabstop=2 expandtab
-    autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
-    autocmd BufNewFile,BufRead *.mlir set syntax=mlir
-    autocmd FileType * AnyFoldActivate
+  autocmd!
+  autocmd FileType python set shiftwidth=2 tabstop=2 expandtab
+  autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
+  autocmd BufNewFile,BufRead *.mlir set syntax=mlir
+augroup END
+
+" Folding
+augroup anyfold
+  autocmd!
+  autocmd FileType * AnyFoldActivate
 augroup END
 
 " disable anyfold for large files
 let g:LargeFile = 1000000 " file is large if size greater than 1MB
 autocmd BufReadPre,BufRead * let f=getfsize(expand("<afile>")) | if f > g:LargeFile || f == -2 | call LargeFile() | endif
 function LargeFile()
-    augroup anyfold
-        autocmd! " remove AnyFoldActivate
-        autocmd Filetype <filetype> setlocal foldmethod=indent " fall back to indent folding
-    augroup END
+  augroup anyfold
+    autocmd!
+    autocmd Filetype * setlocal foldmethod=indent
+  augroup END
 endfunction
 
 " Apply indentation of current line to next
