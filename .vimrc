@@ -108,7 +108,7 @@ Plug 'tpope/vim-vinegar'
 " diff plugin
 Plug 'mhinz/vim-signify'
 " Show marks
-Plug 'kshenoy/vim-signature' 
+Plug 'kshenoy/vim-signature'
 " Improve status bar
 " Plug 'itchyny/lightline.vim'
 Plug 'vim-airline/vim-airline'
