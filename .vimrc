@@ -187,7 +187,7 @@ let g:AutoPairsFlyMode = 0
 let g:lens#width_resize_max = 85
 
 " Dispatch, disallow tmux pane capture trick
-set shellpipe+=\ 
+set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
 
 " cscope settings
