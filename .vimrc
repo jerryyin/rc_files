@@ -118,6 +118,7 @@ Plug 'powerman/vim-plugin-AnsiEsc'
 Plug 'mhinz/vim-startify'
 " Auto resize split
 Plug 'camspiers/lens.vim'
+Plug 'roxma/vim-window-resize-easy'
 " Toggle line number
 Plug 'jeffkreeftmeijer/vim-numbertoggle'
 " Better folding
