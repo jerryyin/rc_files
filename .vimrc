@@ -67,7 +67,7 @@ set showmatch
 set backspace=indent,eol,start
 
 ""Auto reload file on disk
-set autoread | au CursorHold * checktime | call feedkeys("lh")
+set autoread
 
 " It hides buffers instead of closing them. This means that you can have unwritten changes
 " to a file and open a new file using :e, without being forced to write or undo your changes first.
