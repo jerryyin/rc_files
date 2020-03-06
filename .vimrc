@@ -135,7 +135,7 @@ Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 " Integrate with git
 Plug 'tpope/vim-fugitive'
 " Insert mode completions
-Plug 'ervandew/supertab'
+"Plug 'ervandew/supertab'
 " MRU buffer
 Plug 'mildred/vim-bufmru'
 " Dispath async support
