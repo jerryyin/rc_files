@@ -99,6 +99,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'morhetz/gruvbox'
 " Syntax highlighting
 Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
+Plug 'Valloric/vim-operator-highlight'
 " llvm plugin
 Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
 
@@ -170,12 +171,15 @@ let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 set termguicolors
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_contrast_light = 'hard'
+let g:gruvbox_bold = 0
 silent! colorscheme gruvbox
-hi String guifg=#b16286
+highlight String guifg=#b16286
+let g:ophigh_color_gui = "#458588"
 
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
 let g:cpp_member_variable_highlight = 1
+let g:cpp_class_decl_highlight = 1
 
 " Output the current syntax group
 nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
