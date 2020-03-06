@@ -151,6 +151,8 @@ Plug 'derekwyatt/vim-fswitch'
 Plug 'christoomey/vim-system-copy'
 " Add more text objects to vim
 Plug 'wellle/targets.vim'
+" pop up menu
+Plug 'skywind3000/vim-auto-popmenu'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -279,6 +281,16 @@ let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 " Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
 noremap <C-e> <C-^>
+
+" vim-auto-popmenu
+" enable this plugin for filetypes, '*' for all files.
+let g:apc_enable_ft = {'*':1 }
+" source for dictionary, current or other loaded buffers, see ':help cpt'
+set cpt=.,u,w,b
+" don't select the first item.
+set completeopt=menu,menuone,noselect
+" suppress annoy messages.
+set shortmess+=c
 
 " FSwitch
 augroup fswitch
