@@ -5,8 +5,6 @@ filetype plugin on
 set clipboard=unnamed
 syntax on                       " Enable syntax highlighting.
 set wrap                        " Wrap long lines.
-set laststatus=2                " Always show the statusline.
-set ruler                       " Show the ruler in the statusline.
 set display=lastline            " Show as much of the line as will fit.
 set wildmenu                    " Better tab completion in the commandline.
 set wildmode=list:longest,full  " List all matches and complete to the longest match.
@@ -14,13 +12,14 @@ set nrformats-=octal            " Remove octal support from 'nrformats'.
 "set formatoptions+=ncroqj      " Control automatic formatting.
 set linebreak                   " Wrap long lines and make text easier to read
 set foldlevel=2
+set shiftwidth=2 tabstop=2 expandtab
 
 " Coding styles
 " shiftwidth: >> indent; tabstop: how long a tab is
 augroup ft
   autocmd!
-  autocmd FileType python set shiftwidth=2 tabstop=2 expandtab
-  autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
+  " Can enable filetype specific settings
+  "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
   autocmd BufNewFile,BufRead *.mlir set syntax=mlir
 augroup END
 
@@ -265,6 +264,9 @@ augroup fuDeleteBuffer
   autocmd BufReadPost fugitive://* set bufhidden=delete
 augroup END
 
+" Vineagar/netrw enable relative line number
+let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
+
 " Grepper
 let g:grepper = {}
 let g:grepper.dir = 'repo'
@@ -273,6 +275,8 @@ nnoremap <leader>g :Grepper<cr>
 
 " Airline
 let g:airline_extensions = ['branch','tabline','gutentags','fugitiveline','grepper','netrw']
+" Can add width. Potentially, %3l, %2c, %2p.
+let g:airline_section_z = 'LN %l:%c %p%%'
 let g:airline_highlighting_cache = 1
 let g:airline#extensions#tabline#show_buffers = 1
 let g:airline#extensions#tabline#show_tabs = 0
