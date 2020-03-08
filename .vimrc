@@ -13,6 +13,7 @@ set nrformats-=octal            " Remove octal support from 'nrformats'.
 set linebreak                   " Wrap long lines and make text easier to read
 set foldlevel=2
 set shiftwidth=2 tabstop=2 expandtab
+set softtabstop=-1              " Use shiftwidth for number of spaces edit
 
 " Coding styles
 " shiftwidth: >> indent; tabstop: how long a tab is
@@ -232,9 +233,14 @@ endif
 " Project root directory will be used as the prefix to construct an absolute path.
 set csre
 
-" auto-format plugin
-" Disable auto format on save
-noremap <silent> == V:Autoformat<CR>
+" auto-format plugin (remap =)
+" Do not enable auto format on save
+vmap = :Autoformat<CR>
+nmap =G :.,$Autoformat<CR>
+nmap == :.Autoformat<CR>
+nmap =% v%:Autoformat<CR>
+nmap = :.-1,.Autoformat<CR>
+nmap = :.,.+1Autoformat<CR>
 " Disable fallback to vim's indent file, only remove trailing whitespace
 let g:autoformat_autoindent = 0
 let g:autoformat_retab = 0
