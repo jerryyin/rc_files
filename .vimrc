@@ -133,8 +133,6 @@ Plug 'tomtom/tcomment_vim'
 Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 " Integrate with git
 Plug 'tpope/vim-fugitive'
-" Insert mode completions
-Plug 'ervandew/supertab'
 " MRU buffer
 Plug 'mildred/vim-bufmru'
 " Dispath async support
@@ -150,7 +148,7 @@ Plug 'derekwyatt/vim-fswitch'
 Plug 'christoomey/vim-system-copy'
 " Add more text objects to vim
 Plug 'wellle/targets.vim'
-" pop up menu
+" pop up menu for insert mode completion
 Plug 'skywind3000/vim-auto-popmenu'
 
 " Tags
