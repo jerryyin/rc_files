@@ -233,7 +233,8 @@ endif
 " Project root directory will be used as the prefix to construct an absolute path.
 set csre
 
-" auto-format plugin (remap =)
+" auto-format plugin (remap =) 
+" https://github.com/Chiel92/vim-autoformat/issues/192#issuecomment-316621090
 " Do not enable auto format on save
 vmap = :Autoformat<CR>
 nmap =G :.,$Autoformat<CR>
