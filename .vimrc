@@ -1,5 +1,6 @@
 " General settings
 set nocompatible                " Vim defaults rather than vi ones. Keep at top.
+set history=10000
 filetype indent on
 filetype plugin on
 set clipboard=unnamed
@@ -154,6 +155,9 @@ Plug 'skywind3000/vim-auto-popmenu'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
+
+" Build
+Plug 'ilyachur/cmake4vim' 
 
 " Code formating
 Plug 'Chiel92/vim-autoformat'
