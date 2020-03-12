@@ -28,7 +28,7 @@ augroup END
 " Folding
 augroup anyfold
   autocmd!
-  autocmd FileType * AnyFoldActivate
+  autocmd Filetype * if &ft != 'git' | AnyFoldActivate
 augroup END
 
 " disable anyfold for large files
