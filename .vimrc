@@ -294,6 +294,8 @@ let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 " Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
 noremap <C-e> <C-^>
+" Use <ctrl>-t (instead of gt) for tab transition
+noremap <C-t> gt
 
 " vim-auto-popmenu
 " enable this plugin for filetypes, '*' for all files.
