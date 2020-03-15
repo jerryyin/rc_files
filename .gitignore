@@ -2,7 +2,7 @@ cscope.*
 tags
 .tags
 gtags.files
-.vim/plugged
+.vim
 .docker
 .cache
 .oh-my-zsh
