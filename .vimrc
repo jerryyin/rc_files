@@ -16,31 +16,6 @@ set foldlevel=2
 set shiftwidth=2 tabstop=2 expandtab
 set softtabstop=-1              " Use shiftwidth for number of spaces edit
 
-" Coding styles
-" shiftwidth: >> indent; tabstop: how long a tab is
-augroup ft
-  autocmd!
-  " Can enable filetype specific settings
-  "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
-  autocmd BufNewFile,BufRead *.mlir set syntax=mlir
-augroup END
-
-" Folding
-augroup anyfold
-  autocmd!
-  autocmd Filetype * if &ft != 'git' | AnyFoldActivate
-augroup END
-
-" disable anyfold for large files
-let g:LargeFile = 1000000 " file is large if size greater than 1MB
-autocmd BufReadPre,BufRead * let f=getfsize(expand("<afile>")) | if f > g:LargeFile || f == -2 | call LargeFile() | endif
-function LargeFile()
-  augroup anyfold
-    autocmd!
-    autocmd Filetype * setlocal foldmethod=indent
-  augroup END
-endfunction
-
 " Apply indentation of current line to next
 set autoindent
 " Autoindent must be on, react to syntax/style of code
@@ -93,6 +68,15 @@ tnoremap <C-K> <C-W>k
 tnoremap <C-H> <C-W>h
 tnoremap <C-L> <C-W>l
 tnoremap <Esc> <C-\><C-N>
+
+" Auto install vim-plug if it does not exist
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent execute "!curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+  augroup vimPlug
+    autocmd!
+    autocmd VimEnter * PlugInstall | source $MYVIMRC
+  augroup END
+endif
 
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
@@ -157,7 +141,7 @@ Plug 'skywind3000/vim-auto-popmenu'
 Plug 'ludovicchabant/vim-gutentags'
 
 " Build
-Plug 'ilyachur/cmake4vim' 
+Plug 'ilyachur/cmake4vim'
 
 " Code formating
 Plug 'Chiel92/vim-autoformat'
@@ -189,6 +173,31 @@ let g:cpp_class_decl_highlight = 1
 nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
+
+" Folding
+augroup anyfold
+  autocmd!
+  autocmd Filetype * if &ft != 'git' | AnyFoldActivate
+augroup END
+
+" disable anyfold for large files
+let g:LargeFile = 1000000 " file is large if size greater than 1MB
+autocmd BufReadPre,BufRead * let f=getfsize(expand("<afile>")) | if f > g:LargeFile || f == -2 | call LargeFile() | endif
+function LargeFile()
+  augroup anyfold
+    autocmd!
+    autocmd Filetype * setlocal foldmethod=indent
+  augroup END
+endfunction
+
+" Coding styles
+" shiftwidth: >> indent; tabstop: how long a tab is
+augroup ft
+  autocmd!
+  " Can enable filetype specific settings
+  "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
+  autocmd BufNewFile,BufRead *.mlir set syntax=mlir
+augroup END
 
 " Auto-pair
 let g:AutoPairsFlyMode = 0
@@ -237,7 +246,7 @@ endif
 " Project root directory will be used as the prefix to construct an absolute path.
 set csre
 
-" auto-format plugin (remap =) 
+" auto-format plugin (remap =)
 " https://github.com/Chiel92/vim-autoformat/issues/192#issuecomment-316621090
 " Do not enable auto format on save
 vmap = :Autoformat<CR>
