@@ -181,8 +181,12 @@ augroup anyfold
 augroup END
 
 " disable anyfold for large files
-let g:LargeFile = 1000000 " file is large if size greater than 1MB
-autocmd BufReadPre,BufRead * let f=getfsize(expand("<afile>")) | if f > g:LargeFile || f == -2 | call LargeFile() | endif
+augroup checkFileSize
+  autocmd!
+  let g:LargeFile = 1000000 " file is large if size greater than 1MB
+  autocmd BufReadPre,BufRead * let f=getfsize(expand("<afile>")) | if f > g:LargeFile || f == -2 | call LargeFile() | endif
+augroup END
+
 function LargeFile()
   augroup anyfold
     autocmd!
