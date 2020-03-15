@@ -71,8 +71,7 @@ tnoremap <Esc> <C-\><C-N>
 
 " Auto install vim-plug if it does not exist
 if empty(glob('~/.vim/autoload/plug.vim'))
-  silent execute "!curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+  silent execute "!curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
   augroup vimPlug
     autocmd!
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
