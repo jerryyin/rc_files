@@ -140,9 +140,6 @@ Plug 'skywind3000/vim-auto-popmenu'
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
 
-" Build
-Plug 'ilyachur/cmake4vim'
-
 " Code formating
 Plug 'Chiel92/vim-autoformat'
 " Help correctly indent file in edit mode
