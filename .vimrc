@@ -151,15 +151,16 @@ call plug#end()
 
 " This is only necessary if you use "set termguicolors" in tmux
 set background=dark
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-set termguicolors
+"let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+"let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+"set termguicolors
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_contrast_light = 'hard'
 let g:gruvbox_bold = 0
 silent! colorscheme gruvbox
-highlight String guifg=#b16286
+highlight String guifg=#b16286 ctermfg=132
 let g:ophigh_color_gui = "#458588"
+let g:ophigh_color = 66
 
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
