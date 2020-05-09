@@ -15,6 +15,7 @@ set linebreak                   " Wrap long lines and make text easier to read
 set foldlevel=2
 set shiftwidth=2 tabstop=2 expandtab
 set softtabstop=-1              " Use shiftwidth for number of spaces edit
+set encoding=utf-8
 
 " Apply indentation of current line to next
 set autoindent
@@ -136,6 +137,7 @@ Plug 'christoomey/vim-system-copy'
 Plug 'wellle/targets.vim'
 " pop up menu for insert mode completion
 Plug 'skywind3000/vim-auto-popmenu'
+Plug 'AndrewRadev/splitjoin.vim'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -274,6 +276,7 @@ let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_WindowHeight = 0.30
 let g:Lf_CacheDirectory = $HOME
 let g:Lf_ShowRelativePath = 0
+let g:Lf_ShowDevIcons = 0
 let g:Lf_HideHelp = 1
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
