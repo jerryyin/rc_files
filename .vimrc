@@ -200,6 +200,7 @@ augroup ft
   autocmd!
   " Can enable filetype specific settings
   "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
+  autocmd FileType qf setlocal wrap
   autocmd BufNewFile,BufRead *.mlir set syntax=mlir
 augroup END
 
@@ -295,6 +296,8 @@ let g:grepper = {}
 let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
 nnoremap <leader>g :Grepper<cr>
+let g:grepper.prompt_mapping_tool = '<leader>g'
+nnoremap <leader>s :Grepper -tool grep -cword -noprompt<cr>
 
 " Airline
 let g:airline_extensions = ['branch','tabline','gutentags','fugitiveline','grepper','netrw']
