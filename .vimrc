@@ -218,21 +218,28 @@ let g:dispatch_no_maps = 1
 " The following maps all invoke one of the following cscope search types:
 "
 "   's'   symbol: find all references to the token under cursor
-"   'g'   global: find global definition(s) of the token under cursor
-"   'c'   calls:  find all calls to the function name under cursor
-"   't'   text:   find all instances of the text under cursor
-"   'e'   egrep:  egrep search for the word under cursor
-"   'f'   file:   open the filename under cursor
-"   'i'   includes: find files that include the filename under cursor
-"   'd'   called: find functions that function under cursor calls
-nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
+"   'g'   global:   find this definition, equivalent to ctags
+"   'f'   file:     open the filename under cursor
+"   's'   symbol:   find this C symbol
+"   'c'   calls:    find all calls to the function name under cursor
+"   't'   text:     find this text string
+"   'e'   egrep:    egrep search for the word under cursor
+"   'i'   includes: find files that #include the filename under cursor
+"   'd'   called:   find functions that function under cursor calls
+"   'a'   assign:   find places where this symbol is assigned a value
+"   Refer to
+"   https://stackoverflow.com/questions/24510721/cscope-result-handling-with-quickfix-window
+set cscopequickfix=s-,c-,d-,i-,t-,e-,a-
 nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>f :cs find f <C-R>=expand("<cword>")<CR><CR>
+" Load following results into quickfix
+nnoremap <C-\>s yiw:cs find s <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>c yiw:cs find c <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>d yiw:cs find d <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>i yiw:cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>t yiw:cs find t <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>e yiw:cs find e <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>a yiw:cs find a <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
 
 " gutentags settings
 let g:gutentags_generate_on_new = 1
