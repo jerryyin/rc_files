@@ -108,7 +108,7 @@ Plug 'powerman/vim-plugin-AnsiEsc'
 Plug 'mhinz/vim-startify'
 " Auto resize split
 Plug 'camspiers/lens.vim'
-Plug 'roxma/vim-window-resize-easy'
+Plug 'simeji/winresizer'
 " Toggle line number
 Plug 'jeffkreeftmeijer/vim-numbertoggle'
 " Better folding
@@ -212,6 +212,10 @@ let g:AutoPairsFlyMode = 0
 
 " Lens
 let g:lens#width_resize_max = 85
+
+" winresizer
+let g:winresizer_start_key = '<C-t>'
+let g:winresizer_finish_with_escape = 1
 
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
@@ -321,8 +325,6 @@ let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 " Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
 noremap <C-e> <C-^>
-" Use <ctrl>-t (instead of gt) for tab transition
-noremap <C-t> gt
 
 " vim-auto-popmenu
 " enable this plugin for filetypes, '*' for all files.
