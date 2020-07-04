@@ -70,6 +70,9 @@ tnoremap <C-H> <C-W>h
 tnoremap <C-L> <C-W>l
 tnoremap <Esc> <C-\><C-N>
 
+" Source the termdebug plugin
+packadd termdebug
+
 " Auto install vim-plug if it does not exist
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent execute "!curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
