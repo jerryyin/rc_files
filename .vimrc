@@ -352,7 +352,7 @@ nmap <silent> <Leader>of :FSHere<cr>
 " A combination of https://www.vim.org/scripts/script.php?script_id=2346
 " and
 " https://vi.stackexchange.com/questions/2193/automatically-close-oldest-buffers
-let g:nb_buffers_to_keep = 12
+let g:nb_buffers_to_keep = 36
 
 function! s:Close(nb_to_keep)
   "" If the lenth of buffer list is small, return early
