@@ -141,6 +141,9 @@ Plug 'wellle/targets.vim'
 " pop up menu for insert mode completion
 Plug 'skywind3000/vim-auto-popmenu'
 Plug 'AndrewRadev/splitjoin.vim'
+" Insert mode shortcut
+Plug 'tpope/vim-rsi'
+Plug 'tpope/vim-surround'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
