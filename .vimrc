@@ -183,7 +183,7 @@ nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 " Folding
 augroup anyfold
   autocmd!
-  autocmd Filetype * if &ft != 'git' | AnyFoldActivate
+  autocmd Filetype * if &ft == 'cpp' | AnyFoldActivate
 augroup END
 
 " disable anyfold for large files
@@ -243,13 +243,13 @@ set cscopequickfix=s-,c-,d-,i-,t-,e-,a-
 nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
 nmap <C-\>f :cs find f <C-R>=expand("<cword>")<CR><CR>
 " Load following results into quickfix
-nnoremap <C-\>s yiw:cs find s <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>c yiw:cs find c <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>d yiw:cs find d <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>i yiw:cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>t yiw:cs find t <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>e yiw:cs find e <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>a yiw:cs find a <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>s yiw:cs find s <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>c yiw:cs find c <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>d yiw:cs find d <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>i yiw:cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>t yiw:cs find t <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>e yiw:cs find e <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
+nnoremap <C-\>a yiw:cs find a <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
 
 " gutentags settings
 let g:gutentags_generate_on_new = 1
