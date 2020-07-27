@@ -144,6 +144,8 @@ Plug 'AndrewRadev/splitjoin.vim'
 " Insert mode shortcut
 Plug 'tpope/vim-rsi'
 Plug 'tpope/vim-surround'
+Plug 'vimwiki/vimwiki'
+Plug 'michal-h21/vimwiki-sync'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -338,6 +340,13 @@ set cpt=.,u,w,b
 set completeopt=menu,menuone,noselect
 " suppress annoy messages.
 set shortmess+=c
+
+" vimwiki
+let g:vimwiki_list = [{'path': '~/Documents/notes',
+      \ 'syntax' : 'markdown',     
+      \ 'auto_tags' : 1,     
+      \ 'ext' : '.md'}]
+let g:vimwiki_global_ext = 0
 
 " FSwitch
 augroup fswitch
