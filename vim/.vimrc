@@ -145,7 +145,7 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'tpope/vim-rsi'
 Plug 'tpope/vim-surround'
 Plug 'vimwiki/vimwiki'
-Plug 'hv15/vimwiki-sync'
+Plug 'jerryyin/vimwiki-sync'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
