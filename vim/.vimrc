@@ -342,11 +342,19 @@ set completeopt=menu,menuone,noselect
 set shortmess+=c
 
 " vimwiki
+nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
+nnoremap <leader>t :VimwikiToggleListItem<CR>
 let g:vimwiki_list = [{'path': '~/Documents/notes',
-      \ 'syntax' : 'markdown',     
-      \ 'auto_tags' : 1,     
+      \ 'syntax' : 'markdown',
+      \ 'auto_tags' : 1,
       \ 'ext' : '.md'}]
 let g:vimwiki_global_ext = 0
+command! Diary VimwikiDiaryIndex
+augroup vimwikigroup
+  autocmd!
+  " automatically update links on read diary
+  autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
+augroup end
 
 " FSwitch
 augroup fswitch
