@@ -146,6 +146,7 @@ Plug 'tpope/vim-rsi'
 Plug 'tpope/vim-surround'
 Plug 'vimwiki/vimwiki'
 Plug 'jerryyin/vimwiki-sync'
+Plug 'vim-pandoc/vim-pandoc-syntax'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -349,12 +350,15 @@ let g:vimwiki_list = [{'path': '~/Documents/notes',
       \ 'auto_tags' : 1,
       \ 'ext' : '.md'}]
 let g:vimwiki_global_ext = 0
+let g:vimwiki_filetypes = ['markdown', 'pandoc']
 command! Diary VimwikiDiaryIndex
 augroup vimwikigroup
   autocmd!
   " automatically update links on read diary
   autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
+  au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
 augroup end
+let g:pandoc#syntax#conceal#urls = 1
 
 " FSwitch
 augroup fswitch
