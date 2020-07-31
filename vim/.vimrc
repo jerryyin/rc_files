@@ -357,6 +357,7 @@ augroup vimwikigroup
   " automatically update links on read diary
   autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
   au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
+  autocmd BufReadPost *.md set bufhidden=delete
 augroup end
 let g:pandoc#syntax#conceal#urls = 1
 
