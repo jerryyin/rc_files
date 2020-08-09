@@ -26,6 +26,7 @@ set smarttab
 
 " Cursor and mouse
 set mouse=a
+set shortmess=a
 set showmode
 set showcmd
 set cursorline
@@ -196,7 +197,7 @@ augroup checkFileSize
   autocmd BufReadPre,BufRead * let f=getfsize(expand("<afile>")) | if f > g:LargeFile || f == -2 | call LargeFile() | endif
 augroup END
 
-function LargeFile()
+function! LargeFile()
   augroup anyfold
     autocmd!
     autocmd Filetype * setlocal foldmethod=indent
