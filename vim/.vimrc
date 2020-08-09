@@ -346,7 +346,6 @@ set shortmess+=c
 
 " vimwiki
 nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
-nnoremap <leader>t :VimwikiToggleListItem<CR>
 let g:vimwiki_list = [{'path': '~/Documents/notes',
       \ 'syntax' : 'markdown',
       \ 'auto_tags' : 1,
@@ -361,7 +360,7 @@ augroup vimwikigroup
   autocmd BufReadPost *.md set bufhidden=delete
 augroup end
 let g:pandoc#syntax#conceal#urls = 1
-nnoremap <leader><space> :VimwikiToggleListItem<CR>
+nmap <leader>tl <Plug>VimwikiToggleListItem
 
 " FSwitch
 augroup fswitch
