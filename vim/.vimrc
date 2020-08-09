@@ -353,7 +353,6 @@ let g:vimwiki_list = [{'path': '~/Documents/notes',
       \ 'ext' : '.md'}]
 let g:vimwiki_global_ext = 0
 let g:vimwiki_filetypes = ['markdown', 'pandoc']
-command! Diary VimwikiDiaryIndex
 augroup vimwikigroup
   autocmd!
   " automatically update links on read diary
@@ -362,6 +361,7 @@ augroup vimwikigroup
   autocmd BufReadPost *.md set bufhidden=delete
 augroup end
 let g:pandoc#syntax#conceal#urls = 1
+nnoremap <leader><space> :VimwikiToggleListItem<CR>
 
 " FSwitch
 augroup fswitch
