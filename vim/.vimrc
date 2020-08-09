@@ -360,7 +360,7 @@ augroup vimwikigroup
   autocmd BufReadPost *.md set bufhidden=delete
 augroup end
 let g:pandoc#syntax#conceal#urls = 1
-nmap <leader>tl <Plug>VimwikiToggleListItem
+nmap <leader><space> <Plug>VimwikiToggleListItem
 
 " FSwitch
 augroup fswitch
