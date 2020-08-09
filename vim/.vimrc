@@ -148,6 +148,7 @@ Plug 'tpope/vim-surround'
 Plug 'vimwiki/vimwiki'
 Plug 'jerryyin/vimwiki-sync'
 Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug '907th/vim-auto-save'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -373,6 +374,9 @@ augroup fswitch
   autocmd BufEnter *.cpp let b:fswitchlocs = 'reg:|lib|include/mlir|'
 augroup END
 nmap <silent> <Leader>of :FSHere<cr>
+
+" Auto save
+let g:auto_save = 1
 
 " Automatically deletes least recently used buffer
 " A combination of https://www.vim.org/scripts/script.php?script_id=2346
