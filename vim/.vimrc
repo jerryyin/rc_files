@@ -88,10 +88,8 @@ call plug#begin('~/.vim/plugged')
 " gruvbox color scheme
 Plug 'morhetz/gruvbox'
 " Syntax highlighting
-Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 Plug 'Valloric/vim-operator-highlight'
-" llvm plugin
-Plug 'rhysd/vim-llvm', { 'for': 'llvm' }
+Plug 'sheerun/vim-polyglot'
 
 " Display
 " Project drawer directory browser
