@@ -168,9 +168,9 @@ set background=dark
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_contrast_light = 'hard'
 let g:gruvbox_bold = 0
-let g:gruvbox_transparent_bg = 1
 silent! colorscheme gruvbox
 highlight String guifg=#b16286 ctermfg=132
+highlight Normal ctermbg=None
 let g:ophigh_color_gui = "#458588"
 let g:ophigh_color = 66
 
