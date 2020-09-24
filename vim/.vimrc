@@ -142,11 +142,19 @@ Plug 'skywind3000/vim-auto-popmenu'
 Plug 'AndrewRadev/splitjoin.vim'
 " Insert mode shortcut
 Plug 'tpope/vim-rsi'
+" Surround text object
 Plug 'tpope/vim-surround'
+" wiki
 Plug 'vimwiki/vimwiki'
 Plug 'jerryyin/vimwiki-sync'
+" Markdown syntax highlighting
 Plug 'vim-pandoc/vim-pandoc-syntax'
+" Auto save
 Plug '907th/vim-auto-save'
+" Path navigation
+Plug 'tpope/vim-apathy'
+" UNIX shell commands
+Plug 'tpope/vim-eunuch'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
