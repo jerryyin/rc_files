@@ -155,6 +155,8 @@ Plug '907th/vim-auto-save'
 Plug 'tpope/vim-apathy'
 " UNIX shell commands
 Plug 'tpope/vim-eunuch'
+" Make vim follow symlink
+Plug 'aymericbeaumet/vim-symlink'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
