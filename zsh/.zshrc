@@ -107,4 +107,4 @@ source $ZSH/oh-my-zsh.sh
 #          tmux attach || break
 #      done
 # fi
-alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -h container -v $HOME:/data -v /data/imagenet/tf:/imagenet'
+alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -h container -v $HOME:/data'
