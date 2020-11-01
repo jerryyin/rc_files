@@ -91,20 +91,39 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# Make Alt + arrow work on Ubuntu
+# https://stackoverflow.com/questions/12382499/looking-for-altleftarrowkey-solution-in-zsh
+bindkey "^[[1;3C" forward-word
+bindkey "^[[1;3D" backward-word
+
 # TMUX
 # # If not running interactively, do not do anything
 # # This configuration allows multiple tmux sessions
-[[ $- != *i* ]] && return
-[[ -z "$TMUX" ]] && exec tmux -2u || :
-#
-# This configuration allows only one tmux session(new terminal will try to attach)
-# if which tmux >/dev/null 2>&1; then
-#      # if no session is started, start a new session
-#      test -z ${TMUX} && tmux
-#
-#      # when quitting tmux, try to attach
-#      while test -z ${TMUX}; do
-#          tmux attach || break
-#      done
-# fi
+#[[ $- != *i* ]] && return
+#[[ -z "$TMUX" ]] && exec tmux -2u || :
+
+# This configuration allows attaching to one base session
+# https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
+if which tmux >/dev/null 2>&1; then
+  # Default to TMUX
+  if [ -z "$TMUX" ]; then
+    base_session=$USER"_session"
+    # Create the base session if it doesn't exist
+    tmux has-session -t $base_session || tmux new-session -d -s $base_session
+    # Get a count of clients connected
+    client_cnt=$(tmux list-clients | wc -l)
+    if [ $client_cnt -ge 1 ]; then
+      # Make a unique session name
+      session_name=$base_session"-"$client_cnt
+      # Create the new session based on the base_session
+      tmux new-session -d -t $base_session -s $session_name
+      # Launch the connection with a few caveats (kill the session when the client goes away)
+      tmux -2u attach-session -t $session_name \; set-option destroy-unattached
+    else
+      tmux -2u attach-session -t $base_session
+    fi
+  fi
+fi
+
 alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -h container -v $HOME:/data'
