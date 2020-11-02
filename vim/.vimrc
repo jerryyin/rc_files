@@ -54,9 +54,6 @@ set hidden
 " Eliminating delays on ESC in vim and zsh
 set timeoutlen=1000 ttimeoutlen=0
 
-" Scroll 1/3 of the screen height
-execute "set scroll=" . winheight('.') / 3
-
 " Relative number move
 set number relativenumber
 
@@ -112,6 +109,8 @@ Plug 'simeji/winresizer'
 Plug 'jeffkreeftmeijer/vim-numbertoggle'
 " Better folding
 Plug 'pseewald/vim-anyfold'
+" Smooth scrolling
+Plug 'psliwka/vim-smoothie'
 
 " Utility
 " Auto inserts or deletes bracket, parens, quotes in pair
@@ -318,6 +317,8 @@ augroup fuDeleteBuffer
   autocmd!
   autocmd BufReadPost fugitive://* set bufhidden=delete
 augroup END
+" Set Gstatus to fixed length
+nmap <leader>gs :Gstatus<CR>:15wincmd_<CR>
 
 " Vineagar/netrw enable relative line number
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
