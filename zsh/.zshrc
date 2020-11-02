@@ -108,11 +108,11 @@ bindkey "^[[1;3D" backward-word
 if which tmux >/dev/null 2>&1; then
   # Default to TMUX
   if [ -z "$TMUX" ]; then
-    base_session=$USER"_session"
+    base_session=$USER
     # Create the base session if it doesn't exist
     tmux has-session -t $base_session || tmux new-session -d -s $base_session
     # Get a count of clients connected
-    client_cnt=$(tmux list-clients | wc -l)
+    client_cnt=$(tmux list-clients | wc -l | sed 's/^[ \t ]*//')
     if [ $client_cnt -ge 1 ]; then
       # Make a unique session name
       session_name=$base_session"-"$client_cnt
