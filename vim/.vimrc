@@ -379,9 +379,9 @@ augroup fswitch
   autocmd BufEnter *.cpp let b:fswitchdst = 'h,hpp'
   autocmd BufEnter *.h let b:fswitchdst = 'cpp,cc'
   " MLIR and MIOpen specific re
-  autocmd BufEnter *.h b:fswitchlocs = 'reg:|include/mlir|lib|,./'
-  autocmd BufEnter *.hpp let b:fswitchlocs = 'reg:|include/miopen|./|,./'
-  autocmd BufEnter *.cpp let b:fswitchlocs = 'reg:|lib|include/mlir|,reg:|src|src/include/miopen|,./'
+  " autocmd BufEnter *.h b:fswitchlocs = 'reg:|include/mlir|lib|,./'
+  " autocmd BufEnter *.hpp let b:fswitchlocs = 'reg:|include/miopen|./|,./'
+  " autocmd BufEnter *.cpp let b:fswitchlocs = 'reg:|lib|include/mlir|,reg:|src|src/include/miopen|,./'
 augroup END
 nmap <silent> <Leader>of :FSHere<cr>
 
