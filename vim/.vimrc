@@ -318,18 +318,20 @@ augroup fuDeleteBuffer
   autocmd BufReadPost fugitive://* set bufhidden=delete
 augroup END
 " Set Gstatus to fixed length
-nmap <leader>gs :Gstatus<CR>:15wincmd_<CR>
+nmap <leader>s :Gstatus<CR>:15wincmd_<CR>
 
 " Vineagar/netrw enable relative line number
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
 
 " Grepper
 let g:grepper = {}
+let g:grepper.tools = ['ag', 'git', 'grep']
 let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
-nnoremap <leader>g :Grepper<cr>
 let g:grepper.prompt_mapping_tool = '<leader>g'
-nnoremap <leader>s :Grepper -tool grep -cword -noprompt<cr>
+nnoremap <leader>gg :Grepper -tool git<cr>
+nnoremap <leader>ga :Grepper -tool ag<cr>
+nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
 
 " Airline
 let g:airline_extensions = ['branch','tabline','gutentags','fugitiveline','grepper','netrw']
