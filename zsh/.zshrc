@@ -108,7 +108,7 @@ bindkey "^[[1;3D" backward-word
 if which tmux >/dev/null 2>&1; then
   # Default to TMUX
   if [ -z "$TMUX" ]; then
-    base_session=$USER
+    base_session=$(whoami)
     # Create the base session if it doesn't exist
     tmux has-session -t $base_session || tmux new-session -d -s $base_session
     # Get a count of clients connected
