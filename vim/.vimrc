@@ -111,6 +111,8 @@ Plug 'jeffkreeftmeijer/vim-numbertoggle'
 Plug 'pseewald/vim-anyfold'
 " Smooth scrolling
 Plug 'psliwka/vim-smoothie'
+" Indent guides line
+Plug 'nathanaelkane/vim-indent-guides'
 
 " Utility
 " Auto inserts or deletes bracket, parens, quotes in pair
@@ -236,6 +238,10 @@ let g:winresizer_finish_with_escape = 1
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
+
+"indent guides
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_start_level = 3
 
 " cscope settings
 " The following maps all invoke one of the following cscope search types:
