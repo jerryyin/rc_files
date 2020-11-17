@@ -68,8 +68,9 @@ plugins=(
   sudo
   docker
   colorize
-  zsh-autosuggestions
   command-not-found
+  zsh-autosuggestions
+  zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
