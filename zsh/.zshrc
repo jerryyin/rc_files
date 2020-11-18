@@ -36,7 +36,7 @@ ZSH_THEME="robbyrussell"
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -136,3 +136,17 @@ if which tmux >/dev/null 2>&1; then
 fi
 
 alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -h container -v $HOME:/data'
+
+# Profile plugin speed:
+# Load all of the plugins that were defined in ~/.zshrc  
+#for plugin ($plugins); do
+#  timer=$(($(gdate +%s%N)/1000000))
+#  if [ -f $ZSH_CUSTOM/plugins/$plugin/$plugin.plugin.zsh ]; then  
+#    source $ZSH_CUSTOM/plugins/$plugin/$plugin.plugin.zsh  
+#  elif [ -f $ZSH/plugins/$plugin/$plugin.plugin.zsh ]; then  
+#    source $ZSH/plugins/$plugin/$plugin.plugin.zsh  
+#  fi  
+#  now=$(($(gdate +%s%N)/1000000))
+#  elapsed=$(($now-$timer))  
+#  echo $elapsed":" $plugin  
+#done 
