@@ -71,6 +71,7 @@ plugins=(
   command-not-found
   zsh-autosuggestions
   zsh-syntax-highlighting
+  history-substring-search
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -134,6 +135,8 @@ if which tmux >/dev/null 2>&1; then
     fi
   fi
 fi
+
+export LESS="-XFR"
 
 alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -h container -v $HOME:/data'
 
