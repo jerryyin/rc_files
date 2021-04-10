@@ -130,7 +130,7 @@ Plug 'tpope/vim-dispatch'
 " Grep async support
 Plug 'mhinz/vim-grepper'
 " File switch between cpp and header
-Plug 'derekwyatt/vim-fswitch'
+Plug 'ericcurtin/CurtineIncSw.vim'
 " System clipboard support
 " OSX - pbcopy and pbpaste
 " Windows - clip and paste
@@ -359,8 +359,6 @@ let g:apc_enable_ft = {'*':1 }
 set cpt=.,u,w,b
 " don't select the first item.
 set completeopt=menu,menuone,noselect
-" suppress annoy messages.
-set shortmess+=c
 
 " vimwiki
 nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
@@ -380,18 +378,8 @@ augroup end
 let g:pandoc#syntax#conceal#urls = 1
 nmap <leader><space> <Plug>VimwikiToggleListItem
 
-" FSwitch
-augroup fswitch
-  autocmd!
-  autocmd BufEnter *.cc let b:fswitchdst = 'hpp,h'
-  autocmd BufEnter *.cpp let b:fswitchdst = 'h,hpp'
-  autocmd BufEnter *.h let b:fswitchdst = 'cpp,cc'
-  " MLIR and MIOpen specific re
-  " autocmd BufEnter *.h b:fswitchlocs = 'reg:|include/mlir|lib|,./'
-  " autocmd BufEnter *.hpp let b:fswitchlocs = 'reg:|include/miopen|./|,./'
-  " autocmd BufEnter *.cpp let b:fswitchlocs = 'reg:|lib|include/mlir|,reg:|src|src/include/miopen|,./'
-augroup END
-nmap <silent> <Leader>of :FSHere<cr>
+" CurtineIncSw
+nmap <silent> <Leader>a :call CurtineIncSw()<cr>
 
 " Auto save
 let g:auto_save = 1
