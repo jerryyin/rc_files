@@ -168,7 +168,9 @@ Plug 'Chiel92/vim-autoformat'
 Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/indent/python.vim' }
 Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
 Plug 'https://gist.github.com/jerryyin/ac01c9f2471446927d290f28cd9e2608.git',
-    \ { 'as': 'vim-mlir', 'do': 'mkdir -p after/syntax; cp -f *.vim after/syntax/' }
+    \ { 'as': 'vim-mlir-syntax', 'do': 'mkdir -p after/syntax; cp -f *.vim after/syntax/; rm *.vim' }
+Plug 'https://gist.github.com/jerryyin/8e3119e35aaeed0b09cea43bfba04a32.git',
+    \ { 'as': 'vim-mlir-indent', 'do': 'mkdir -p indent; cp -f *.vim indent/; rm *.vim' }
 call plug#end()
 
 " This is only necessary if you use "set termguicolors" in tmux
@@ -223,6 +225,7 @@ augroup ft
   "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
   autocmd FileType qf setlocal wrap
   autocmd BufNewFile,BufRead *.mlir set syntax=mlir
+  autocmd FileType mlir setlocal comments+=://
 augroup END
 
 " Auto-pair
