@@ -338,8 +338,10 @@ let g:grepper.tools = ['ag', 'git', 'grep']
 let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
 let g:grepper.prompt_mapping_tool = '<leader>g'
-nnoremap <leader>gg :Grepper -tool git<cr>
+runtime plugin/grepper.vim
+let g:grepper.ag.grepprg .= ' --ignore-dir build'
 nnoremap <leader>ga :Grepper -tool ag<cr>
+nnoremap <leader>gg :Grepper -tool git -cword -noprompt<cr>
 nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
 
 " Airline
