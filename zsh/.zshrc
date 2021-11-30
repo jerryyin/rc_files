@@ -138,7 +138,7 @@ fi
 
 export LESS="-XFR"
 
-alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -h container -v $HOME:/data'
+alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -h $(hostname) -v $HOME:/data'
 
 # Profile plugin speed:
 # Load all of the plugins that were defined in ~/.zshrc  
