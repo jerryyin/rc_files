@@ -327,7 +327,8 @@ augroup fuDeleteBuffer
   autocmd BufReadPost fugitive://* set bufhidden=delete
 augroup END
 " Set Gstatus to fixed length
-nmap <leader>s :Gstatus<CR>:15wincmd_<CR>
+nmap <leader>s :Git<CR>:15wincmd_<CR>
+nmap <leader>d :Gvdiffsplit<CR>
 
 " Vineagar/netrw enable relative line number
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
