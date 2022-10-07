@@ -193,7 +193,7 @@ let g:cpp_member_variable_highlight = 1
 let g:cpp_class_decl_highlight = 1
 
 " Output the current syntax group
-nnoremap <f10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+nnoremap <f12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
