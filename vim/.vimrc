@@ -83,7 +83,7 @@ endif
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
 " gruvbox color scheme
-Plug 'morhetz/gruvbox'
+Plug 'gruvbox-community/gruvbox'
 " Syntax highlighting
 Plug 'Valloric/vim-operator-highlight'
 Plug 'sheerun/vim-polyglot'
