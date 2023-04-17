@@ -139,7 +139,8 @@ Plug 'christoomey/vim-system-copy'
 " Add more text objects to vim
 Plug 'wellle/targets.vim'
 " pop up menu for insert mode completion
-Plug 'skywind3000/vim-auto-popmenu'
+" This interfere with copilot
+"Plug 'skywind3000/vim-auto-popmenu'
 Plug 'AndrewRadev/splitjoin.vim'
 " Insert mode shortcut
 Plug 'tpope/vim-rsi'
@@ -158,6 +159,7 @@ Plug 'tpope/vim-apathy'
 Plug 'tpope/vim-eunuch'
 " Make vim follow symlink
 Plug 'aymericbeaumet/vim-symlink'
+Plug 'github/copilot.vim'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
