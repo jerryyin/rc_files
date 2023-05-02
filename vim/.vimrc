@@ -96,8 +96,9 @@ Plug 'mhinz/vim-signify'
 " Show marks
 Plug 'kshenoy/vim-signature'
 " Improve status bar
-" Plug 'itchyny/lightline.vim'
-Plug 'vim-airline/vim-airline'
+Plug 'itchyny/lightline.vim'
+Plug 'ap/vim-buftabline'
+
 " Color terminal: Ansi escape sequences
 Plug 'powerman/vim-plugin-AnsiEsc'
 " Startup window and session management
@@ -338,16 +339,8 @@ nnoremap <leader>ga :Grepper -tool ag<cr>
 nnoremap <leader>gg :Grepper -tool git -cword -noprompt<cr>
 nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
 
-" Airline
-let g:airline_extensions = ['branch','tabline','gutentags','fugitiveline','grepper','netrw']
-" Can add width. Potentially, %3l, %2c, %2p.
-let g:airline_section_z = 'LN %l:%c %p%%'
-let g:airline_highlighting_cache = 1
-let g:airline#extensions#tabline#show_buffers = 1
-let g:airline#extensions#tabline#show_tabs = 0
-let g:airline#extensions#tabline#show_tab_type = 0
-let g:airline#extensions#tabline#buffer_nr_show = 1
-let g:airline#extensions#tabline#formatter = 'unique_tail'
+" vim-bufferline
+let g:buftabline_numbers = 1
 " Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
 noremap <C-e> <C-^>
 
