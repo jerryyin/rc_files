@@ -57,6 +57,9 @@ set timeoutlen=1000 ttimeoutlen=0
 " Relative number move
 set number relativenumber
 
+" polyglot: disable its indent engine as it kill performance
+let g:polyglot_disabled = ['autoindent', 'sensible']
+
 " Moving around with ctrl + jkhl
 noremap <C-J> <C-W>j
 noremap <C-K> <C-W>k
@@ -200,6 +203,9 @@ nnoremap <f12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
+" Boost smoothie cursor speed at end of animation
+let g:smoothie_speed_constant_factor = 30
+
 " Folding
 augroup anyfold
   autocmd!
@@ -338,6 +344,10 @@ let g:grepper.ag.grepprg .= ' --ignore-dir build'
 nnoremap <leader>ga :Grepper -tool ag<cr>
 nnoremap <leader>gg :Grepper -tool git -cword -noprompt<cr>
 nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
+
+" Signature
+" The periodic refresh kills performance
+let g:SignaturePeriodicRefresh = 0
 
 " vim-bufferline
 let g:buftabline_numbers = 1
