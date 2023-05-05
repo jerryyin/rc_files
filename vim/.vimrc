@@ -251,9 +251,11 @@ let g:winresizer_finish_with_escape = 1
 set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
 
-"indent guides
+" Indent guides
 let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_start_level = 3
+" Default value is 30, kills performance
+let g:indent_guides_indent_levels = 8
 
 " cscope settings
 " The following maps all invoke one of the following cscope search types:
