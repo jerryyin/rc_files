@@ -71,6 +71,12 @@ tnoremap <C-H> <C-W>h
 tnoremap <C-L> <C-W>l
 tnoremap <Esc> <C-\><C-N>
 
+" split_number C-w C-w
+" The panes are numbered from top-left to bottom-right with the 
+" first one getting the number 1.
+" For switching to a particular pane, press <i> + <tab>
+nnoremap <tab> <C-W><C-W>
+
 " Source the termdebug plugin
 packadd termdebug
 
@@ -150,9 +156,9 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'tpope/vim-rsi'
 " Surround text object
 Plug 'tpope/vim-surround'
-" wiki
-Plug 'vimwiki/vimwiki'
-Plug 'jerryyin/vimwiki-sync'
+" Disabling wiki
+" Plug 'vimwiki/vimwiki'
+" Plug 'jerryyin/vimwiki-sync'
 " Markdown syntax highlighting
 Plug 'vim-pandoc/vim-pandoc-syntax'
 " Auto save
@@ -246,6 +252,19 @@ let g:lens#width_resize_max = 85
 " winresizer
 let g:winresizer_start_key = '<C-t>'
 let g:winresizer_finish_with_escape = 1
+
+" lightline
+" Customize colorscheme and branch
+let g:lightline = {
+    \ 'colorscheme': 'gruvbox',
+    \ 'active': {
+    \   'left': [['mode', 'paste'],
+    \            ['gitbranch', 'readonly', 'filename', 'modified']]
+    \ },
+    \ 'component_function': {
+    \   'gitbranch': 'FugitiveHead'
+    \ },
+    \ }
 
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
@@ -342,7 +361,7 @@ let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
 let g:grepper.prompt_mapping_tool = '<leader>g'
 runtime plugin/grepper.vim
-let g:grepper.ag.grepprg .= ' --ignore-dir build'
+" let g:grepper.ag.grepprg .= ' --ignore-dir build'
 nnoremap <leader>ga :Grepper -tool ag<cr>
 nnoremap <leader>gg :Grepper -tool git -cword -noprompt<cr>
 nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
@@ -365,22 +384,22 @@ set cpt=.,u,w,b
 set completeopt=menu,menuone,noselect
 
 " vimwiki
-nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
-let g:vimwiki_list = [{'path': '~/Documents/notes',
-      \ 'syntax' : 'markdown',
-      \ 'auto_tags' : 1,
-      \ 'ext' : '.md'}]
-let g:vimwiki_global_ext = 0
-let g:vimwiki_filetypes = ['markdown', 'pandoc']
-augroup vimwikigroup
-  autocmd!
-  " automatically update links on read diary
-  autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
-  au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
-  autocmd BufReadPost *.md set bufhidden=delete
-augroup end
-let g:pandoc#syntax#conceal#urls = 1
-nmap <leader><space> <Plug>VimwikiToggleListItem
+" nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
+" let g:vimwiki_list = [{'path': '~/Documents/notes',
+"       \ 'syntax' : 'markdown',
+"       \ 'auto_tags' : 1,
+"       \ 'ext' : '.md'}]
+" let g:vimwiki_global_ext = 0
+" let g:vimwiki_filetypes = ['markdown', 'pandoc']
+" augroup vimwikigroup
+"   autocmd!
+"   " automatically update links on read diary
+"   autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
+"   au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
+"   autocmd BufReadPost *.md set bufhidden=delete
+" augroup end
+" let g:pandoc#syntax#conceal#urls = 1
+" nmap <leader><space> <Plug>VimwikiToggleListItem
 
 " CurtineIncSw
 nmap <silent> <Leader>a :call CurtineIncSw()<cr>
