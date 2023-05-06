@@ -339,6 +339,8 @@ let g:Lf_CacheDirectory = $HOME
 let g:Lf_ShowRelativePath = 0
 let g:Lf_ShowDevIcons = 0
 let g:Lf_HideHelp = 1
+" Disable mru to prevent redundant file write in switching buffers
+let g:Lf_MruEnable = 0
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
 
