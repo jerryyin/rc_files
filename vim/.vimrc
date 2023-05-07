@@ -4,13 +4,13 @@ set history=10000
 filetype indent on
 filetype plugin on
 set clipboard=unnamed
-syntax on                       " Enable syntax highlighting.
-set wrap                        " Wrap long lines.
-set display=lastline            " Show as much of the line as will fit.
-set wildmenu                    " Better tab completion in the commandline.
-set wildmode=list:longest,full  " List all matches and complete to the longest match.
-set nrformats-=octal            " Remove octal support from 'nrformats'.
-"set formatoptions+=ncroqj      " Control automatic formatting.
+syntax on                       " Enable syntax highlighting
+set wrap                        " Wrap long lines
+set display=lastline            " Show as much of the line as will fit
+set wildmenu                    " Better tab completion in the commandline
+set wildmode=list:longest,full  " List all matches and complete to the longest match
+set nrformats-=octal            " Remove octal support from 'nrformats'
+" set formatoptions+=ncroqj     " Control automatic formatting
 set linebreak                   " Wrap long lines and make text easier to read
 set foldlevel=2
 set shiftwidth=2 tabstop=2 expandtab
@@ -44,7 +44,7 @@ set showmatch
 " Make backspace behavior match normal editor
 set backspace=indent,eol,start
 
-""Auto reload file on disk
+" Auto reload file on disk
 set autoread
 
 " It hides buffers instead of closing them. This means that you can have unwritten changes
@@ -71,7 +71,7 @@ tnoremap <C-H> <C-W>h
 tnoremap <C-L> <C-W>l
 tnoremap <Esc> <C-\><C-N>
 
-" split_number C-w C-w
+" Split_number C-w C-w
 " The panes are numbered from top-left to bottom-right with the 
 " first one getting the number 1.
 " For switching to a particular pane, press <i> + <tab>
@@ -92,7 +92,7 @@ endif
 " vim-plug plugin manager
 call plug#begin('~/.vim/plugged')
 " gruvbox color scheme
-Plug 'gruvbox-community/gruvbox'
+Plug 'sainnhe/gruvbox-material'
 " Syntax highlighting
 Plug 'Valloric/vim-operator-highlight'
 Plug 'sheerun/vim-polyglot'
@@ -106,7 +106,6 @@ Plug 'mhinz/vim-signify'
 Plug 'kshenoy/vim-signature'
 " Improve status bar
 Plug 'itchyny/lightline.vim'
-Plug 'ap/vim-buftabline'
 
 " Color terminal: Ansi escape sequences
 Plug 'powerman/vim-plugin-AnsiEsc'
@@ -134,7 +133,7 @@ Plug 'Yggdroot/LeaderF', {'do': './install.sh'}
 " Integrate with git
 Plug 'tpope/vim-fugitive'
 " MRU buffer
-Plug 'mildred/vim-bufmru'
+Plug 'jerryyin/vim-bufmru'
 " Dispath async support
 Plug 'tpope/vim-dispatch'
 " Grep async support
@@ -190,10 +189,14 @@ set background=dark
 "let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 "let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 "set termguicolors
-let g:gruvbox_contrast_dark = 'hard'
-let g:gruvbox_contrast_light = 'hard'
-let g:gruvbox_bold = 0
-silent! colorscheme gruvbox
+" This configuration option should be placed before `colorscheme gruvbox-material`.
+" Available values: 'hard', 'medium'(default), 'soft'
+let g:gruvbox_material_background = 'hard'
+let g:gruvbox_material_disable_italic_comment = 1
+let g:gruvbox_material_ui_contrast = 'low'
+" For better performance
+let g:gruvbox_material_better_performance = 1
+colorscheme gruvbox-material
 highlight String guifg=#b16286 ctermfg=132
 highlight Normal ctermbg=None
 let g:ophigh_color_gui = "#458588"
@@ -254,9 +257,10 @@ let g:winresizer_start_key = '<C-t>'
 let g:winresizer_finish_with_escape = 1
 
 " lightline
-" Customize colorscheme and branch
+" Customize colorscheme, branch and tabline
+set showtabline=2
 let g:lightline = {
-    \ 'colorscheme': 'gruvbox',
+    \ 'colorscheme': 'gruvbox_material',
     \ 'active': {
     \   'left': [['mode', 'paste'],
     \            ['gitbranch', 'readonly', 'filename', 'modified']]
@@ -264,6 +268,27 @@ let g:lightline = {
     \ 'component_function': {
     \   'gitbranch': 'FugitiveHead'
     \ },
+	  \ 'tabline': {
+	  \   'left': [ [ 'mrubuffers' ] ],
+	  \   'right': [ [ 'bufferclose', 'tabnum' ] ]
+	  \ },
+	  \ 'component_expand': {
+	  \   'mrubuffers': 'bufmru#lightline#buffers',
+	  \   'tabnum': 'bufmru#lightline#tabnum',
+	  \ },
+	  \ 'component_type': {
+	  \   'buffers':       'tabsel',
+	  \   'mrubuffers':    'tabsel',
+	  \ },
+	  \ 'component_raw': {
+	  \   'mrubuffers':     1,
+	  \   'bufferclose':    0,
+	  \   'tabnum':         1,
+	  \ },
+	  \ 'enable': {
+	  \   'statusline': 1,
+	  \   'tabline': 1
+	  \ }
     \ }
 
 " Dispatch, disallow tmux pane capture trick
@@ -374,8 +399,6 @@ nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
 " The periodic refresh kills performance
 let g:SignaturePeriodicRefresh = 0
 
-" vim-bufferline
-let g:buftabline_numbers = 1
 " Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
 noremap <C-e> <C-^>
 
