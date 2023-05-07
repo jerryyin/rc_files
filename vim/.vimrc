@@ -355,6 +355,8 @@ nmap <leader>d :Gvdiffsplit<CR>
 
 " Vineagar/netrw enable relative line number
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
+" Disable fast browse, this prevents netrw from opening a buffer
+let g:netrw_fastbrowse = 0
 
 " Grepper
 let g:grepper = {}
