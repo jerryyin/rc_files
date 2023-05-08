@@ -194,6 +194,7 @@ set background=dark
 let g:gruvbox_material_background = 'hard'
 let g:gruvbox_material_disable_italic_comment = 1
 let g:gruvbox_material_ui_contrast = 'low'
+let g:gruvbox_material_transparent_background = 2
 " For better performance
 let g:gruvbox_material_better_performance = 1
 colorscheme gruvbox-material
