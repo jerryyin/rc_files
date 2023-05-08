@@ -98,8 +98,8 @@ Plug 'Valloric/vim-operator-highlight'
 Plug 'sheerun/vim-polyglot'
 
 " Display
-" Project drawer directory browser
-Plug 'tpope/vim-vinegar'
+Plug 'preservim/nerdtree'
+
 " diff plugin
 Plug 'mhinz/vim-signify'
 " Show marks
@@ -378,10 +378,25 @@ augroup END
 nmap <leader>s :Git<CR>:15wincmd_<CR>
 nmap <leader>d :Gvdiffsplit<CR>
 
-" Vineagar/netrw enable relative line number
-let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
+nnoremap <leader>n :NERDTreeToggle<CR>
+let g:NERDTreeAutoDeleteBuffer=1
+let g:NERDTreeShowLineNumbers=1
+
+" Vinegar/netrw enable relative line number
+"let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
 " Disable fast browse, this prevents netrw from opening a buffer
-let g:netrw_fastbrowse = 0
+"Let g:netrw_fastbrowse = 0
+function! s:opendir(cmd) abort
+  if expand('%') =~# '^$\|^term:[\/][\/]'
+    execute a:cmd '.'
+  else
+    execute a:cmd '%:h' . (expand('%:p') =~# '^\a\a\+:' ? s:slash() : '')
+  endif
+endfunction
+nnoremap <silent> <Plug>VinegarUp :call <SID>opendir('edit')<CR>
+if empty(maparg('-', 'n')) && !hasmapto('<Plug>VinegarUp')
+  nmap - <Plug>VinegarUp
+endif
 
 " Grepper
 let g:grepper = {}
