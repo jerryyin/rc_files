@@ -453,28 +453,12 @@ let g:auto_save = 1
 " A combination of https://www.vim.org/scripts/script.php?script_id=2346
 " and
 " https://vi.stackexchange.com/questions/2193/automatically-close-oldest-buffers
-let g:nb_buffers_to_keep = 36
-
-function! s:Close(nb_to_keep)
-  "" If the lenth of buffer list is small, return early
-  let bufmru_bnrs = BufMRUList()
-  if a:nb_to_keep >= len(bufmru_bnrs)
-    return
-  endif
-  let nb_to_strip = len(bufmru_bnrs) - a:nb_to_keep
-  " The newly opened one is ranked last, remove it
-  let buflru_bnrs = reverse(copy(bufmru_bnrs[0:-2]))
-  " May need to filter out modified buffers
-  " Right now will error out and not delete modified buffer
-  "filter(buflru_bnrs, 'buflisted(v:val) && !getbufvar(v:val, "&modified")')
-  let buffers_to_strip = buflru_bnrs[0:(nb_to_strip-1)]
-  exe 'bw '.join(buffers_to_strip, ' ')
-endfunction
+let g:bufmru_nb_to_keep = 36
 
 " Manually
-"command! -nargs=1 CloseOldBuffers call s:Close(<args>)
+"command! -nargs=1 CloseOldBuffers call BufMRUAutoClose(<args>)
 " Automatically
 augroup closeOldBuffers
   autocmd!
-  autocmd BufNew * call s:Close(g:nb_buffers_to_keep)
+  autocmd BufNew * call BufMRUAutoClose()
 augroup END
