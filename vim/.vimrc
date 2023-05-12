@@ -122,6 +122,8 @@ Plug 'pseewald/vim-anyfold'
 Plug 'psliwka/vim-smoothie'
 " Indent guides line
 Plug 'nathanaelkane/vim-indent-guides'
+" Auto decide indent amount
+Plug 'tpope/vim-sleuth'
 
 " Utility
 " Auto inserts or deletes bracket, parens, quotes in pair
@@ -284,36 +286,36 @@ let g:winresizer_finish_with_escape = 1
 " Customize colorscheme, branch and tabline
 set showtabline=2
 let g:lightline = {
-    \ 'colorscheme': 'gruvbox_material',
-    \ 'active': {
-    \   'left': [['mode', 'paste'],
-    \            ['gitbranch', 'readonly', 'filename', 'modified']]
-    \ },
-    \ 'component_function': {
-    \   'gitbranch': 'FugitiveHead'
-    \ },
-	  \ 'tabline': {
-	  \   'left': [ [ 'mrubuffers' ] ],
-	  \   'right': [ [ 'bufferclose', 'tabnum' ] ]
-	  \ },
-	  \ 'component_expand': {
-	  \   'mrubuffers': 'bufmru#lightline#buffers',
-	  \   'tabnum': 'bufmru#lightline#tabnum',
-	  \ },
-	  \ 'component_type': {
-	  \   'buffers':       'tabsel',
-	  \   'mrubuffers':    'tabsel',
-	  \ },
-	  \ 'component_raw': {
-	  \   'mrubuffers':     1,
-	  \   'bufferclose':    0,
-	  \   'tabnum':         1,
-	  \ },
-	  \ 'enable': {
-	  \   'statusline': 1,
-	  \   'tabline': 1
-	  \ }
-    \ }
+  \ 'colorscheme': 'gruvbox_material',
+  \ 'active': {
+  \   'left': [['mode', 'paste'],
+  \            ['gitbranch', 'readonly', 'filename', 'modified']]
+  \ },
+  \ 'component_function': {
+  \   'gitbranch': 'FugitiveHead'
+  \ },
+  \ 'tabline': {
+  \   'left': [ [ 'mrubuffers' ] ],
+  \   'right': [ [ 'bufferclose', 'tabnum' ] ]
+  \ },
+  \ 'component_expand': {
+  \   'mrubuffers': 'bufmru#lightline#buffers',
+  \   'tabnum': 'bufmru#lightline#tabnum',
+  \ },
+  \ 'component_type': {
+  \   'buffers':       'tabsel',
+  \   'mrubuffers':    'tabsel',
+  \ },
+  \ 'component_raw': {
+  \   'mrubuffers':     1,
+  \   'bufferclose':    0,
+  \   'tabnum':         1,
+  \ },
+  \ 'enable': {
+  \   'statusline': 1,
+  \   'tabline': 1
+  \ }
+\ }
 
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
