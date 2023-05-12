@@ -195,6 +195,11 @@ let g:gruvbox_material_background = 'hard'
 let g:gruvbox_material_disable_italic_comment = 1
 let g:gruvbox_material_ui_contrast = 'high'
 let g:gruvbox_material_transparent_background = 2
+" highlight error/warning/info hint lines
+let g:gruvbox_material_diagnostic_virtual_text = 'colored'
+let g:gruvbox_material_diagnostic_text_highlight = 1
+let g:gruvbox_material_diagnostic_line_highlight = 1
+let g:gruvbox_material_lightline_disable_bold = 1
 " For better performance
 let g:gruvbox_material_better_performance = 1
 " Override Difftext as it becomes invisible when overlapping with cursorline
@@ -211,7 +216,8 @@ function! s:gruvbox_material_custom() abort
   " the fourth parameter is for UI highlighting which is optional,
   " and the last parameter is for `guisp` which is also optional.
   " See `autoload/gruvbox_material.vim` for the format of `l:palette`.
-  call gruvbox_material#highlight('DiffText', l:palette.green, l:palette.red)
+  call gruvbox_material#highlight('DiffText', l:palette.green, l:palette.red, 'bold')
+  call gruvbox_material#highlight('String', l:palette.purple, l:palette.none)
 endfunction
 
 augroup GruvboxMaterialCustom
@@ -219,10 +225,6 @@ augroup GruvboxMaterialCustom
   autocmd ColorScheme gruvbox-material call s:gruvbox_material_custom()
 augroup END
 colorscheme gruvbox-material
-highlight String guifg=#b16286 ctermfg=132
-highlight Normal ctermbg=None
-let g:ophigh_color_gui = "#458588"
-let g:ophigh_color = 66
 
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
