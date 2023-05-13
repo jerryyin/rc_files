@@ -99,6 +99,7 @@ Plug 'sheerun/vim-polyglot'
 
 " Display
 Plug 'preservim/nerdtree'
+Plug 'edkolev/tmuxline.vim'
 
 " diff plugin
 Plug 'mhinz/vim-signify'
@@ -488,3 +489,5 @@ augroup closeOldBuffers
   autocmd!
   autocmd BufNew * call BufMRUAutoClose()
 augroup END
+
+let g:tmuxline_powerline_separators = 0
