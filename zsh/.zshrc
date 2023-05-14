@@ -8,15 +8,15 @@ source "${XDG_CACHE_HOME:-$HOME/.cache}/zinit/bin/zi.zsh"
 #----------------------------------------------
 
 # Load plugins and themes
-zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-history-substring-search
 zinit light zdharma-continuum/fast-syntax-highlighting
-# This plugin automatically inserts matching pairs of parentheses, brackets,
-# quotes, etc., as you type, saving you time and effort in writing code or
-# command structures.
-zinit light hlissner/zsh-autopair
+# Auto rename titles
+zinit light jreese/zsh-titles
+zinit light softmoth/zsh-vim-mode
 zinit light zsh-users/zsh-completions
+# This plugin automatically inserts matching pairs of parentheses
+zinit light hlissner/zsh-autopair
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 typeset -g POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
@@ -27,13 +27,22 @@ source "$HOME/.zi/plugins/romkatv---powerlevel10k/config/p10k-robbyrussell.zsh"
 #PROMPT='%F{green}%n@%m %F{blue}%1~ %F{reset}$ '
 #PROMPT='%F{cyan}%1~ %F{green}$ '
 
-# Load Git plugin from OMZ
-zi snippet OMZP::git
+# Color
 zi snippet OMZP::colorize
+zi snippet OMZP::colored-man-pages
+
+# Utility
+zi snippet OMZP::git
 zi snippet OMZP::tmux
 zi snippet OMZP::sudo
 zi snippet OMZP::docker
-zi snippet OMZP::colored-man-pages
+
+# Suggest package that install the command
+zi snippet OMZP::command-not-found
+# marks, mark/unmark + <markname>, jump + <markname>
+zi snippet OMZP::jump
+# extract + <archive>
+zi snippet OMZP::extract
 
 #----------------------------------------------
 
@@ -47,25 +56,26 @@ setopt hist_find_no_dups
 setopt hist_reduce_blanks
 setopt hist_verify
 HISTFILE=~/.zsh_history
-SAVEHIST=1000
+SAVEHIST=10000
 
 # Aliases
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias vi='vim'
+# From OMZP::colorize
 alias cat='ccat'
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS
   alias ls='ls -G'
-	bindkey '^[[A' history-substring-search-up
-	bindkey '^[[B' history-substring-search-down
+  bindkey '^[[A' history-substring-search-up
+  bindkey '^[[B' history-substring-search-down
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
   # Ubuntu or other Linux distributions
   alias ls='ls --color'
-	bindkey '^[OA' history-substring-search-up
-	bindkey '^[OB' history-substring-search-down
+  bindkey '^[OA' history-substring-search-up
+  bindkey '^[OB' history-substring-search-down
 fi
 
 # zsh-history-substring-search
@@ -77,6 +87,8 @@ bindkey -M vicmd 'j' history-substring-search-down
 bindkey "^[[1;3C" forward-word
 bindkey "^[[1;3D" backward-word
 
+#----------------------------------------------
+#
 # TMUX
 # # If not running interactively, do not do anything
 # # This configuration allows multiple tmux sessions
