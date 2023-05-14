@@ -100,6 +100,7 @@ Plug 'sheerun/vim-polyglot'
 " Display
 Plug 'preservim/nerdtree'
 Plug 'edkolev/tmuxline.vim'
+Plug 'wellle/context.vim'
 
 " diff plugin
 Plug 'mhinz/vim-signify'
@@ -228,6 +229,9 @@ augroup GruvboxMaterialCustom
   autocmd ColorScheme gruvbox-material call s:gruvbox_material_custom()
 augroup END
 colorscheme gruvbox-material
+
+" Context.vim
+let g:context_highlight_tag = '<hide>'
 
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
