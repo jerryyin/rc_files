@@ -1,106 +1,63 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# Load Zinit
+if [[ ! -d "${XDG_CACHE_HOME:-$HOME/.cache}/zinit/bin" ]]; then
+    command mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/zinit/bin"
+    command git clone https://github.com/zdharma/zinit "${XDG_CACHE_HOME:-$HOME/.cache}/zinit/bin" --depth=1
+fi
+source "${XDG_CACHE_HOME:-$HOME/.cache}/zinit/bin/zi.zsh"
 
-# Path to your oh-my-zsh installation.
-  export ZSH="$HOME/.oh-my-zsh"
+#----------------------------------------------
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+# Load plugins and themes
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-autosuggestions
+zinit light zsh-users/zsh-history-substring-search
+zinit light zdharma-continuum/fast-syntax-highlighting
+# This plugin automatically inserts matching pairs of parentheses, brackets,
+# quotes, etc., as you type, saving you time and effort in writing code or
+# command structures.
+zinit light hlissner/zsh-autopair
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+typeset -g POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+#zinit ice wait'1' lucid depth=1; zinit light romkatv/powerlevel10k
+zinit light romkatv/powerlevel10k
+source "$HOME/.zi/plugins/romkatv---powerlevel10k/config/p10k-robbyrussell.zsh"
+# Custom prompt
+#PROMPT='%F{green}%n@%m %F{blue}%1~ %F{reset}$ '
+#PROMPT='%F{cyan}%1~ %F{green}$ '
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+# Load Git plugin from OMZ
+zi snippet OMZP::git
+zi snippet OMZP::colorize
+zi snippet OMZP::tmux
+zi snippet OMZP::sudo
+zi snippet OMZP::docker
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+#----------------------------------------------
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
+# Configure zsh options
+setopt extended_glob
+setopt hist_ignore_space
+setopt share_history
+setopt append_history
+setopt hist_expire_dups_first
+setopt hist_find_no_dups
+setopt hist_ignore_dups
+setopt hist_reduce_blanks
+setopt hist_verify
 
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
+# Aliases
+alias ls='ls -G'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias vi='vim'
 
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  git
-  tmux
-  sudo
-  docker
-  colorize
-  command-not-found
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  history-substring-search
-)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
+# {{{zsh-history-substring-search
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+bindkey -M vicmd 'k' history-substring-search-up
+bindkey -M vicmd 'j' history-substring-search-down
 
 # Make Alt + arrow work on Ubuntu
 # https://stackoverflow.com/questions/12382499/looking-for-altleftarrowkey-solution-in-zsh
@@ -141,15 +98,15 @@ export LESS="-XFR"
 alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 
 # Profile plugin speed:
-# Load all of the plugins that were defined in ~/.zshrc  
+# Load all of the plugins that were defined in ~/.zshrc
 #for plugin ($plugins); do
 #  timer=$(($(gdate +%s%N)/1000000))
-#  if [ -f $ZSH_CUSTOM/plugins/$plugin/$plugin.plugin.zsh ]; then  
-#    source $ZSH_CUSTOM/plugins/$plugin/$plugin.plugin.zsh  
-#  elif [ -f $ZSH/plugins/$plugin/$plugin.plugin.zsh ]; then  
-#    source $ZSH/plugins/$plugin/$plugin.plugin.zsh  
-#  fi  
+#  if [ -f $ZSH_CUSTOM/plugins/$plugin/$plugin.plugin.zsh ]; then
+#    source $ZSH_CUSTOM/plugins/$plugin/$plugin.plugin.zsh
+#  elif [ -f $ZSH/plugins/$plugin/$plugin.plugin.zsh ]; then
+#    source $ZSH/plugins/$plugin/$plugin.plugin.zsh
+#  fi
 #  now=$(($(gdate +%s%N)/1000000))
-#  elapsed=$(($now-$timer))  
-#  echo $elapsed":" $plugin  
-#done 
+#  elapsed=$(($now-$timer))
+#  echo $elapsed":" $plugin
+#done
