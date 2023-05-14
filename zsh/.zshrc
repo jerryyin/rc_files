@@ -16,6 +16,7 @@ zinit light zdharma-continuum/fast-syntax-highlighting
 # quotes, etc., as you type, saving you time and effort in writing code or
 # command structures.
 zinit light hlissner/zsh-autopair
+zinit light zsh-users/zsh-completions
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 typeset -g POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
@@ -32,30 +33,31 @@ zi snippet OMZP::colorize
 zi snippet OMZP::tmux
 zi snippet OMZP::sudo
 zi snippet OMZP::docker
+zi snippet OMZP::colored-man-pages
 
 #----------------------------------------------
 
 # Configure zsh options
 setopt extended_glob
+setopt inc_append_history
 setopt hist_ignore_space
-setopt share_history
-setopt append_history
+setopt hist_ignore_dups
 setopt hist_expire_dups_first
 setopt hist_find_no_dups
-setopt hist_ignore_dups
 setopt hist_reduce_blanks
 setopt hist_verify
 
 # Aliases
-alias ls='ls -G'
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
+alias ls='ls -G --color'
+alias ll='ls -alF --color'
+alias la='ls -A --color'
+alias l='ls -CF --color'
 alias vi='vim'
+alias cat='ccat'
 
-# {{{zsh-history-substring-search
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
+# zsh-history-substring-search
+bindkey '^[OA' history-substring-search-up
+bindkey '^[OB' history-substring-search-down
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
