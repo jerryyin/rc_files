@@ -48,16 +48,25 @@ setopt hist_reduce_blanks
 setopt hist_verify
 
 # Aliases
-alias ls='ls -G --color'
-alias ll='ls -alF --color'
-alias la='ls -A --color'
-alias l='ls -CF --color'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
 alias vi='vim'
 alias cat='ccat'
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS
+  alias ls='ls -G'
+	bindkey '^[[A' history-substring-search-up
+	bindkey '^[[B' history-substring-search-down
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  # Ubuntu or other Linux distributions
+  alias ls='ls --color'
+	bindkey '^[OA' history-substring-search-up
+	bindkey '^[OB' history-substring-search-down
+fi
+
 # zsh-history-substring-search
-bindkey '^[OA' history-substring-search-up
-bindkey '^[OB' history-substring-search-down
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
