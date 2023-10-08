@@ -7,6 +7,11 @@ source "${XDG_CACHE_HOME:-$HOME/.cache}/zinit/bin/zi.zsh"
 
 #----------------------------------------------
 
+ZSH_CACHE_DIR=$HOME/.cache/zsh
+if [[ ! -d $ZSH_CACHE_DIR  ]]; then
+  mkdir -p $ZSH_CACHE_DIR
+fi
+
 # Load plugins and themes
 zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-history-substring-search
