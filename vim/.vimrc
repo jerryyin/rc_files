@@ -377,6 +377,7 @@ nmap =% v%:Autoformat<CR>
 nmap = :.-1,.Autoformat<CR>
 nmap = :.,.+1Autoformat<CR>
 " Disable fallback to vim's indent file, only remove trailing whitespace
+au BufRead *.cu set filetype=cpp
 let g:autoformat_autoindent = 0
 let g:autoformat_retab = 0
 
