@@ -1,0 +1,22 @@
+version: "3.4"
+services:
+  dev:
+    image: "jeryin/dev:mlir-latest"
+    container_name: zyin-${COMPOSE_PROJECT_NAME:-default}
+    hostname: zyin
+    command: /bin/bash  # or whatever command you want to run
+    tty: true
+    stdin_open: true
+    network_mode: host
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    volumes:
+      - /data:/data
+      - $HOME:/zyin
