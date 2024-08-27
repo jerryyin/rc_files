@@ -2,7 +2,7 @@ version: "3.4"
 services:
   dev:
     image: "jeryin/dev:mlir-latest"
-    container_name: zyin-${COMPOSE_PROJECT_NAME:-default}
+    container_name: ${COMPOSE_PROJECT_NAME}
     hostname: zyin
     command: /bin/bash  # or whatever command you want to run
     tty: true

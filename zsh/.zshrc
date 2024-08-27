@@ -125,7 +125,21 @@ fi
 
 export LESS="-XFR"
 
-alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
+#alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
+
+drun() {
+  DATE=$(date "+%m%d")
+
+  PROJECT_NAME=""
+  # Check if a custom project name is provided as an argument
+  if [ -n "$1" ]; then
+    PROJECT_NAME="$1"
+  fi
+
+  export COMPOSE_PROJECT_NAME="zyin-${PROJECT_NAME}${DATE}"
+
+  docker-compose -p "$COMPOSE_PROJECT_NAME" up -d
+}
 
 # Profile plugin speed:
 # Load all of the plugins that were defined in ~/.zshrc
