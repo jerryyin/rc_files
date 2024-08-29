@@ -136,9 +136,9 @@ drun() {
     PROJECT_NAME="$1"
   fi
 
-  export COMPOSE_PROJECT_NAME="zyin-${PROJECT_NAME}${DATE}"
+  export COMPOSE_PROJECT_NAME="${USER}-${PROJECT_NAME}${DATE}"
 
-  docker-compose -p "$COMPOSE_PROJECT_NAME" up -d
+  docker-compose -f ".docker/docker-compose.yml" -p "$COMPOSE_PROJECT_NAME" up -d
 }
 
 # Profile plugin speed:

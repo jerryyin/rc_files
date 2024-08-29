@@ -1,0 +1,27 @@
+version: "3.4"
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "jeryin/dev:mlir-latest"
+    container_name: ${COMPOSE_PROJECT_NAME:-dev}
+    hostname: ${USER:-zyin}
+    command: ["/bin/zsh"]  # or whatever command you want to run
+    tty: true
+    stdin_open: true
+    network_mode: host
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    tmpfs: # Temporary filesystem for VS Code server to improve performance
+      - "${HOME}/.vscode-server:exec"
+    volumes:
+      - /data:/data
+      - $HOME:/${USER}
