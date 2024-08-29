@@ -24,4 +24,4 @@ services:
       - "${HOME}/.vscode-server:exec"
     volumes:
       - /data:/data
-      - $HOME:/${USER}
+      - $HOME:/${USER:-zyin}
