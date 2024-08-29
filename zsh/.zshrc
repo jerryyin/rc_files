@@ -138,8 +138,8 @@ drun() {
 
   export COMPOSE_PROJECT_NAME="${USER}-${PROJECT_NAME}${DATE}"
 
-  docker-compose -f ".docker/docker-compose.yml" -p "$COMPOSE_PROJECT_NAME" build --no-cache
-  docker-compose -f ".docker/docker-compose.yml" -p "$COMPOSE_PROJECT_NAME" up -d
+  docker-compose -f ".docker/docker-compose.yml" build --no-cache
+  docker-compose -f ".docker/docker-compose.yml" up -d
 }
 
 # Profile plugin speed:
