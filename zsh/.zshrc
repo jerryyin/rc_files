@@ -138,6 +138,7 @@ drun() {
 
   export COMPOSE_PROJECT_NAME="${USER}-${PROJECT_NAME}${DATE}"
 
+  docker-compose -f ".docker/docker-compose.yml" -p "$COMPOSE_PROJECT_NAME" build --no-cache
   docker-compose -f ".docker/docker-compose.yml" -p "$COMPOSE_PROJECT_NAME" up -d
 }
 
