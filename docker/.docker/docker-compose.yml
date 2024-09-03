@@ -1,9 +1,26 @@
 version: "3.4"
 services:
+  tools:
+    build:
+      context: .
+      dockerfile: tools.Dockerfile
+    image: jeryin/tools:latest
+    container_name: tools
+    volumes:
+      - /usr/local:/usr/local
+    environment:
+      - PATH=/usr/local/bin:$PATH
+    # Optionally specify commands to test the tools
+    command: ["/bin/sh", "-c", "ctags --version && global --version && gdb --version"]
+
   dev:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      - tools
+    volumes_from:
+      - tools
     image: "jeryin/dev:mlir-latest"
     container_name: ${COMPOSE_PROJECT_NAME:-dev}
     hostname: ${USER:-zyin}
@@ -25,16 +42,3 @@ services:
     volumes:
       - /data:/data
       - $HOME:/${USER:-zyin}
-
-  tools:
-    build:
-      context: .
-      dockerfile: tools.Dockerfile
-    image: jeryin/tools:latest
-    container_name: tools
-    volumes:
-      - /usr/local:/usr/local
-    environment:
-      - PATH=/usr/local/bin:$PATH
-    # Optionally specify commands to test the tools
-    command: ["/bin/sh", "-c", "ctags --version && global --version && gdb --version"]
