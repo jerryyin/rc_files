@@ -127,21 +127,36 @@ export LESS="-XFR"
 
 # alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 
-alias dc='docker-compose -f .docker/docker-compose.yml'
-alias drun='dc up -d'
+# Function to set the COMPOSE_PROJECT_NAME if not already set
+set_compose_project_name() {
+  if [ -z "$COMPOSE_PROJECT_NAME" ]; then
+    local DATE=$(date "+%m%d")
+    local PROJECT_NAME=""
 
-dbuild() {
-  DATE=$(date "+%m%d")
+    # Check if a custom project name is provided as an argument
+    if [ -n "$1" ]; then
+      PROJECT_NAME="$1"
+    fi
 
-  PROJECT_NAME=""
-  # Check if a custom project name is provided as an argument
-  if [ -n "$1" ]; then
-    PROJECT_NAME="$1"
+    export COMPOSE_PROJECT_NAME="${USER}-${PROJECT_NAME}${DATE}"
   fi
+}
 
-  export COMPOSE_PROJECT_NAME="${USER}-${PROJECT_NAME}${DATE}"
+# Function to set Docker Compose file and ensure COMPOSE_PROJECT_NAME is set
+dcompose() {
+  set_compose_project_name "$1"
+  docker-compose -f .docker/docker-compose.yml "$@"
+}
 
-  dc build
+# Function to bring up Docker services in detached mode
+drun() {
+  docker_compose up -d "$@"
+}
+
+# Function to build Docker services with a dynamic project name
+dbuild() {
+  set_compose_project_name "$1"
+  docker_compose build
 }
 
 # Profile plugin speed:
