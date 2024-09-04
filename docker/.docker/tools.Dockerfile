@@ -1,5 +1,6 @@
 # Base image for building the tools, needs to be consistent with dev env
-FROM ubuntu:22.04
+ARG UBUNTU_VERSION
+FROM ubuntu:${UBUNTU_VERSION}
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -14,6 +15,14 @@ RUN apt-get update && apt-get install -y \
     automake \
     libtool \
     wget \
+    pkg-config \
+    libncurses5-dev \
+    libmpc-dev \
+    python3-docutils \
+    libseccomp-dev \
+    libjansson-dev \
+    libyaml-dev \
+    libxml2-dev \
     git \
     texinfo \
     && rm -rf /var/lib/apt/lists/*
