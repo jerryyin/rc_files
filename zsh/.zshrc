@@ -127,7 +127,10 @@ export LESS="-XFR"
 
 # alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 
-drun() {
+alias dc='docker-compose -f .docker/docker-compose.yml'
+alias drun='dc up -d'
+
+dbuild() {
   DATE=$(date "+%m%d")
 
   PROJECT_NAME=""
@@ -138,8 +141,7 @@ drun() {
 
   export COMPOSE_PROJECT_NAME="${USER}-${PROJECT_NAME}${DATE}"
 
-  docker-compose -f ".docker/docker-compose.yml" build --no-cache
-  docker-compose -f ".docker/docker-compose.yml" up -d
+  dc build
 }
 
 # Profile plugin speed:
