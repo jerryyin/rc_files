@@ -150,13 +150,13 @@ dcompose() {
 
 # Function to bring up Docker services in detached mode
 drun() {
-  docker_compose up -d "$@"
+  docker-compose up -d "$@"
 }
 
 # Function to build Docker services with a dynamic project name
 dbuild() {
   set_compose_project_name "$1"
-  docker_compose build
+  docker-compose build
 }
 
 # Profile plugin speed:

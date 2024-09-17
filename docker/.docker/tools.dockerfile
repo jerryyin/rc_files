@@ -1,7 +1,3 @@
-# Base image for building the tools, needs to be consistent with dev env
-ARG UBUNTU_VERSION
-FROM ubuntu:${UBUNTU_VERSION}
-
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV GLOBAL_VERSION=6.6.13
@@ -26,11 +22,6 @@ RUN apt-get update && apt-get install -y \
     git \
     texinfo \
     && rm -rf /var/lib/apt/lists/*
-
-# Redirect std
-RUN REGULAR_LOG="tool.log" && \
-    > "$REGULAR_LOG" && \
-    exec 1>>"$REGULAR_LOG"
 
 # Build Universal Ctags
 WORKDIR /tmp
