@@ -1,44 +1,59 @@
 version: "3.4"
-services:
-  #tools:
-  #  build:
-  #    context: .
-  #    dockerfile: tools.Dockerfile
-  #    args:
-  #      UBUNTU_VERSION: "20.04"
-  #  image: jeryin/tools:ubuntu-20.04
-  #  container_name: zyin-tools
-  #  volumes:
-  #    - /usr/local:/usr/local
-  #  environment:
-  #    - PATH=/usr/local/bin:$PATH
-  #  # Optionally specify commands to test the tools
-  #  command: ["/bin/sh", "-c", "ctags --version && global --version && gdb --version"]
 
-  dev:
+x-base-service: &base-service
+  container_name: ${COMPOSE_PROJECT_NAME:-dev}
+  hostname: ${USER:-zyin}
+  command: ["/bin/zsh"]  # or whatever command you want to run
+  tty: true
+  stdin_open: true
+  network_mode: host
+  devices:
+    - /dev/kfd
+    - /dev/dri
+  group_add:
+    - video
+  cap_add:
+    - SYS_PTRACE
+  security_opt:
+    - seccomp=unconfined
+  tmpfs: # Temporary filesystem for VS Code server to improve performance
+    - "${HOME}/.vscode-server:exec"
+  volumes:
+    - /data:/data
+    - $HOME:/${USER:-zyin}
+
+services:
+  rocmlir:
+    <<: *base-service
     build:
       context: .
-      cache_from: 
-        - "jeryin/dev:mlir-latest"
-      dockerfile: Dockerfile
-    image: "jeryin/dev:mlir-latest"
-    container_name: ${COMPOSE_PROJECT_NAME:-dev}
-    hostname: ${USER:-zyin}
-    command: ["/bin/zsh"]  # or whatever command you want to run
-    tty: true
-    stdin_open: true
-    network_mode: host
-    devices:
-      - /dev/kfd
-      - /dev/dri
-    group_add:
-      - video
-    cap_add:
-      - SYS_PTRACE
-    security_opt:
-      - seccomp=unconfined
-    tmpfs: # Temporary filesystem for VS Code server to improve performance
-      - "${HOME}/.vscode-server:exec"
+      dockerfile: base.dockerfile
+      args:
+        BASE_IMAGE: rocm/mlir:latest
+        SERVICE_NAME: rocmlir
+    image: "jeryin/dev:rocmlir"
+
+  triton:
+    <<: *base-service
+    build:
+      context: .
+      dockerfile: base.dockerfile
+      args:
+        BASE_IMAGE: rocm/pytorch:rocm6.1_ubuntu22.04_py3.10_pytorch_2.4
+        SERVICE_NAME: triton
+    image: "jeryin/dev:triton"
+
+  tools:
+    build:
+      context: .
+      dockerfile: tools.Dockerfile
+      args:
+        BASE_IMAGE: ubutnu-20.04
+    image: jeryin/dev:tools
+    container_name: zyin-tools
     volumes:
-      - /data:/data
-      - $HOME:/${USER:-zyin}
+      - /usr/local:/usr/local
+    environment:
+      - PATH=/usr/local/bin:$PATH
+    # Optionally specify commands to test the tools
+    command: ["/bin/sh", "-c", "ctags --version && global --version && gdb --version"]

@@ -129,34 +129,31 @@ export LESS="-XFR"
 
 # Function to set the COMPOSE_PROJECT_NAME if not already set
 set_compose_project_name() {
-  if [ -z "$COMPOSE_PROJECT_NAME" ]; then
-    local DATE=$(date "+%m%d")
-    local PROJECT_NAME=""
+  local DATE=$(date "+%m%d")
+  local SERVICE=""
 
-    # Check if a custom project name is provided as an argument
-    if [ -n "$1" ]; then
-      PROJECT_NAME="$1"
-    fi
-
-    export COMPOSE_PROJECT_NAME="${USER}-${PROJECT_NAME}${DATE}"
+  # Check if a custom project name is provided as an argument
+  if [ -n "$1" ]; then
+    SERVICE="$1"
   fi
+
+  export COMPOSE_PROJECT_NAME="${USER}-${SERVICE}${DATE}"
 }
 
 # Function to set Docker Compose file and ensure COMPOSE_PROJECT_NAME is set
 dcompose() {
-  set_compose_project_name "$1"
-  docker-compose -f .docker/docker-compose.yml "$@"
+  set_compose_project_name "$@[-1]"
+  docker-compose -f ~/.docker/docker-compose.yml "$@"
 }
 
 # Function to bring up Docker services in detached mode
 drun() {
-  docker-compose up -d "$@"
+  dcompose up -d --no-build "$1"
 }
 
 # Function to build Docker services with a dynamic project name
 dbuild() {
-  set_compose_project_name "$1"
-  docker-compose build
+  dcompose build "$1"
 }
 
 # Profile plugin speed:

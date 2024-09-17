@@ -1,3 +1,6 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV GLOBAL_VERSION=6.6.13
