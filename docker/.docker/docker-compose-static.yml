@@ -1,0 +1,63 @@
+version: "3.4"
+
+volumes:
+  tools_volume:
+    external: false
+
+x-base-service: &base-service
+  container_name: ${COMPOSE_PROJECT_NAME:-dev}
+  hostname: ${USER:-zyin}
+  command: ["/bin/zsh"]
+  tty: true
+  stdin_open: true
+  network_mode: host
+  devices:
+    - /dev/kfd
+    - /dev/dri
+  group_add:
+    - video
+  cap_add:
+    - SYS_PTRACE
+  security_opt:
+    - seccomp=unconfined
+  tmpfs:
+    - "${HOME}/.vscode-server:exec"
+  volumes:
+    - /data:/data
+    - $HOME:/${USER:-zyin}
+    - tools_volume:/tools  # Mount tools volume into /tools
+
+services:
+  tools-setup:
+    build:
+      context: .
+      dockerfile: tools_static.Dockerfile  # Build tools image as usual
+    image: jeryin/dev:tools
+    container_name: zyin-tools-setup
+    volumes:
+      - tools_volume:/tools  # Mount volume to receive tools
+    restart: "no"
+
+  rocmlir:
+    <<: *base-service
+    build:
+      context: .
+      dockerfile: base.dockerfile
+      args:
+        BASE_IMAGE: rocm/mlir:latest
+        SERVICE_NAME: rocmlir
+    image: "jeryin/dev:rocmlir"
+    depends_on:
+      - tools-setup  # Ensure tools-setup runs first
+
+  triton:
+    <<: *base-service
+    build:
+      context: .
+      dockerfile: base.dockerfile
+      args:
+        BASE_IMAGE: rocm/pytorch:rocm6.1_ubuntu22.04_py3.10_pytorch_2.4
+        SERVICE_NAME: triton
+    image: "jeryin/dev:triton"
+    depends_on:
+      - tools-setup  # Ensure tools-setup runs first
