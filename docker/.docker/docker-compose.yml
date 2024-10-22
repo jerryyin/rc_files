@@ -1,9 +1,13 @@
 version: "3.4"
 
+volumes:
+  tools_volume:
+    external: false
+
 x-base-service: &base-service
   container_name: ${COMPOSE_PROJECT_NAME:-dev}
   hostname: ${USER:-zyin}
-  command: ["/bin/zsh"]  # or whatever command you want to run
+  command: ["/bin/zsh"]
   tty: true
   stdin_open: true
   network_mode: host
@@ -16,13 +20,30 @@ x-base-service: &base-service
     - SYS_PTRACE
   security_opt:
     - seccomp=unconfined
-  tmpfs: # Temporary filesystem for VS Code server to improve performance
+  tmpfs:
     - "${HOME}/.vscode-server:exec"
   volumes:
     - /data:/data
     - $HOME:/${USER:-zyin}
+    - tools_volume:/usr/local  # Mount tools volume into /usr/local
 
 services:
+  tools-setup:
+    command: ["/bin/sh", "-c", "cp -r /usr/local/* /tools || true && tail -f /dev/null"]
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: tools.dockerfile  # Build tools image as usual
+      args:
+        BASE_IMAGE: ubuntu:22.04
+        SERVICE_NAME: tools-setup
+    image: jeryin/dev:tools
+    container_name: zyin-tools-setup
+    volumes:
+      - tools_volume:/tools  # Mount volume to receive tools
+    restart: "no"
+
   rocmlir:
     <<: *base-service
     build:
@@ -32,6 +53,8 @@ services:
         BASE_IMAGE: rocm/mlir:latest
         SERVICE_NAME: rocmlir
     image: "jeryin/dev:rocmlir"
+    depends_on:
+      - tools-setup  # Ensure tools-setup runs first
 
   triton:
     <<: *base-service
@@ -42,18 +65,5 @@ services:
         BASE_IMAGE: rocm/pytorch:rocm6.1_ubuntu22.04_py3.10_pytorch_2.4
         SERVICE_NAME: triton
     image: "jeryin/dev:triton"
-
-  tools:
-    build:
-      context: .
-      dockerfile: tools.Dockerfile
-      args:
-        BASE_IMAGE: ubutnu-20.04
-    image: jeryin/dev:tools
-    container_name: zyin-tools
-    volumes:
-      - /usr/local:/usr/local
-    environment:
-      - PATH=/usr/local/bin:$PATH
-    # Optionally specify commands to test the tools
-    command: ["/bin/sh", "-c", "ctags --version && global --version && gdb --version"]
+    depends_on:
+      - tools-setup  # Ensure tools-setup runs first

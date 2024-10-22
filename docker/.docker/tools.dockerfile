@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y \
     libjansson-dev \
     libyaml-dev \
     libxml2-dev \
+    zlib1g-dev \
+    liblzma-dev \ 
     git \
     texinfo \
     && rm -rf /var/lib/apt/lists/*
@@ -31,21 +33,24 @@ WORKDIR /tmp
 RUN git clone https://github.com/universal-ctags/ctags.git && \
     cd ctags && \
     ./autogen.sh && \
-    ./configure CFLAGS="-w -Wno-deprecated" CXXFLAGS="-w" && \
-    make -j$(nproc) && make install
+    ./configure CFLAGS="-static" CXXFLAGS="-w" LDFLAGS="-static" --enable-static --disable-iconv && \
+    make -j$(nproc) && \
+    make install
 
 # Build GNU Global
 WORKDIR /tmp
 RUN wget -q https://ftp.gnu.org/pub/gnu/global/global-${GLOBAL_VERSION}.tar.gz && \
     tar -xzf global-${GLOBAL_VERSION}.tar.gz && \
     cd global-${GLOBAL_VERSION} && \
-    ./configure --with-universal-ctags=/usr/local/bin/ctags CFLAGS="-w -Wno-deprecated" CXXFLAGS="-w" && \
-    make -j$(nproc) && make install
+    ./configure --with-universal-ctags=/tools/usr/local/bin/ctags CFLAGS="-w -Wno-deprecated -static" CXXFLAGS="-w -static" LDFLAGS="-static" --enable-static --disable-shared && \
+    make -j$(nproc) && \
+    make install
 
-# Build GDB
-WORKDIR /tmp
-RUN wget -q http://ftp.gnu.org/gnu/gdb/gdb-${GDB_VERSION}.tar.gz && \
-    tar -xzf gdb-${GDB_VERSION}.tar.gz && \
-    cd gdb-${GDB_VERSION} && \
-    ./configure CFLAGS="-w -Wno-deprecated" CXXFLAGS="-w" && \
-    make -j$(nproc) && make install
+# Build GDB -> use rocGDB instead
+#WORKDIR /tmp
+#RUN wget -q http://ftp.gnu.org/gnu/gdb/gdb-${GDB_VERSION}.tar.gz && \
+#    tar -xzf gdb-${GDB_VERSION}.tar.gz && \
+#    cd gdb-${GDB_VERSION} && \
+#    ./configure CFLAGS="-w -Wno-deprecated -static" CXXFLAGS="-w" LDFLAGS="-static" --enable-static --disable-shared && \
+#    make -j$(nproc) && \
+#    make DESTDIR=/tools install
