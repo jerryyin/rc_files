@@ -9,7 +9,7 @@ RUN echo "Acquire::http::proxy \"$HTTP_PROXY\";\nAcquire::https::proxy \"$HTTPS_
 # lightweight setup script
 WORKDIR /root
 RUN git clone https://github.com/jerryyin/scripts.git && \
-    bash scripts/docker/init.sh
+    bash scripts/docker/init_min.sh
 
 ARG SERVICE_NAME
 RUN if [ "$SERVICE_NAME" = "rocmlir" ]; then \
