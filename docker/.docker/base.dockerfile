@@ -6,6 +6,11 @@ WORKDIR /root
 
 RUN echo "Acquire::http::proxy \"$HTTP_PROXY\";\nAcquire::https::proxy \"$HTTPS_PROXY\";" > /etc/apt/apt.conf
 
+# Install dependencies, musl since gtags dynamically linked to
+RUN apt-get update && apt-get install -y \
+    musl-tools \
+    && rm -rf /var/lib/apt/lists/*
+
 # lightweight setup script
 WORKDIR /root
 RUN git clone https://github.com/jerryyin/scripts.git && \
