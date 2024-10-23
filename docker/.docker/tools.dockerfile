@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y \
     liblzma-dev \ 
     git \
     texinfo \
+    musl-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Build Universal Ctags
@@ -38,13 +39,13 @@ RUN git clone https://github.com/universal-ctags/ctags.git && \
     make install
 
 # Build GNU Global -> static build doesn't work
-#WORKDIR /tmp
-#RUN wget -q https://ftp.gnu.org/pub/gnu/global/global-${GLOBAL_VERSION}.tar.gz && \
-#    tar -xzf global-${GLOBAL_VERSION}.tar.gz && \
-#    cd global-${GLOBAL_VERSION} && \
-#    ./configure --with-universal-ctags=/tools/usr/local/bin/ctags CFLAGS="-w -Wno-deprecated -static" CXXFLAGS="-w -static" LDFLAGS="-static" --enable-static --disable-shared && \
-#    make -j$(nproc) && \
-#    make install
+WORKDIR /tmp
+RUN wget -q https://ftp.gnu.org/pub/gnu/global/global-${GLOBAL_VERSION}.tar.gz && \
+    tar -xzf global-${GLOBAL_VERSION}.tar.gz && \
+    cd global-${GLOBAL_VERSION} && \
+    CC=musl-gcc ./configure --with-universal-ctags=/tools/usr/local/bin/ctags --enable-static --disable-shared && \
+    make -j$(nproc) && \
+    make install
 
 # Build GDB -> use rocGDB instead
 #WORKDIR /tmp
