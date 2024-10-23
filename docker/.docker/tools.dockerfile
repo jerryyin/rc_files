@@ -3,8 +3,6 @@ FROM ${BASE_IMAGE}
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV GLOBAL_VERSION=6.6.13
-ENV GDB_VERSION=15.1
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -26,7 +24,6 @@ RUN apt-get update && apt-get install -y \
     liblzma-dev \ 
     git \
     texinfo \
-    musl-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Build Universal Ctags
@@ -39,15 +36,17 @@ RUN git clone https://github.com/universal-ctags/ctags.git && \
     make install
 
 # Build GNU Global -> static build doesn't work
+ENV GLOBAL_VERSION=6.6.13
 WORKDIR /tmp
 RUN wget -q https://ftp.gnu.org/pub/gnu/global/global-${GLOBAL_VERSION}.tar.gz && \
     tar -xzf global-${GLOBAL_VERSION}.tar.gz && \
     cd global-${GLOBAL_VERSION} && \
-    CC=musl-gcc ./configure --with-universal-ctags=/tools/usr/local/bin/ctags --enable-static --disable-shared && \
+    ./configure --with-universal-ctags=/tools/usr/local/bin/ctags && \
     make -j$(nproc) && \
     make install
 
 # Build GDB -> use rocGDB instead
+#ENV GDB_VERSION=15.1
 #WORKDIR /tmp
 #RUN wget -q http://ftp.gnu.org/gnu/gdb/gdb-${GDB_VERSION}.tar.gz && \
 #    tar -xzf gdb-${GDB_VERSION}.tar.gz && \
@@ -55,3 +54,9 @@ RUN wget -q https://ftp.gnu.org/pub/gnu/global/global-${GLOBAL_VERSION}.tar.gz &
 #    ./configure CFLAGS="-w -Wno-deprecated -static" CXXFLAGS="-w" LDFLAGS="-static" --enable-static --disable-shared && \
 #    make -j$(nproc) && \
 #    make DESTDIR=/tools install
+
+# Replace /usr/local/bin with packed binary, and depedent so under /usr/local/lib/packelf_shared
+WORKDIR /tmp
+RUN git clone https://github.com/jerryyin/packelf.git && \
+    cd packelf && \
+    bash batchpack.sh
