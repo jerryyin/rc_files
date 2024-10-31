@@ -67,3 +67,17 @@ services:
     image: "jeryin/dev:triton"
     depends_on:
       - tools-setup  # Ensure tools-setup runs first
+
+  iree:
+    <<: *base-service
+    build:
+      context: .
+      dockerfile: base.dockerfile
+      args:
+        BASE_IMAGE: rocm/dev-ubuntu22.04:latest
+        SERVICE_NAME: iree
+    image: "jeryin/dev:iree"
+    depends_on:
+      - tools-setup  # Ensure tools-setup runs first
+
+

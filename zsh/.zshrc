@@ -153,7 +153,7 @@ drun() {
 
 # Function to build Docker services with a dynamic project name
 dbuild() {
-  dcompose build "$1"
+  dcompose build "$@"
 }
 
 # Profile plugin speed:

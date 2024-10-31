@@ -121,7 +121,7 @@ Plug 'jeffkreeftmeijer/vim-numbertoggle'
 " Better folding
 Plug 'pseewald/vim-anyfold'
 " Smooth scrolling
-Plug 'psliwka/vim-smoothie'
+"Plug 'psliwka/vim-smoothie'
 " Indent guides line
 Plug 'nathanaelkane/vim-indent-guides'
 " Auto decide indent amount
@@ -448,7 +448,7 @@ nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
 let g:SignaturePeriodicRefresh = 0
 
 " Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
-noremap <C-e> <C-^>
+nnoremap <C-e> <C-^>
 
 " vim-auto-popmenu
 " enable this plugin for filetypes, '*' for all files.
