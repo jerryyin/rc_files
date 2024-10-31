@@ -232,6 +232,8 @@ colorscheme gruvbox-material
 
 " Context.vim
 let g:context_highlight_tag = '<hide>'
+" Context.vim will override <C-e>, undo it by resetting control variable
+let g:context_add_mappings = 0
 
 " Color Scheme settings from vim cpp enhanced highlight plugin
 let g:cpp_class_scope_highlight = 1
