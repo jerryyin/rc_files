@@ -1,6 +1,6 @@
 # Base image
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE:-ubuntu:22.04}
+ARG BASE_IMAGE=ubuntu:22.04
+FROM ${BASE_IMAGE}
 
 WORKDIR /root
 

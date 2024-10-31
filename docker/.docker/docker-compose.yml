@@ -29,7 +29,7 @@ x-base-service: &base-service
 
 services:
   tools-setup:
-    command: ["/bin/sh", "-c", "cp -r /usr/local/* /tools || true && tail -f /dev/null"]
+    command: ["/bin/sh", "-c", "cp -r /usr/local/* /tools || true"]
     tty: true
     stdin_open: true
     build:
@@ -74,7 +74,7 @@ services:
       context: .
       dockerfile: base.dockerfile
       args:
-        BASE_IMAGE: rocm/dev-ubuntu22.04:latest
+        BASE_IMAGE: rocm/dev-ubuntu-22.04:latest
         SERVICE_NAME: iree
     image: "jeryin/dev:iree"
     depends_on:
