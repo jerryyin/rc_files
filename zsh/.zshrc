@@ -156,6 +156,8 @@ dbuild() {
   dcompose build "$@"
 }
 
+export PATH=/root/build/tools:$PATH
+
 # Profile plugin speed:
 # Load all of the plugins that were defined in ~/.zshrc
 #for plugin ($plugins); do
