@@ -453,6 +453,8 @@ let g:SignaturePeriodicRefresh = 0
 
 " Use <ctrl>-e (instead of <ctrl>-<shift>-6) for buffer transition
 nnoremap <C-e> <C-^>
+" Use <ctrl>-s to open split on the right
+nnoremap <C-s> :<C-u>execute 'vert belowright sb ' . v:count<CR>
 
 " vim-auto-popmenu
 " enable this plugin for filetypes, '*' for all files.
