@@ -485,17 +485,6 @@ nmap <silent> <Leader>a :call CurtineIncSw()<cr>
 let g:auto_save = 1
 
 " Automatically deletes least recently used buffer
-" A combination of https://www.vim.org/scripts/script.php?script_id=2346
-" and
-" https://vi.stackexchange.com/questions/2193/automatically-close-oldest-buffers
-let g:bufmru_nb_to_keep = 36
-
-" Manually
-"command! -nargs=1 CloseOldBuffers call BufMRUAutoClose(<args>)
-" Automatically
-augroup closeOldBuffers
-  autocmd!
-  autocmd BufNew * call BufMRUAutoClose()
-augroup END
+" let g:bufmru_nb_to_keep = 25
 
 let g:tmuxline_powerline_separators = 0
