@@ -404,6 +404,7 @@ let g:Lf_HideHelp = 1
 let g:Lf_MruEnable = 0
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
+let g:Lf_WindowPosition = 'popup'
 
 " Fugitive
 augroup fuDeleteBuffer
