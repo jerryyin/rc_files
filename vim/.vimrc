@@ -276,6 +276,8 @@ augroup ft
   "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
   autocmd FileType qf setlocal wrap
   autocmd BufNewFile,BufRead *.mlir set syntax=mlir
+  autocmd BufNewFile,BufRead *.cu set syntax=cpp
+  autocmd BufNewFile,BufRead *.dockerfile set syntax=dockerfile
   autocmd FileType mlir setlocal comments+=://
 augroup END
 
@@ -380,8 +382,6 @@ nmap =% v%:Autoformat<CR>
 nmap = :.-1,.Autoformat<CR>
 nmap = :.,.+1Autoformat<CR>
 " Disable fallback to vim's indent file, only remove trailing whitespace
-au BufRead *.cu set filetype=cpp
-au BufRead *.dockerfile set filetype=dockerfile
 let g:autoformat_autoindent = 0
 let g:autoformat_retab = 0
 
