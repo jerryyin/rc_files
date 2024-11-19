@@ -275,9 +275,9 @@ augroup ft
   " Can enable filetype specific settings
   "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
   autocmd FileType qf setlocal wrap
-  autocmd BufNewFile,BufRead *.mlir set syntax=mlir
-  autocmd BufNewFile,BufRead *.cu set syntax=cpp
-  autocmd BufNewFile,BufRead *.dockerfile set syntax=dockerfile
+  autocmd BufNewFile,BufRead *.mlir set filetype=mlir
+  autocmd BufNewFile,BufRead *.cu set filetype=cpp
+  autocmd BufNewFile,BufRead *.dockerfile set filetype=dockerfile
   autocmd FileType mlir setlocal comments+=://
 augroup END
 
