@@ -157,6 +157,7 @@ dbuild() {
 }
 
 export PATH=/root/build/tools:$PATH
+export NODE_TLS_REJECT_UNAUTHORIZED=0
 
 # Profile plugin speed:
 # Load all of the plugins that were defined in ~/.zshrc
