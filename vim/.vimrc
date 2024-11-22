@@ -438,6 +438,7 @@ endif
 " Grepper
 let g:grepper = {}
 let g:grepper.tools = ['ag', 'git', 'grep']
+let g:grepper.repo = ['.git', '.hg', '.svn']
 let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
 let g:grepper.prompt_mapping_tool = '<leader>g'
