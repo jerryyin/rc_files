@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     liblzma-dev \ 
     git \
     texinfo \
+    patchelf \
     && rm -rf /var/lib/apt/lists/*
 
 # Build Universal Ctags
