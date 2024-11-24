@@ -25,8 +25,9 @@ fi
 #
 # Load essential plugins immediately
 zinit ice depth=1; zinit light romkatv/powerlevel10k
-POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 source "$HOME/.zi/plugins/romkatv---powerlevel10k/config/p10k-robbyrussell.zsh"
+POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
 # Alternative custom prompt
 #PROMPT='%F{green}%n@%m %F{blue}%1~ %F{reset}$ '
 #PROMPT='%F{cyan}%1~ %F{green}$ '
@@ -113,13 +114,13 @@ bindkey "^[[1;3D" backward-word
 
 # This configuration allows attaching to one base session
 # https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
-#if command -v tmux &>/dev/null && [ -z "$TMUX" ]; then
-#  base_session=$(whoami)
-#  if ! tmux has-session -t "$base_session" 2>/dev/null; then
-#    tmux new-session -d -s "$base_session"
-#  fi
-#  tmux attach-session -t "$base_session"
-#fi
+if command -v tmux &>/dev/null && [ -z "$TMUX" ]; then
+  base_session=$(whoami)
+  if ! tmux has-session -t "$base_session" 2>/dev/null; then
+    tmux new-session -d -s "$base_session"
+  fi
+  tmux attach-session -t "$base_session"
+fi
 
 export LESS="-XFR"
 
