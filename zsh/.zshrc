@@ -1,5 +1,21 @@
 #zmodload zsh/zprof
 
+# TMUX
+# # If not running interactively, do not do anything
+# # This configuration allows multiple tmux sessions
+#[[ $- != *i* ]] && return
+#[[ -z "$TMUX" ]] && exec tmux -2u || :
+
+# This configuration allows attaching to one base session
+# https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
+if command -v tmux &>/dev/null && [ -z "$TMUX" ]; then
+  base_session=$(whoami)
+  if ! tmux has-session -t "$base_session" 2>/dev/null; then
+    tmux new-session -d -s "$base_session"
+  fi
+  tmux attach-session -t "$base_session"
+fi
+
 # Load p10k instant promopt
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 if [[ -r "$CACHE_DIR/p10k-instant-prompt-${(%):-%n}.zsh"  ]]; then
@@ -106,22 +122,6 @@ bindkey "^[[1;3D" backward-word
 #----------------------------------------------
 # Custom settings unrelated with zsh
 #
-# TMUX
-# # If not running interactively, do not do anything
-# # This configuration allows multiple tmux sessions
-#[[ $- != *i* ]] && return
-#[[ -z "$TMUX" ]] && exec tmux -2u || :
-
-# This configuration allows attaching to one base session
-# https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
-if command -v tmux &>/dev/null && [ -z "$TMUX" ]; then
-  base_session=$(whoami)
-  if ! tmux has-session -t "$base_session" 2>/dev/null; then
-    tmux new-session -d -s "$base_session"
-  fi
-  tmux attach-session -t "$base_session"
-fi
-
 export LESS="-XFR"
 
 alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
