@@ -18,7 +18,7 @@ zinit light zsh-users/zsh-history-substring-search
 zinit light zdharma-continuum/fast-syntax-highlighting
 # Auto rename titles
 zinit light jreese/zsh-titles
-zinit light softmoth/zsh-vim-mode
+zinit light jeffreytse/zsh-vi-mode
 zinit light zsh-users/zsh-completions
 # This plugin automatically inserts matching pairs of parentheses
 zinit light hlissner/zsh-autopair
@@ -128,7 +128,7 @@ export LESS="-XFR"
 alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 
 # Function to set the COMPOSE_PROJECT_NAME if not already set
-set_compose_project_name() {
+function set_compose_project_name() {
   local DATE=$(date "+%m%d")
   local SERVICE=""
 
@@ -141,18 +141,18 @@ set_compose_project_name() {
 }
 
 # Function to set Docker Compose file and ensure COMPOSE_PROJECT_NAME is set
-dcompose() {
+function dcompose() {
   set_compose_project_name "$@[-1]"
   docker-compose -f ~/.docker/docker-compose.yml "$@"
 }
 
 # Function to bring up Docker services in detached mode
-drun() {
+function drun() {
   dcompose up -d --no-build "$1"
 }
 
 # Function to build Docker services with a dynamic project name
-dbuild() {
+function dbuild() {
   dcompose build "$@"
 }
 
