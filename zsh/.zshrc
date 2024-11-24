@@ -60,6 +60,7 @@ setopt hist_expire_dups_first
 setopt hist_find_no_dups
 setopt hist_reduce_blanks
 setopt hist_verify
+setopt share_history
 HISTFILE=~/.zsh_history
 SAVEHIST=10000
 
