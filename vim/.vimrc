@@ -77,9 +77,6 @@ tnoremap <Esc> <C-\><C-N>
 " For switching to a particular pane, press <i> + <tab>
 nnoremap <tab> <C-W><C-W>
 
-" Source the termdebug plugin
-packadd termdebug
-
 " Auto install vim-plug if it does not exist
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent execute "!curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
