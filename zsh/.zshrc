@@ -129,6 +129,7 @@ alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/de
 # Function to set the COMPOSE_PROJECT_NAME if not already set
 function set_compose_project_name() {
   local DATE=$(date "+%m%d")
+  local TIME=$(date "+%H%M%S")
   local SERVICE=""
 
   # Check if a custom project name is provided as an argument
@@ -136,7 +137,7 @@ function set_compose_project_name() {
     SERVICE="$1"
   fi
 
-  export COMPOSE_PROJECT_NAME="${USER}-${SERVICE}${DATE}"
+  export COMPOSE_PROJECT_NAME="${USER}-${SERVICE}-${DATE}-${TIME}"
 }
 
 # Function to set Docker Compose file and ensure COMPOSE_PROJECT_NAME is set
@@ -147,6 +148,15 @@ function dcompose() {
 
 # Function to bring up Docker services in detached mode
 function drun() {
+  local CONTAINER_NAME="zyin-tools-setup"
+
+  # Check if the container exists and remove it if necessary
+  if docker ps -a --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+    echo "Removing existing container: ${CONTAINER_NAME}"
+    docker rm -f "${CONTAINER_NAME}"
+  fi
+
+  # Generate a unique project name and bring up the service
   dcompose up -d --no-build "$1"
 }
 
