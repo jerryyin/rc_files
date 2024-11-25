@@ -30,10 +30,10 @@ if [[ ! -d $ZINIT_BIN_DIR ]]; then
 fi
 source "$ZINIT_BIN_DIR/zi.zsh"
 
-# Create cache dir if not exist
-ZSH_CACHE_DIR=$CACHE_DIR/zsh
-if [[ ! -d $ZSH_CACHE_DIR  ]]; then
-  mkdir -p $ZSH_CACHE_DIR
+# Create completions dir if not exist, docker plugin need it
+ZSH_COMPLETIONS_DIR=$CACHE_DIR/zsh/completions
+if [[ ! -d $ZSH_COMPLETIONS_DIR  ]]; then
+  mkdir -p $ZSH_COMPLETIONS_DIR
 fi
 
 #----------------------------------------------
