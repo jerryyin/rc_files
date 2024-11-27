@@ -41,24 +41,51 @@ fi
 #
 # Load essential plugins immediately
 zinit ice depth=1; zinit light romkatv/powerlevel10k
-source "$HOME/.zi/plugins/romkatv---powerlevel10k/config/p10k-robbyrussell.zsh"
+source "$HOME/.zi/plugins/romkatv---powerlevel10k/config/p10k-lean.zsh"
+unset POWERLEVEL9K_VCS_CONTENT_EXPANSION
+unset POWERLEVEL9K_VCS_DISABLE_GITSTATUS_FORMATTING
+unset POWERLEVEL9K_ICON_PADDING
 POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
-# Alternative custom prompt
-#PROMPT='%F{green}%n@%m %F{blue}%1~ %F{reset}$ '
-#PROMPT='%F{cyan}%1~ %F{green}$ '
+typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+    dir                     # current directory
+    vcs                     # git status
+    prompt_char             # prompt symbol
+  )
+typeset -g POWERLEVEL9K_VCS_VISUAL_IDENTIFIER_EXPANSION=
+typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='%B➜'
+typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=false
+typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+    status                  # exit code of the last command
+    command_execution_time  # duration of the last command
+    background_jobs         # presence of background jobs
+    virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
+    pyenv                   # python environment (https://github.com/pyenv/pyenv)
+    context                 # user@hostname
+  )
+typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uF126 '
+typeset -g POWERLEVEL9K_VCS_MODIFIED_ICON=''
+typeset -g POWERLEVEL9K_VCS_STASH_ICON='⍟'
+typeset -g POWERLEVEL9K_VCS_CONFLICT_ICON=''
+typeset -g POWERLEVEL9K_VCS_STAGED_ICON='✚'
+typeset -g POWERLEVEL9K_VCS_COMMIT_ICON=' '
+typeset -g POWERLEVEL9K_VCS_UNTRACKED_ICON=''
+typeset -g POWERLEVEL9K_VCS_UNSTAGED_ICON='●'
+typeset -g POWERLEVEL9K_VCS_REMOTE_BRANCH_ICON=''
+typeset -g POWERLEVEL9K_VCS_INCOMING_CHANGES_ICON="↓"
+typeset -g POWERLEVEL9K_VCS_OUTGOING_CHANGES_ICON="↑"
+typeset -g POWERLEVEL9K_VCS_TAG_ICON=""
+
 zinit light zdharma-continuum/fast-syntax-highlighting
 
 # Critical plugins required for core functionality
+zinit ice wait'0' depth=1 lucid; zinit light jeffreytse/zsh-vi-mode
 zinit ice wait'0' depth=1 lucid; zinit light zsh-users/zsh-autosuggestions
-#zinit ice wait'0' depth=1; 
 zinit ice wait'0' depth=1 lucid; zinit light zsh-users/zsh-history-substring-search
+typeset -g HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 # Important but not immediate
-zinit ice wait'1' depth=1 lucid; zinit light jeffreytse/zsh-vi-mode
 zinit ice wait'1' depth=1 lucid; zinit light zsh-users/zsh-completions
-zinit ice wait'1' depth=1 lucid; zinit snippet OMZP::tmux
-zinit ice wait'1' depth=1 lucid; zinit snippet OMZP::git
 
 # Optional Plugins
 zinit ice wait'2' depth=1 lucid; zinit light jreese/zsh-titles
@@ -67,7 +94,6 @@ zinit ice wait'2' depth=1 lucid; zinit light hlissner/zsh-autopair
 zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::colorize
 zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::colored-man-pages
 # Utility
-zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::sudo
 zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::docker
 zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::command-not-found
 # marks, mark/unmark + <markname>, jump + <markname>
