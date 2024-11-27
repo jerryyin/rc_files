@@ -61,7 +61,6 @@ typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
     background_jobs         # presence of background jobs
     virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
     pyenv                   # python environment (https://github.com/pyenv/pyenv)
-    context                 # user@hostname
   )
 typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uF126 '
 typeset -g POWERLEVEL9K_VCS_MODIFIED_ICON=''
