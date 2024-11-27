@@ -139,10 +139,8 @@ fi
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
-# Make Alt + arrow work on Ubuntu
-# https://stackoverflow.com/questions/12382499/looking-for-altleftarrowkey-solution-in-zsh
-bindkey "^[[1;3C" forward-word
-bindkey "^[[1;3D" backward-word
+# Enable Emacs mapping in edit mode
+bindkey -e
 
 #----------------------------------------------
 # Custom settings unrelated with zsh
