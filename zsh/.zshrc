@@ -17,12 +17,12 @@ if command -v tmux &>/dev/null && [ -z "$TMUX" ]; then
 fi
 
 # Load p10k instant promopt
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
-if [[ -r "$CACHE_DIR/p10k-instant-prompt-${(%):-%n}.zsh"  ]]; then
-  source "$CACHE_DIR/p10k-instant-prompt-${(%):-%n}.zsh"
+if [[ -r "$HOME/.p10k-lean.zsh" ]]; then
+  source "$HOME/.p10k-lean.zsh"
 fi
 
 # Load Zinit
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 ZINIT_BIN_DIR="$CACHE_DIR/zinit/bin"
 if [[ ! -d $ZINIT_BIN_DIR ]]; then
     command mkdir -p $ZINIT_BIN_DIR
@@ -41,40 +41,6 @@ fi
 #
 # Load essential plugins immediately
 zinit ice depth=1; zinit light romkatv/powerlevel10k
-source "$HOME/.zi/plugins/romkatv---powerlevel10k/config/p10k-lean.zsh"
-unset POWERLEVEL9K_VCS_CONTENT_EXPANSION
-unset POWERLEVEL9K_VCS_DISABLE_GITSTATUS_FORMATTING
-unset POWERLEVEL9K_ICON_PADDING
-POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
-typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
-    dir                     # current directory
-    vcs                     # git status
-    prompt_char             # prompt symbol
-  )
-typeset -g POWERLEVEL9K_VCS_VISUAL_IDENTIFIER_EXPANSION=
-typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='%B➜'
-typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=false
-typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
-    status                  # exit code of the last command
-    command_execution_time  # duration of the last command
-    background_jobs         # presence of background jobs
-    virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
-    pyenv                   # python environment (https://github.com/pyenv/pyenv)
-  )
-typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uF126 '
-typeset -g POWERLEVEL9K_VCS_MODIFIED_ICON=''
-typeset -g POWERLEVEL9K_VCS_STASH_ICON='⍟'
-typeset -g POWERLEVEL9K_VCS_CONFLICT_ICON=''
-typeset -g POWERLEVEL9K_VCS_STAGED_ICON='✚'
-typeset -g POWERLEVEL9K_VCS_COMMIT_ICON=' '
-typeset -g POWERLEVEL9K_VCS_UNTRACKED_ICON=''
-typeset -g POWERLEVEL9K_VCS_UNSTAGED_ICON='●'
-typeset -g POWERLEVEL9K_VCS_REMOTE_BRANCH_ICON=''
-typeset -g POWERLEVEL9K_VCS_INCOMING_CHANGES_ICON="↓"
-typeset -g POWERLEVEL9K_VCS_OUTGOING_CHANGES_ICON="↑"
-typeset -g POWERLEVEL9K_VCS_TAG_ICON=""
-
 zinit light zdharma-continuum/fast-syntax-highlighting
 
 # Critical plugins required for core functionality
