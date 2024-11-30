@@ -347,8 +347,7 @@
 
   #####################################[ vcs: git status ]######################################
   # Branch icon. Set this parameter to '\UE0A0 ' for the popular Powerline branch icon.
-  #typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uF126 '
-  typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uF126'
+  typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uF126 '
 
   # Untracked files icon. It's really a question mark, your font isn't broken.
   # Change the value of this parameter to show a different icon.
@@ -358,9 +357,9 @@
   #typeset -g POWERLEVEL9K_VCS_STASH_ICON='⍟'
   #typeset -g POWERLEVEL9K_VCS_CONFLICT_ICON=''
   #typeset -g POWERLEVEL9K_VCS_STAGED_ICON='✚'
-  #typeset -g POWERLEVEL9K_VCS_COMMIT_ICON=' '
-  #typeset -g POWERLEVEL9K_VCS_UNTRACKED_ICON=''
-  #typeset -g POWERLEVEL9K_VCS_UNSTAGED_ICON=''
+  #typeset -g POWERLEVEL9K_VCS_COMMIT_ICON=''
+  typeset -g POWERLEVEL9K_VCS_UNTRACKED_ICON='󰄰 '
+  #typeset -g POWERLEVEL9K_VCS_UNSTAGED_ICON=' '
   #typeset -g POWERLEVEL9K_VCS_REMOTE_BRANCH_ICON=''
   #typeset -g POWERLEVEL9K_VCS_INCOMING_CHANGES_ICON="↓"
   #typeset -g POWERLEVEL9K_VCS_OUTGOING_CHANGES_ICON="↑"
@@ -464,13 +463,13 @@
     [[ -n $VCS_STATUS_ACTION     ]] && res+=" ${conflicted}${VCS_STATUS_ACTION}"
     # ~42 if have merge conflicts.
     #(( VCS_STATUS_NUM_CONFLICTED )) && res+=" ${conflicted}~${VCS_STATUS_NUM_CONFLICTED}"
-    (( VCS_STATUS_NUM_CONFLICTED )) && res+=" ${conflicted}${VCS_STATUS_NUM_CONFLICTED}"
+    (( VCS_STATUS_NUM_CONFLICTED )) && res+=" ${conflicted}󰀪 ${VCS_STATUS_NUM_CONFLICTED}"
     # +42 if have staged changes.
     #(( VCS_STATUS_NUM_STAGED     )) && res+=" ${modified}+${VCS_STATUS_NUM_STAGED}"
     (( VCS_STATUS_NUM_STAGED     )) && res+=" ${modified}✚${VCS_STATUS_NUM_STAGED}"
     # !42 if have unstaged changes.
     #(( VCS_STATUS_NUM_UNSTAGED   )) && res+=" ${modified}!${VCS_STATUS_NUM_UNSTAGED}"
-    (( VCS_STATUS_NUM_UNSTAGED   )) && res+=" ${modified}${VCS_STATUS_NUM_UNSTAGED}"
+    (( VCS_STATUS_NUM_UNSTAGED   )) && res+=" ${modified} ${VCS_STATUS_NUM_UNSTAGED}"
     # ?42 if have untracked files. It's really a question mark, your font isn't broken.
     # See POWERLEVEL9K_VCS_UNTRACKED_ICON above if you want to use a different icon.
     # Remove the next line if you don't want to see untracked files at all.
