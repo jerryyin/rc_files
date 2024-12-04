@@ -186,20 +186,21 @@ Plug 'https://gist.github.com/jerryyin/8e3119e35aaeed0b09cea43bfba04a32.git',
 call plug#end()
 
 set background=dark
-if has("termguicolors") && $TERM =~ "256color" && 
-  \ ($COLORTERM =~ "truecolor" || !empty($TMUX))
-    " Terminal supports True Color
-    set termguicolors
-else
-    " Fall back to 256 colors
-    set notermguicolors
-endif
+"if has("termguicolors") && $TERM =~ "256color" && 
+"  \ ($COLORTERM =~ "truecolor" || !empty($TMUX))
+"    " Terminal supports True Color
+"    set termguicolors
+"else
+"    " Fall back to 256 colors
+"    set notermguicolors
+"endif
 
 " This configuration option should be placed before `colorscheme gruvbox-material`.
 " Available values: 'hard', 'medium'(default), 'soft'
 let g:gruvbox_material_background = 'hard'
 let g:gruvbox_material_ui_contrast = 'high'
 let g:gruvbox_material_transparent_background = 2
+let g:gruvbox_material_disable_italic_comment = 1
 " highlight error/warning/info hint lines
 let g:gruvbox_material_diagnostic_virtual_text = 'colored'
 let g:gruvbox_material_diagnostic_text_highlight = 1
