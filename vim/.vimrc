@@ -141,10 +141,7 @@ Plug 'tpope/vim-dispatch'
 Plug 'mhinz/vim-grepper'
 " File switch between cpp and header
 Plug 'ericcurtin/CurtineIncSw.vim'
-" System clipboard support
-" OSX - pbcopy and pbpaste
-" Windows - clip and paste
-" Linux - xsel
+" A Vim plugin to copy text through SSH with OSC52
 Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 " Add more text objects to vim
 Plug 'wellle/targets.vim'
