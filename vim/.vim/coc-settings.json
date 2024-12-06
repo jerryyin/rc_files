@@ -1,0 +1,12 @@
+{
+  "languageserver": {
+    "clangd": {
+      "command": "clangd",
+      "filetypes": ["c", "cc", "cpp", "c++", "cuda"],
+      "rootPatterns": [".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git/"],
+      "initializationOptions": {
+        "clangdFileStatus": true
+      }
+    }
+  }
+}
