@@ -72,7 +72,7 @@ tnoremap <C-L> <C-W>l
 tnoremap <Esc> <C-\><C-N>
 
 " Split_number C-w C-w
-" The panes are numbered from top-left to bottom-right with the 
+" The panes are numbered from top-left to bottom-right with the
 " first one getting the number 1.
 " For switching to a particular pane, press <i> + <tab>
 nnoremap <tab> <C-W><C-W>
@@ -183,7 +183,7 @@ Plug 'https://gist.github.com/jerryyin/8e3119e35aaeed0b09cea43bfba04a32.git',
 call plug#end()
 
 set background=dark
-if has("termguicolors") && $TERM =~ "256color" && 
+if has("termguicolors") && $TERM =~ "256color" &&
   \ ($COLORTERM =~ "truecolor" || !empty($TMUX))
     " Terminal supports True Color
     set termguicolors
@@ -490,3 +490,24 @@ let g:auto_save = 1
 " let g:bufmru_nb_to_keep = 25
 
 let g:tmuxline_powerline_separators = 0
+
+" Coc settings
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+nnoremap <silent> K :call ShowDocumentation()<CR>
+
+" Highlight the symbol and its references when holding the cursor
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Symbol renaming
+nmap <leader>rn <Plug>(coc-rename)
