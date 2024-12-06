@@ -170,6 +170,7 @@ Plug 'tpope/vim-eunuch'
 " Make vim follow symlink
 Plug 'aymericbeaumet/vim-symlink'
 Plug 'github/copilot.vim'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
