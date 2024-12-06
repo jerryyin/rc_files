@@ -145,12 +145,11 @@ Plug 'ericcurtin/CurtineIncSw.vim'
 " OSX - pbcopy and pbpaste
 " Windows - clip and paste
 " Linux - xsel
-Plug 'christoomey/vim-system-copy'
+Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 " Add more text objects to vim
 Plug 'wellle/targets.vim'
 " pop up menu for insert mode completion
 " This interfere with copilot
-"Plug 'skywind3000/vim-auto-popmenu'
 Plug 'AndrewRadev/splitjoin.vim'
 " Insert mode shortcut
 Plug 'tpope/vim-rsi'
@@ -462,13 +461,9 @@ nnoremap <C-e> <C-^>
 " Use <ctrl>-s to open split on the right
 nnoremap <C-s> :<C-u>execute 'vert belowright sb ' . v:count<CR>
 
-" vim-auto-popmenu
-" enable this plugin for filetypes, '*' for all files.
-let g:apc_enable_ft = {'*':1 }
-" source for dictionary, current or other loaded buffers, see ':help cpt'
-set cpt=.,u,w,b
-" don't select the first item.
-set completeopt=menu,menuone,noselect
+nmap <leader>c <Plug>OSCYankOperator
+nmap <leader>cc <leader>c_
+vmap <leader>c <Plug>OSCYankVisual
 
 " vimwiki
 " nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
