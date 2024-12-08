@@ -7,9 +7,16 @@
       "command": "clangd",
       "filetypes": ["c", "cc", "cpp", "c++", "cuda"],
       "rootPatterns": [".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git/"],
-      "initializationOptions": {
-        "clangdFileStatus": true,
-      }
+      "args": [
+        "--background-index",
+        "--compile-commands-dir=build",
+        "--clang-tidy",
+        "--clang-tidy-checks=performance-*,bugprone-*",
+        "--all-scopes-completion",
+        "--completion-style=detailed",
+        "--header-insertion=iwyu",
+        "--pch-storage=memory"
+      ],
     }
   }
 }

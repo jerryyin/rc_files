@@ -91,7 +91,6 @@ call plug#begin('~/.vim/plugged')
 " gruvbox color scheme
 Plug 'sainnhe/gruvbox-material'
 " Syntax highlighting
-Plug 'Valloric/vim-operator-highlight'
 Plug 'sheerun/vim-polyglot'
 
 " Display
@@ -217,10 +216,8 @@ function! s:gruvbox_material_custom() abort
   " See `autoload/gruvbox_material.vim` for the format of `l:palette`.
   call gruvbox_material#highlight('DiffText', l:palette.green, l:palette.red, 'bold')
   call gruvbox_material#highlight('String', l:palette.purple, l:palette.none)
+  call gruvbox_material#highlight('CocSemTypeProperty', l:palette.aqua, l:palette.none,'underline')
 endfunction
-
-" Operator colors
-let g:ophigh_color_gui = "#009292"
 
 augroup GruvboxMaterialCustom
   autocmd!
