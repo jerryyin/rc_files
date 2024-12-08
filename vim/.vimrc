@@ -152,9 +152,6 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'tpope/vim-rsi'
 " Surround text object
 Plug 'tpope/vim-surround'
-" Disabling wiki
-" Plug 'vimwiki/vimwiki'
-" Plug 'jerryyin/vimwiki-sync'
 " Markdown syntax highlighting
 Plug 'vim-pandoc/vim-pandoc-syntax'
 " Auto save
@@ -462,24 +459,6 @@ nmap <leader>c <Plug>OSCYankOperator
 nmap <leader>cc <leader>c_
 vmap <leader>c <Plug>OSCYankVisual
 
-" vimwiki
-" nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
-" let g:vimwiki_list = [{'path': '~/Documents/notes',
-"       \ 'syntax' : 'markdown',
-"       \ 'auto_tags' : 1,
-"       \ 'ext' : '.md'}]
-" let g:vimwiki_global_ext = 0
-" let g:vimwiki_filetypes = ['markdown', 'pandoc']
-" augroup vimwikigroup
-"   autocmd!
-"   " automatically update links on read diary
-"   autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
-"   au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
-"   autocmd BufReadPost *.md set bufhidden=delete
-" augroup end
-" let g:pandoc#syntax#conceal#urls = 1
-" nmap <leader><space> <Plug>VimwikiToggleListItem
-
 " CurtineIncSw
 nmap <silent> <Leader>a :call CurtineIncSw()<cr>
 
@@ -492,6 +471,8 @@ let g:auto_save = 1
 let g:tmuxline_powerline_separators = 0
 
 " Coc settings
+" Extensions
+let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright']
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
@@ -512,9 +493,6 @@ function! ShowDocumentation()
     call feedkeys('K', 'in')
   endif
 endfunction
-
-" Highlight the symbol and its references when holding the cursor
-autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Symbol renaming
 nmap <leader>rn <Plug>(coc-rename)

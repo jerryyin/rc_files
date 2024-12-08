@@ -1,6 +1,7 @@
 {
   "semanticTokens.enable": true,
   "diagnostic.virtualText": true,
+  "diagnostic.errorSign": "",
   "languageserver": {
     "clangd": {
       "command": "clangd",
