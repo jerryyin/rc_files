@@ -11,7 +11,6 @@
         "--background-index",
         "--compile-commands-dir=build",
         "--clang-tidy",
-        "--clang-tidy-checks=performance-*,bugprone-*",
         "--all-scopes-completion",
         "--completion-style=detailed",
         "--header-insertion=iwyu",

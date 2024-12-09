@@ -384,9 +384,6 @@ let g:autoformat_retab = 0
 " By default enabled: Global search files and tags
 "noremap <leader>f :LeaderFile<cr>
 "noremap <leader>b :LeaderBuffer<cr>
-noremap <leader>t :LeaderfTag<cr>
-" Search functions in oened buffer
-noremap <leader>i :LeaderfFunction!<cr>
 let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
 let g:Lf_WorkingDirectoryMode = 'Ac'
@@ -493,3 +490,7 @@ endfunction
 
 " Symbol renaming
 nmap <leader>rn <Plug>(coc-rename)
+
+" Formatting selected code
+xmap <leader>e <Plug>(coc-format-selected)
+nmap <leader>e <Plug>(coc-format-selected)
