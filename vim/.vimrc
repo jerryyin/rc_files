@@ -116,8 +116,6 @@ Plug 'simeji/winresizer'
 Plug 'jeffkreeftmeijer/vim-numbertoggle'
 " Better folding
 Plug 'pseewald/vim-anyfold'
-" Smooth scrolling
-"Plug 'psliwka/vim-smoothie'
 " Indent guides line
 Plug 'nathanaelkane/vim-indent-guides'
 " Auto decide indent amount
@@ -197,7 +195,6 @@ let g:gruvbox_material_transparent_background = 2
 " highlight error/warning/info hint lines
 let g:gruvbox_material_diagnostic_virtual_text = 'colored'
 let g:gruvbox_material_diagnostic_text_highlight = 1
-let g:gruvbox_material_diagnostic_line_highlight = 1
 " For better performance
 let g:gruvbox_material_better_performance = 1
 " Override Difftext as it becomes invisible when overlapping with cursorline
@@ -216,7 +213,9 @@ function! s:gruvbox_material_custom() abort
   " See `autoload/gruvbox_material.vim` for the format of `l:palette`.
   call gruvbox_material#highlight('DiffText', l:palette.green, l:palette.red, 'bold')
   call gruvbox_material#highlight('String', l:palette.purple, l:palette.none)
+  " CocCommand semanticTokens.inspect
   call gruvbox_material#highlight('CocSemTypeProperty', l:palette.aqua, l:palette.none,'underline')
+  call gruvbox_material#highlight('CocSemTypeParameter', l:palette.blue, l:palette.none,'italic')
 endfunction
 
 augroup GruvboxMaterialCustom
@@ -239,9 +238,6 @@ let g:cpp_class_decl_highlight = 1
 nnoremap <f12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
-
-" Boost smoothie cursor speed at end of animation
-let g:smoothie_speed_constant_factor = 30
 
 " Folding
 augroup anyfold
@@ -271,7 +267,7 @@ augroup ft
   "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
   autocmd FileType qf setlocal wrap
   autocmd BufNewFile,BufRead *.mlir set filetype=mlir
-  autocmd BufNewFile,BufRead *.cu set filetype=cpp
+  autocmd BufNewFile,BufRead *.cu set filetype=cuda
   autocmd BufNewFile,BufRead *.dockerfile set filetype=dockerfile
   autocmd FileType mlir setlocal comments+=://
 augroup END
