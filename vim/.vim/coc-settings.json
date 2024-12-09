@@ -16,6 +16,11 @@
         "--header-insertion=iwyu",
         "--pch-storage=memory"
       ],
-    }
+    },
+    "mlir": {
+      "command": "iree-mlir-lsp-server",
+      "filetypes": ["mlir"],
+      "rootPatterns": [".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git/"],
+    },
   }
 }

@@ -169,11 +169,7 @@ Plug 'ludovicchabant/vim-gutentags'
 Plug 'Chiel92/vim-autoformat'
 " Help correctly indent file in edit mode
 Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/indent/python.vim' }
-Plug 'vim-scripts/google.vim', { 'do': 'mkdir -p after/indent; cp -f indent/*.vim after/indent/cpp.vim' }
-Plug 'https://gist.github.com/jerryyin/ac01c9f2471446927d290f28cd9e2608.git',
-    \ { 'as': 'vim-mlir-syntax', 'do': 'mkdir -p after/syntax; cp -f *.vim after/syntax/; rm *.vim' }
-Plug 'https://gist.github.com/jerryyin/8e3119e35aaeed0b09cea43bfba04a32.git',
-    \ { 'as': 'vim-mlir-indent', 'do': 'mkdir -p indent; cp -f *.vim indent/; rm *.vim' }
+Plug 'llvm/llvm.vim'
 call plug#end()
 
 set background=dark
@@ -216,6 +212,7 @@ function! s:gruvbox_material_custom() abort
   " CocCommand semanticTokens.inspect
   call gruvbox_material#highlight('CocSemTypeProperty', l:palette.aqua, l:palette.none,'underline')
   call gruvbox_material#highlight('CocSemTypeParameter', l:palette.blue, l:palette.none,'italic')
+  call gruvbox_material#highlight('CocSemTypeVariable', l:palette.none, l:palette.none)
 endfunction
 
 augroup GruvboxMaterialCustom
@@ -486,7 +483,3 @@ endfunction
 
 " Symbol renaming
 nmap <leader>rn <Plug>(coc-rename)
-
-" Formatting selected code
-xmap <leader>e <Plug>(coc-format-selected)
-nmap <leader>e <Plug>(coc-format-selected)
