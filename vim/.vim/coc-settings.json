@@ -1,4 +1,7 @@
 {
+  "suggest.minTriggerInputLength": 4,
+  "suggest.maxCompleteItemCount": 50,
+  "suggest.labelMaxLength": 50,
   "semanticTokens.enable": true,
   "diagnostic.virtualText": true,
   "diagnostic.errorSign": "",
