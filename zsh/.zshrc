@@ -166,6 +166,7 @@ function dbuild() {
   dcompose build "$@"
 }
 
+export TERM=xterm-256color
 export PATH=/root/build/tools:$PATH
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 export LANG=en_US.UTF-8
