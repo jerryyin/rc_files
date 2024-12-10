@@ -22,6 +22,8 @@ RUN if [ "$SERVICE_NAME" = "rocmlir" ]; then \
     elif [ "$SERVICE_NAME" = "iree" ]; then \
       echo "Running additional setup for iree"; \
       bash scripts/docker/init_iree.sh; \
+    elif [ "$SERVICE_NAME" = "base" ]; then \
+      echo "Running no additional setup for base"; \
     else \
       echo "No specific setup for $SERVICE_NAME"; \
     fi

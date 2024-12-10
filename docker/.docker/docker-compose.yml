@@ -44,6 +44,18 @@ services:
       - tools_volume:/tools  # Mount volume to receive tools
     restart: "no"
 
+  base:
+    <<: *base-service
+    build:
+      context: .
+      dockerfile: base.dockerfile
+      args:
+        BASE_IMAGE: rocm/dev-ubuntu-22.04:latest
+        SERVICE_NAME: iree
+    image: "jeryin/dev:base"
+    depends_on:
+      - tools-setup  # Ensure tools-setup runs first
+
   rocmlir:
     <<: *base-service
     build:
