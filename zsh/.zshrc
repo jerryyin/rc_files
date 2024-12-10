@@ -30,13 +30,6 @@ if [[ ! -d $ZINIT_BIN_DIR ]]; then
 fi
 source "$ZINIT_BIN_DIR/zi.zsh"
 
-# Download docker autocompletion script if it doesn't exist
-if [[ ! -f ~/.zsh/completion/_docker ]]; then
-  mkdir -p ~/.zsh/completion
-  curl -fLo ~/.zsh/completion/_docker https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
-fi
-FPATH="$HOME/.zsh/completion:$FPATH"  
-
 #----------------------------------------------
 # Plugin section
 #
@@ -52,6 +45,9 @@ typeset -g HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 # Important but not immediate
 zinit ice wait'1' depth=1 lucid; zinit light zsh-users/zsh-completions
+
+zinit ice wait'1' as"completion" lucid;
+zinit snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker
 
 # Optional Plugins
 zinit ice wait'2' depth=1 lucid; zinit light jreese/zsh-titles
