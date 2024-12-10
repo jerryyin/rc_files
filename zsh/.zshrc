@@ -30,11 +30,12 @@ if [[ ! -d $ZINIT_BIN_DIR ]]; then
 fi
 source "$ZINIT_BIN_DIR/zi.zsh"
 
-# Create completions dir if not exist, docker plugin need it
-ZSH_COMPLETIONS_DIR=$CACHE_DIR/zsh/completions
-if [[ ! -d $ZSH_COMPLETIONS_DIR  ]]; then
-  mkdir -p $ZSH_COMPLETIONS_DIR
+# Download docker autocompletion script if it doesn't exist
+if [[ ! -f ~/.zsh/completion/_docker ]]; then
+  mkdir -p ~/.zsh/completion
+  curl -fLo ~/.zsh/completion/_docker https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
 fi
+FPATH="$HOME/.zsh/completion:$FPATH"  
 
 #----------------------------------------------
 # Plugin section
@@ -59,12 +60,13 @@ zinit ice wait'2' depth=1 lucid; zinit light hlissner/zsh-autopair
 zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::colorize
 zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::colored-man-pages
 # Utility
-zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::docker
 zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::command-not-found
 # marks, mark/unmark + <markname>, jump + <markname>
 zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::jump
 # extract + <archive>
-zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::extract
+# Since this is the last plugin, do compoinit for auto completion
+zinit ice wait'2' depth=1 lucid atinit="zicompinit; zicdreplay"; 
+zinit snippet OMZP::extract
 
 #----------------------------------------------
 # Configuration and Alias
@@ -118,7 +120,7 @@ alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/de
 # Function to set the COMPOSE_PROJECT_NAME if not already set
 function set_compose_project_name() {
   local DATE=$(date "+%m%d")
-  local TIME=$(date "+%H%M%S")
+  local TIME=$(date "+%H%M")
   local SERVICE=""
 
   # Check if a custom project name is provided as an argument

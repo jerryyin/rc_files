@@ -460,6 +460,7 @@ let g:tmuxline_powerline_separators = 0
 " Coc settings
 " Extensions
 let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright']
+let g:coc_disable_startup_warning = 1
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list

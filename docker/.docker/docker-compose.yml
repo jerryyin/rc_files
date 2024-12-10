@@ -55,6 +55,7 @@ services:
     image: "jeryin/dev:rocmlir"
     depends_on:
       - tools-setup  # Ensure tools-setup runs first
+    profiles: ["rocmlir"]
 
   triton:
     <<: *base-service
@@ -67,6 +68,7 @@ services:
     image: "jeryin/dev:triton"
     depends_on:
       - tools-setup  # Ensure tools-setup runs first
+    profiles: ["triton"]
 
   iree:
     <<: *base-service
