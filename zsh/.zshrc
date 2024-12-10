@@ -36,9 +36,9 @@ source "$ZINIT_BIN_DIR/zi.zsh"
 # Load essential plugins immediately
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit light zdharma-continuum/fast-syntax-highlighting
+zinit ice depth=1 lucid; zinit light jeffreytse/zsh-vi-mode
 
 # Critical plugins required for core functionality
-zinit ice wait'0' depth=1 lucid; zinit light jeffreytse/zsh-vi-mode
 zinit ice wait'0' depth=1 lucid; zinit light zsh-users/zsh-autosuggestions
 zinit ice wait'0' depth=1 lucid; zinit light zsh-users/zsh-history-substring-search
 typeset -g HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
@@ -87,17 +87,31 @@ alias vi='vim'
 # From OMZP::colorize
 alias cat='ccat'
 
+UP_ARROW=''
+DOWN_ARROW=''
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS
   alias ls='ls -G'
-  bindkey '^[[A' history-substring-search-up
-  bindkey '^[[B' history-substring-search-down
+  UP_ARROW='^[[A'
+  DOWN_ARROW='^[[B'
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
   # Ubuntu or other Linux distributions
   alias ls='ls --color'
-  bindkey '^[OA' history-substring-search-up
-  bindkey '^[OB' history-substring-search-down
+  UP_ARROW='^[OA'
+  DOWN_ARROW='^[OB'
 fi
+
+# Override default bindings for zsh-vi-mode
+function zvm_before_init() {
+  zvm_bindkey viins $UP_ARROW history-substring-search-up
+  zvm_bindkey viins $DOWN_ARROW history-substring-search-down
+  zvm_bindkey vicmd $UP_ARROW history-substring-search-up
+  zvm_bindkey vicmd $DOWN_ARROW history-substring-search-down
+  zvm_bindkey viins "^[[1;3C" forward-word
+  zvm_bindkey viins "^[[1;3D" backward-word
+  zvm_bindkey vicmd "^[[1;3C" forward-word
+  zvm_bindkey vicmd "^[[1;3D" backward-word
+}
 
 # zsh-history-substring-search
 bindkey -M vicmd 'k' history-substring-search-up
