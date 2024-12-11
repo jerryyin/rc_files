@@ -51,7 +51,7 @@ services:
       dockerfile: base.dockerfile
       args:
         BASE_IMAGE: rocm/dev-ubuntu-22.04:latest
-        SERVICE_NAME: iree
+        SERVICE_NAME: base
     image: "jeryin/dev:base"
     depends_on:
       - tools-setup  # Ensure tools-setup runs first

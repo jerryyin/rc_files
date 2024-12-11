@@ -12,18 +12,21 @@ RUN apt-get update && apt-get -y install git && \
     git clone https://github.com/jerryyin/scripts.git && \
     bash scripts/docker/init_min.sh
 
-ARG SERVICE_NAME
-RUN if [ "$SERVICE_NAME" = "rocmlir" ]; then \
-      echo "Running additional setup for rocmlir"; \
-      bash scripts/docker/init_mlir.sh; \
-    elif [ "$SERVICE_NAME" = "triton" ]; then \
-      echo "Running additional setup for triton"; \
-      bash scripts/docker/init_triton.sh; \
-    elif [ "$SERVICE_NAME" = "iree" ]; then \
-      echo "Running additional setup for iree"; \
-      bash scripts/docker/init_iree.sh; \
-    elif [ "$SERVICE_NAME" = "base" ]; then \
-      echo "Running no additional setup for base"; \
-    else \
-      echo "No specific setup for $SERVICE_NAME"; \
-    fi
+ARG SERVICE_NAME  
+RUN echo "Service name is: $SERVICE_NAME"; \  
+    if [ "$SERVICE_NAME" = "rocmlir" ]; then \  
+      echo "Running additional setup for rocmlir"; \  
+      bash scripts/docker/init_mlir.sh; \  
+    elif [ "$SERVICE_NAME" = "triton" ]; then \  
+      echo "Running additional setup for triton"; \  
+      bash scripts/docker/init_triton.sh; \  
+    elif [ "$SERVICE_NAME" = "iree" ]; then \  
+      echo "Running additional setup for iree"; \  
+      bash scripts/docker/init_iree.sh; \  
+    elif [ "$SERVICE_NAME" = "base" ]; then \  
+      echo "Running no additional setup for base"; \  
+    else \  
+      echo "No specific setup for $SERVICE_NAME"; \  
+    fi  
+
+CMD ["zsh"]
