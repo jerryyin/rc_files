@@ -89,28 +89,35 @@ alias cat='ccat'
 
 UP_ARROW=''
 DOWN_ARROW=''
+LEFT_ARROW=''
+RIGHT_ARROW=''
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS
   alias ls='ls -G'
   UP_ARROW='^[[A'
   DOWN_ARROW='^[[B'
+  LEFT_ARROW='b'
+  RIGHT_ARROW='f'
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
   # Ubuntu or other Linux distributions
   alias ls='ls --color'
   UP_ARROW='^[OA'
   DOWN_ARROW='^[OB'
+  LEFT_ARROW='^[1;3D'
+  RIGHT_ARROW='^[1;3C'
 fi
 
 # Override default bindings for zsh-vi-mode
 function zvm_before_init() {
   zvm_bindkey viins $UP_ARROW history-substring-search-up
   zvm_bindkey viins $DOWN_ARROW history-substring-search-down
+  zvm_bindkey viins $RIGHT_ARROW forward-word
+  zvm_bindkey viins $LEFT_ARROW backward-word
+
   zvm_bindkey vicmd $UP_ARROW history-substring-search-up
   zvm_bindkey vicmd $DOWN_ARROW history-substring-search-down
-  zvm_bindkey viins "^[[1;3C" forward-word
-  zvm_bindkey viins "^[[1;3D" backward-word
-  zvm_bindkey vicmd "^[[1;3C" forward-word
-  zvm_bindkey vicmd "^[[1;3D" backward-word
+  zvm_bindkey vicmd $RIGHT_ARROW forward-word
+  zvm_bindkey vicmd $LEFT_ARROW backward-word
 }
 
 # zsh-history-substring-search
@@ -167,7 +174,7 @@ function dbuild() {
 }
 
 export TERM=xterm-256color
-export PATH=/root/build/tools:$PATH
+export PATH=~/Documents/iree/build/tools:$PATH
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 export LANG=en_US.UTF-8
 
