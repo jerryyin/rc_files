@@ -62,7 +62,7 @@ zinit snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_
 
 # Optional Plugins
 zinit ice wait'2' depth=1 lucid
-zinit light jreese/zsh-titles
+zinit light amyreese/zsh-titles
 
 zinit ice wait'2' depth=1 lucid
 zinit light hlissner/zsh-autopair
