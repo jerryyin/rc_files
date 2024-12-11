@@ -29,4 +29,3 @@ RUN echo "Service name is: $SERVICE_NAME"; \
       echo "No specific setup for $SERVICE_NAME"; \  
     fi  
 
-CMD ["zsh"]
