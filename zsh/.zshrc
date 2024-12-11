@@ -1,5 +1,10 @@
 #zmodload zsh/zprof
 
+# Environments tmux depend on
+export TERM=xterm-256color
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+
 # TMUX
 # # If not running interactively, do not do anything
 # # This configuration allows multiple tmux sessions
@@ -196,10 +201,6 @@ function dbuild() {
   dcompose build "$@"
 }
 
-export TERM=xterm-256color
-export PATH=~/Documents/iree/build/tools:$PATH
 export NODE_TLS_REJECT_UNAUTHORIZED=0
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-
+export PATH=~/Documents/iree/build/tools:$PATH
 #zprof
