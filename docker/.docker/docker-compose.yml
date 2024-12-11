@@ -55,6 +55,7 @@ services:
     image: "jeryin/dev:base"
     depends_on:
       - tools-setup  # Ensure tools-setup runs first
+    profiles: ["base"]
 
   rocmlir:
     <<: *base-service
