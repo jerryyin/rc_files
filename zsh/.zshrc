@@ -26,42 +26,65 @@ CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 ZINIT_BIN_DIR="$CACHE_DIR/zinit/bin"
 if [[ ! -d $ZINIT_BIN_DIR ]]; then
     command mkdir -p $ZINIT_BIN_DIR
-    command git clone https://github.com/zdharma/zinit $ZINIT_BIN_DIR --depth=1
+    command git clone https://github.com/zdharma-continuum/zinit $ZINIT_BIN_DIR --depth=1
 fi
-source "$ZINIT_BIN_DIR/zi.zsh"
+source "$ZINIT_BIN_DIR/zinit.zsh"
 
 #----------------------------------------------
 # Plugin section
-#
+
 # Load essential plugins immediately
-zinit ice depth=1; zinit light romkatv/powerlevel10k
+
+zinit ice depth=1
+zinit light romkatv/powerlevel10k
+
 zinit light zdharma-continuum/fast-syntax-highlighting
-zinit ice depth=1 lucid; zinit light jeffreytse/zsh-vi-mode
+
+zinit ice depth=1 lucid
+zinit light jeffreytse/zsh-vi-mode
 
 # Critical plugins required for core functionality
-zinit ice wait'0' depth=1 lucid; zinit light zsh-users/zsh-autosuggestions
-zinit ice wait'0' depth=1 lucid; zinit light zsh-users/zsh-history-substring-search
+
+zinit ice wait'0' depth=1 lucid
+zinit light zsh-users/zsh-autosuggestions
+
+zinit ice wait'0' depth=1 lucid
+zinit light zsh-users/zsh-history-substring-search
 typeset -g HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 # Important but not immediate
-zinit ice wait'1' depth=1 lucid; zinit light zsh-users/zsh-completions
 
-zinit ice wait'1' as"completion" lucid;
+zinit ice wait'1' depth=1 lucid
+zinit light zsh-users/zsh-completions
+
+zinit ice wait'1' as"completion" lucid
 zinit snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker
 
 # Optional Plugins
-zinit ice wait'2' depth=1 lucid; zinit light jreese/zsh-titles
-zinit ice wait'2' depth=1 lucid; zinit light hlissner/zsh-autopair
+zinit ice wait'2' depth=1 lucid
+zinit light jreese/zsh-titles
+
+zinit ice wait'2' depth=1 lucid
+zinit light hlissner/zsh-autopair
+
 # Color
-zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::colorize
-zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::colored-man-pages
+zinit ice wait'2' depth=1 lucid
+zinit snippet OMZP::colorize
+
+zinit ice wait'2' depth=1 lucid
+zinit snippet OMZP::colored-man-pages
+
 # Utility
-zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::command-not-found
+zinit ice wait'2' depth=1 lucid
+zinit snippet OMZP::command-not-found
+
 # marks, mark/unmark + <markname>, jump + <markname>
-zinit ice wait'2' depth=1 lucid; zinit snippet OMZP::jump
+zinit ice wait'2' depth=1 lucid
+zinit snippet OMZP::jump
+
 # extract + <archive>
 # Since this is the last plugin, do compoinit for auto completion
-zinit ice wait'2' depth=1 lucid atinit="zicompinit; zicdreplay"; 
+zinit ice wait'2' depth=1 lucid atinit="zicompinit; zicdreplay"
 zinit snippet OMZP::extract
 
 #----------------------------------------------
@@ -176,6 +199,7 @@ function dbuild() {
 export TERM=xterm-256color
 export PATH=~/Documents/iree/build/tools:$PATH
 export NODE_TLS_REJECT_UNAUTHORIZED=0
+export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
 #zprof
