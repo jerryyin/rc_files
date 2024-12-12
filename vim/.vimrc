@@ -325,24 +325,6 @@ let g:indent_guides_start_level = 3
 " Default value is 30, kills performance
 let g:indent_guides_indent_levels = 8
 
-" cscope settings
-" The following maps all invoke one of the following cscope search types:
-"
-"   'f'   file:     open the filename under cursor
-"   's'   symbol:   find this C symbol
-"   'c'   calls:    find all calls to the function name under cursor
-"   'i'   includes: find files that #include the filename under cursor
-"   'a'   assign:   find places where this symbol is assigned a value
-"   Refer to
-"   https://stackoverflow.com/questions/24510721/cscope-result-handling-with-quickfix-window
-set cscopequickfix=s-,c-,i-,a-
-nmap <C-\>f :cs find f <C-R>=expand("<cword>")<CR><CR>
-" Load following results into quickfix
-nnoremap <C-\>s yiw:cs find s <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>c yiw:cs find c <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>i yiw:cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>:cwindow<CR>/<C-R>0<CR>
-nnoremap <C-\>a yiw:cs find a <C-R>=expand("<cword>")<CR><CR>:cwindow<CR>/<C-R>0<CR>
-
 " gutentags settings
 let g:gutentags_generate_on_new = 1
 let g:gutentags_generate_on_missing = 1
@@ -354,11 +336,6 @@ let g:gutentags_modules = []
 if executable('ctags')
     let g:gutentags_modules += ['ctags']
 endif
-if executable('gtags-cscope') && executable('gtags')
-    let g:gutentags_modules += ['gtags_cscope']
-endif
-" Project root directory will be used as the prefix to construct an absolute path.
-set csre
 
 " auto-format plugin (remap =)
 " https://github.com/Chiel92/vim-autoformat/issues/192#issuecomment-316621090
