@@ -16,9 +16,9 @@ export LANG=en_US.UTF-8
 if command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]]; then
   base_session=$(whoami)
   if ! tmux has-session -t "$base_session" 2>/dev/null; then
-    tmux new-session -d -s "$base_session"
+    tmux -2u new-session -d -s "$base_session"
   fi
-  tmux attach-session -t "$base_session"
+  tmux -2u attach-session -t "$base_session"
 fi
 
 # Load p10k instant promopt
