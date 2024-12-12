@@ -36,7 +36,7 @@ services:
       context: .
       dockerfile: tools.dockerfile  # Build tools image as usual
       args:
-        BASE_IMAGE: ubuntu:22.04
+        BASE_IMAGE: ubuntu:24.04
         SERVICE_NAME: tools-setup
     image: jeryin/dev:tools
     container_name: zyin-tools-setup
@@ -50,7 +50,7 @@ services:
       context: .
       dockerfile: base.dockerfile
       args:
-        BASE_IMAGE: rocm/dev-ubuntu-22.04:latest
+        BASE_IMAGE: rocm/dev-ubuntu-24.04:latest
         SERVICE_NAME: base
     image: "jeryin/dev:base"
     depends_on:
@@ -89,7 +89,7 @@ services:
       context: .
       dockerfile: base.dockerfile
       args:
-        BASE_IMAGE: rocm/dev-ubuntu-22.04:latest
+        BASE_IMAGE: rocm/dev-ubuntu-24.04:latest
         SERVICE_NAME: iree
     image: "jeryin/dev:iree"
     depends_on:
