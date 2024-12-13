@@ -13,7 +13,7 @@ WORKDIR /root
 #COPY scripts scripts
 
 RUN apt-get update && apt-get -y install git && \
-    git clone https://github.com/jerryyin/scripts.git && \
+    git clone https://github.com/jerryyin/scripts.git
 
 RUN bash scripts/docker/init_min.sh
 
