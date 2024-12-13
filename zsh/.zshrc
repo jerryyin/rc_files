@@ -179,7 +179,7 @@ function set_compose_project_name() {
 # Function to set Docker Compose file and ensure COMPOSE_PROJECT_NAME is set
 function dcompose() {
   set_compose_project_name "$@[-1]"
-  docker-compose -f ~/.docker/docker-compose.yml "$@"
+  docker compose -f ~/.docker/docker-compose.yml "$@"
 }
 
 # Function to bring up Docker services in detached mode

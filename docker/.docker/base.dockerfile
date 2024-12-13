@@ -8,9 +8,14 @@ RUN echo "Acquire::http::proxy \"$HTTP_PROXY\";\nAcquire::https::proxy \"$HTTPS_
 
 # lightweight setup script
 WORKDIR /root
+
+# Debug build scripts
+#COPY scripts scripts
+
 RUN apt-get update && apt-get -y install git && \
     git clone https://github.com/jerryyin/scripts.git && \
-    bash scripts/docker/init_min.sh
+
+RUN bash scripts/docker/init_min.sh
 
 ARG SERVICE_NAME  
 RUN echo "Service name is: $SERVICE_NAME"; \  
