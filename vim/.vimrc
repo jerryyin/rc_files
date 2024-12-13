@@ -318,6 +318,14 @@ let g:lightline = {
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
+" Note ninja doesn't support out-of-tree build, use cmake --build instead
+nnoremap <leader>e :Dispatch -- --build ../build<CR>
+augroup IREE
+  autocmd!  
+    autocmd BufEnter * if expand('%:p') =~ 'iree' || expand('%:p') =~ 'llvm'  
+      \ | setlocal makeprg=cmake
+      \ | endif  
+augroup END  
 
 " Indent guides
 let g:indent_guides_enable_on_vim_startup = 1
