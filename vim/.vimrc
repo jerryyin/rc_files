@@ -149,6 +149,7 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'tpope/vim-rsi'
 " Surround text object
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
 " Markdown syntax highlighting
 Plug 'vim-pandoc/vim-pandoc-syntax'
 " Auto save
@@ -319,6 +320,7 @@ let g:lightline = {
 set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
 " Note ninja doesn't support out-of-tree build, use cmake --build instead
+" Note ninja support single file build via :Dispatch -- -C build %:p^
 nnoremap <leader>e :Dispatch -- --build ../build<CR>
 augroup IREE
   autocmd!  
