@@ -136,6 +136,8 @@ Plug 'jerryyin/vim-bufmru'
 Plug 'tpope/vim-dispatch'
 " Grep async support
 Plug 'mhinz/vim-grepper'
+" Test suport
+Plug 'ilyachur/cmake4vim'
 " File switch between cpp and header
 Plug 'ericcurtin/CurtineIncSw.vim'
 " A Vim plugin to copy text through SSH with OSC52
@@ -319,15 +321,21 @@ let g:lightline = {
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
-" Note ninja doesn't support out-of-tree build, use cmake --build instead
-" Note ninja support single file build via :Dispatch -- -C build %:p^
-nnoremap <leader>e :Dispatch -- --build ../build<CR>
-augroup IREE
-  autocmd!  
-    autocmd BufEnter * if expand('%:p') =~ 'iree' || expand('%:p') =~ 'llvm'  
-      \ | setlocal makeprg=cmake
-      \ | endif  
-augroup END  
+
+" Note dipatch disrupt the error format parsing so use dispatch directly with
+" either Dispatch -- --build ../build or Make --build ../build, if makeprg is
+" set to cmake. Because of this, switch to use cmake4vim plugin that use
+" locally defined errorformat.
+let g:cmake_build_dir = "../build"
+nnoremap <leader>eb :CMakeBuild<CR>
+nnoremap <leader>ec :CMake --preset rocm<CR>
+"nnoremap <leader>et :execute "let &errorformat='%f:%l:%c: %trror: %m'"<CR>:execute 'CTest -R ' . expand('%:t') . ' --output-on-failure'<CR>
+" The above error format will incorrectly capture lines that doesn't start
+" with filename. Use default ctest temporarily now, this avoids overriding the
+" default errorformat
+nnoremap <leader>et :execute "CTest -R " . expand('%:t') .
+  \ " --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e' "<CR>
+nnoremap <leader>es :CTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 
 " Indent guides
 let g:indent_guides_enable_on_vim_startup = 1
