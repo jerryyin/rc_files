@@ -65,10 +65,11 @@ noremap <C-J> <C-W>j
 noremap <C-K> <C-W>k
 noremap <C-H> <C-W>h
 noremap <C-L> <C-W>l
-tnoremap <C-J> <C-W>j
-tnoremap <C-K> <C-W>k
-tnoremap <C-H> <C-W>h
-tnoremap <C-L> <C-W>l
+tnoremap <C-h> <c-\><C-n><C-w>h
+tnoremap <C-j> <c-\><C-n><C-w>j
+tnoremap <C-k> <c-\><C-n><C-w>k
+tnoremap <C-l> <c-\><C-n><C-w>l
+tnoremap <C-w> <c-\><C-n><C-w>w
 tnoremap <Esc> <C-\><C-N>
 
 " Split_number C-w C-w
