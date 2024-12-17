@@ -423,8 +423,14 @@ let g:grepper.repo = ['.git', '.hg', '.svn']
 let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
 let g:grepper.prompt_mapping_tool = '<leader>g'
-runtime plugin/grepper.vim
-let g:grepper.ag.grepprg .= ' --ignore-dir build'
+" Copied from grepper.vim
+" I amended the grepprg by adding --ignore-dir build
+"let g:grepper.ag.grepprg .= ' --ignore-dir build'
+let g:grepper.ag = { 
+    \ 'grepprg':    'ag --vimgrep --ignore-dir build',
+    \ 'grepformat': '%f:%l:%c:%m,%f:%l:%m,%f',
+    \ 'escape':     '\^$.*+?()[]{}|' }
+
 nnoremap <leader>ga :Grepper -tool ag<cr>
 nnoremap <leader>gg :Grepper -tool git -cword -noprompt<cr>
 nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
