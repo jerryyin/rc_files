@@ -72,6 +72,8 @@ tnoremap <C-l> <c-\><C-n><C-w>l
 tnoremap <C-w> <c-\><C-n><C-w>w
 tnoremap <Esc> <C-\><C-N>
 
+cabbrev bterm bo term ++rows=15
+
 " Split_number C-w C-w
 " The panes are numbered from top-left to bottom-right with the
 " first one getting the number 1.
