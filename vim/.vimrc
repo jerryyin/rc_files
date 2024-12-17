@@ -299,7 +299,7 @@ let g:lightline = {
   \ },
   \ 'tabline': {
   \   'left': [ [ 'mrubuffers' ] ],
-  \   'right': [ [ 'bufferclose', 'tabnum' ] ]
+  \   'right': [ [ 'tabnum' ] ]
   \ },
   \ 'tabline_subseparator': { 'left': '', 'right': ''  },
   \ 'component_expand': {
@@ -312,7 +312,6 @@ let g:lightline = {
   \ },
   \ 'component_raw': {
   \   'mrubuffers':     1,
-  \   'bufferclose':    0,
   \   'tabnum':         1,
   \ },
   \ 'enable': {
