@@ -202,5 +202,5 @@ function dbuild() {
 }
 
 export NODE_TLS_REJECT_UNAUTHORIZED=0
-export PATH=~/Documents/iree/build/tools:$PATH
+export PATH=/root/build/tools:$PATH
 #zprof
