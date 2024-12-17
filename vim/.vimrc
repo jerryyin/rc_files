@@ -172,7 +172,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'ludovicchabant/vim-gutentags'
 
 " Code formating
-Plug 'Chiel92/vim-autoformat'
+Plug 'vim-autoformat/vim-autoformat'
 " Help correctly indent file in edit mode
 Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/indent/python.vim' }
 Plug 'llvm/llvm.vim'
@@ -428,7 +428,7 @@ let g:grepper.prompt_mapping_tool = '<leader>g'
 " Copied from grepper.vim
 " I amended the grepprg by adding --ignore-dir build
 "let g:grepper.ag.grepprg .= ' --ignore-dir build'
-let g:grepper.ag = { 
+let g:grepper.ag = {
     \ 'grepprg':    'ag --vimgrep --ignore-dir build',
     \ 'grepformat': '%f:%l:%c:%m,%f:%l:%m,%f',
     \ 'escape':     '\^$.*+?()[]{}|' }
@@ -466,6 +466,12 @@ let g:tmuxline_powerline_separators = 0
 let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright']
 let g:coc_disable_startup_warning = 1
 
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo because accepting a completion or inserting a
+" newline is treated as a separate undo step
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
@@ -488,3 +494,7 @@ endfunction
 
 " Symbol renaming
 nmap <leader>rn <Plug>(coc-rename)
+
+" Apply the most preferred quickfix action to fix diagnostic on the current
+" line
+nmap <leader>qf  <Plug>(coc-fix-current)
