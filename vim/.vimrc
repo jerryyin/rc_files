@@ -191,7 +191,9 @@ endif
 let g:gruvbox_material_background = 'hard'
 let g:gruvbox_material_ui_contrast = 'high'
 let g:gruvbox_material_transparent_background = 2
-"let g:gruvbox_material_disable_italic_comment = 1
+let g:gruvbox_material_enable_bold = 1
+let g:gruvbox_material_enable_italic = 1
+let g:gruvbox_material_diagnostic_text_highlight = 1
 " highlight error/warning/info hint lines
 let g:gruvbox_material_diagnostic_virtual_text = 'colored'
 let g:gruvbox_material_diagnostic_text_highlight = 1
@@ -211,12 +213,10 @@ function! s:gruvbox_material_custom() abort
   " the fourth parameter is for UI highlighting which is optional,
   " and the last parameter is for `guisp` which is also optional.
   " See `autoload/gruvbox_material.vim` for the format of `l:palette`.
-  call gruvbox_material#highlight('DiffText', l:palette.green, l:palette.red, 'bold')
+  call gruvbox_material#highlight('DiffText', l:palette.red, l:palette.yellow, 'bold')
   call gruvbox_material#highlight('String', l:palette.purple, l:palette.none)
   " CocCommand semanticTokens.inspect
   call gruvbox_material#highlight('CocSemTypeProperty', l:palette.aqua, l:palette.none,'underline')
-  call gruvbox_material#highlight('CocSemTypeParameter', l:palette.blue, l:palette.none,'italic')
-  call gruvbox_material#highlight('CocSemTypeVariable', l:palette.none, l:palette.none)
 endfunction
 
 augroup GruvboxMaterialCustom
