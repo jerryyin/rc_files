@@ -339,6 +339,14 @@ nnoremap <leader>et :execute "CTest -R " . expand('%:t') .
   \ " --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e' "<CR>
 nnoremap <leader>es :CTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 
+" Do not allow auto-resize of quickfix window
+let g:lens#disabled_filetypes = ['qf']
+augroup QuickfixCustomSettings
+  autocmd!
+  " Apply AnsiEsc when entering a quickfix window
+  autocmd BufWinEnter * if &filetype == 'qf' && !exists('b:ansiEscApplied') | execute 'AnsiEsc' | let b:ansiEscApplied = 1 | endif
+augroup END
+
 " Indent guides
 let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_start_level = 3
