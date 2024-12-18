@@ -340,7 +340,7 @@ nnoremap <leader>et :execute "CTest -R " . expand('%:t') .
 nnoremap <leader>es :CTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 
 " Do not allow auto-resize of quickfix window
-let g:lens#disabled_filetypes = ['qf']
+let g:lens#disabled_filetypes = ['qf, fugitive']
 augroup QuickfixCustomSettings
   autocmd!
   " Apply AnsiEsc when entering a quickfix window
