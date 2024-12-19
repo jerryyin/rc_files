@@ -109,7 +109,7 @@ Plug 'kshenoy/vim-signature'
 Plug 'itchyny/lightline.vim'
 
 " Color terminal: Ansi escape sequences
-Plug 'powerman/vim-plugin-AnsiEsc'
+Plug 'Makaze/AnsiEsc'
 " Startup window and session management
 Plug 'mhinz/vim-startify'
 " Auto resize split
@@ -331,13 +331,25 @@ let g:dispatch_no_maps = 1
 let g:cmake_build_dir = "../build"
 nnoremap <leader>eb :CMakeBuild<CR>
 nnoremap <leader>ec :CMake --preset rocm<CR>
-"nnoremap <leader>et :execute "let &errorformat='%f:%l:%c: %trror: %m'"<CR>:execute 'CTest -R ' . expand('%:t') . ' --output-on-failure'<CR>
-" The above error format will incorrectly capture lines that doesn't start
-" with filename. Use default ctest temporarily now, this avoids overriding the
-" default errorformat
-nnoremap <leader>et :execute "CTest -R " . expand('%:t') .
-  \ " --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e' "<CR>
-nnoremap <leader>es :CTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
+
+function! RunCTestWithArgs(extra_args)
+  let l:original_errorformat = &errorformat
+
+  " The line number should be %l + offset, but vim doesn't support that
+  let &errorformat = '%.%#at %f:%l offset :%.%#:%.%#: %trror: %m,'
+  let &errorformat = &errorformat . '%f:%l:%c: %trror: %m'
+
+  let l:args = '--output-on-failure '
+  let l:args .= '-E cuda\|metal\|vulkan\|cpu '
+  let l:args .= ' ' . join(a:extra_args)
+
+  " Run CTest with the constructed arguments string
+  call cmake4vim#CTest(0, l:args)
+  let &errorformat = l:original_errorformat
+endfunction
+
+nnoremap <leader>et :call RunCTestWithArgs(['-R', expand('%:t')])<CR>
+nnoremap <leader>es :call RunCTestWithArgs(['all', '-j32'])<CR>
 
 " Do not allow auto-resize of quickfix window
 let g:lens#disabled_filetypes = ['qf, fugitive']
@@ -346,6 +358,15 @@ augroup QuickfixCustomSettings
   " Apply AnsiEsc when entering a quickfix window
   autocmd BufWinEnter * if &filetype == 'qf' && !exists('b:ansiEscApplied') | execute 'AnsiEsc' | let b:ansiEscApplied = 1 | endif
 augroup END
+let g:ansi_Black = '#1d2021'
+let g:ansi_DarkRed = '#cc241d'
+let g:ansi_DarkGreen = '#98971a'
+let g:ansi_DarkYellow = '#d79921'
+let g:ansi_DarkBlue = '#458588'
+let g:ansi_DarkMagenta = '#b16286'
+let g:ansi_DarkCyan = '#689d6a'
+let g:ansi_LightGray = '#ebdbb2'
+let g:ansi_DarkGray = '#a89984'
 
 " Indent guides
 let g:indent_guides_enable_on_vim_startup = 1
