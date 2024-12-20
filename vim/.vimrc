@@ -328,9 +328,9 @@ let g:dispatch_no_maps = 1
 " either Dispatch -- --build ../build or Make --build ../build, if makeprg is
 " set to cmake. Because of this, switch to use cmake4vim plugin that use
 " locally defined errorformat.
-let g:cmake_build_dir = "../build"
-nnoremap <leader>eb :CMakeBuild<CR>
-nnoremap <leader>ec :CMake --preset rocm<CR>
+let g:cmake_build_dir = "./build"
+nnoremap <leader>bb :CMakeBuild<CR>
+nnoremap <leader>bp :CMake --preset rocm<CR>
 
 function! RunCTestWithArgs(extra_args)
   let l:original_errorformat = &errorformat
@@ -348,8 +348,8 @@ function! RunCTestWithArgs(extra_args)
   let &errorformat = l:original_errorformat
 endfunction
 
-nnoremap <leader>et :call RunCTestWithArgs(['-R', expand('%:t')])<CR>
-nnoremap <leader>es :call RunCTestWithArgs(['all', '-j32'])<CR>
+nnoremap <leader>tf :call RunCTestWithArgs(['-R', expand('%:t')])<CR>
+nnoremap <leader>ta :call RunCTestWithArgs(['all', '-j32'])<CR>
 
 " Do not allow auto-resize of quickfix window
 let g:lens#disabled_filetypes = ['qf, fugitive']
@@ -401,8 +401,8 @@ let g:autoformat_retab = 0
 
 " LeaderF
 " By default enabled: Global search files and tags
-"noremap <leader>f :LeaderFile<cr>
-"noremap <leader>b :LeaderBuffer<cr>
+let g:Lf_ShortcutF = '<leader>ff'
+let g:Lf_ShortcutB = '<leader>fb'
 let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
 let g:Lf_WorkingDirectoryMode = 'Ac'
@@ -423,10 +423,16 @@ augroup fuDeleteBuffer
   autocmd BufReadPost fugitive://* set bufhidden=delete
 augroup END
 " Set Gstatus to fixed length
-nmap <leader>s :Git<CR>:15wincmd_<CR>
-nmap <leader>d :Gvdiffsplit<CR>
+nmap <leader>gg :Git<CR>:15wincmd_<CR>
+nmap <leader>gb :Git blame<CR>
+nmap <leader>gc :Git commit<CR>
+nmap <leader>gd :Gvdiffsplit<CR>
+nmap <leader>gf :Git fetch<CR>
+nmap <leader>gp :Git pull --rebase<CR>
+nmap <leader>gl :Gclog<CR>
+nmap <leader>gw :Gwrite<CR>
 
-nnoremap <leader>n :NERDTreeToggle<CR>
+nnoremap <leader>fn :NERDTreeToggle<CR>
 let g:NERDTreeAutoDeleteBuffer=1
 let g:NERDTreeShowLineNumbers=1
 
@@ -461,9 +467,9 @@ let g:grepper.ag = {
     \ 'grepformat': '%f:%l:%c:%m,%f:%l:%m,%f',
     \ 'escape':     '\^$.*+?()[]{}|' }
 
-nnoremap <leader>ga :Grepper -tool ag<cr>
-nnoremap <leader>gg :Grepper -tool git -cword -noprompt<cr>
-nnoremap <leader>gs :Grepper -tool ag -cword -noprompt<cr>
+nnoremap <leader>ss :Grepper -tool ag<cr>
+nnoremap <leader>sg :Grepper -tool git -cword -noprompt<cr>
+nnoremap <leader>sa :Grepper -tool ag -cword -noprompt<cr>
 
 " Signature
 " The periodic refresh kills performance
@@ -474,9 +480,8 @@ nnoremap <C-e> <C-^>
 " Use <ctrl>-s to open split on the right
 nnoremap <C-s> :<C-u>execute 'vert belowright sb ' . v:count<CR>
 
-nmap <leader>c <Plug>OSCYankOperator
-nmap <leader>cc <leader>c_
-vmap <leader>c <Plug>OSCYankVisual
+nmap <leader>y <Plug>OSCYankOperator
+vmap <leader>y <Plug>OSCYankVisual
 
 " CurtineIncSw
 nmap <silent> <Leader>a :call CurtineIncSw()<cr>
@@ -521,8 +526,8 @@ function! ShowDocumentation()
 endfunction
 
 " Symbol renaming
-nmap <leader>rn <Plug>(coc-rename)
+nmap <leader>cr <Plug>(coc-rename)
 
 " Apply the most preferred quickfix action to fix diagnostic on the current
 " line
-nmap <leader>qf  <Plug>(coc-fix-current)
+nmap <leader>cf <Plug>(coc-fix-current)
