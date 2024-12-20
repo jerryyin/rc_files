@@ -323,6 +323,8 @@ let g:lightline = {
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
+nnoremap <leader>qo :Copen<CR>
+nnoremap <leader>qc :cclose<CR>
 
 " Note dipatch disrupt the error format parsing so use dispatch directly with
 " either Dispatch -- --build ../build or Make --build ../build, if makeprg is
@@ -367,6 +369,8 @@ let g:ansi_DarkMagenta = '#b16286'
 let g:ansi_DarkCyan = '#689d6a'
 let g:ansi_LightGray = '#ebdbb2'
 let g:ansi_DarkGray = '#a89984'
+" Escape sequence for Ansi
+nnoremap <leader>ea :AnsiEsc<CR>
 
 " Indent guides
 let g:indent_guides_enable_on_vim_startup = 1
