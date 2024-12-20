@@ -323,7 +323,7 @@ let g:lightline = {
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
-nnoremap <leader>qo :Copen<CR>
+nnoremap <leader>qo :Copen<CR>:10wincmd_<CR>
 nnoremap <leader>qc :cclose<CR>
 
 " Note dipatch disrupt the error format parsing so use dispatch directly with
@@ -331,7 +331,19 @@ nnoremap <leader>qc :cclose<CR>
 " set to cmake. Because of this, switch to use cmake4vim plugin that use
 " locally defined errorformat.
 let g:cmake_build_dir = "./build"
-nnoremap <leader>bb :CMakeBuild<CR>
+
+function! RunCMakeWithEfm()
+  let l:original_errorformat = &errorformat
+  " Uncolored efm
+  let &errorformat = '%f:%l:%c: %trror: %m, ' . &errorformat
+  " [1m stands for bold, escape the color from filename
+  " This efm is dependent on CMAKE_COLOR_DIAGNOSTICS set
+  let &errorformat = '%.%#[1m%f:%l:%c: %.%#m%trror: %m, ' . &errorformat
+  execute 'CMakeBuild'
+  let &errorformat = l:original_errorformat
+endfunction
+nnoremap <leader>bb :call RunCMakeWithEfm()<CR>
+" CMake build will not populate color and efm captured correctly by cmake4vim
 nnoremap <leader>bp :CMake --preset rocm<CR>
 
 function! RunCTestWithArgs(extra_args)
@@ -427,7 +439,7 @@ augroup fuDeleteBuffer
   autocmd BufReadPost fugitive://* set bufhidden=delete
 augroup END
 " Set Gstatus to fixed length
-nmap <leader>gg :Git<CR>:15wincmd_<CR>
+nmap <leader>gg :Git<CR>:10wincmd_<CR>
 nmap <leader>gb :Git blame<CR>
 nmap <leader>gc :Git commit<CR>
 nmap <leader>gd :Gvdiffsplit<CR>
