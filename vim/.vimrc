@@ -357,8 +357,8 @@ nnoremap <leader>ta :call RunCTestWithArgs(['all', '-j32'])<CR>
 let g:lens#disabled_filetypes = ['qf, fugitive']
 augroup QuickfixCustomSettings
   autocmd!
-  " Apply AnsiEsc when entering a quickfix window
-  autocmd BufWinEnter * if &filetype == 'qf' && !exists('b:ansiEscApplied') | execute 'AnsiEsc' | let b:ansiEscApplied = 1 | endif
+  " Apply AnsiEsc when buffer is loaded, one time setup
+  autocmd BufRead * if &filetype == 'qf' | execute 'AnsiEsc' | endif
 augroup END
 let g:ansi_Black = '#1d2021'
 let g:ansi_DarkRed = '#cc241d'
