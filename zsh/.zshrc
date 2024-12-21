@@ -128,6 +128,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   RIGHT_ARROW='f'
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
   # Ubuntu or other Linux distributions
+  # Use showkey -a (provided by kbd) for escape sequence
   alias ls='ls --color'
   UP_ARROW='^[OA'
   DOWN_ARROW='^[OB'
@@ -146,6 +147,9 @@ function zvm_before_init() {
   zvm_bindkey vicmd $DOWN_ARROW history-substring-search-down
   zvm_bindkey vicmd $RIGHT_ARROW forward-word
   zvm_bindkey vicmd $LEFT_ARROW backward-word
+
+  # Only tested in xterm
+  zvm_bindkey viins "^[^?" backward-kill-word
 }
 
 # zsh-history-substring-search
