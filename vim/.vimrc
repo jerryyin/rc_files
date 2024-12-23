@@ -140,7 +140,7 @@ Plug 'tpope/vim-dispatch'
 " Grep async support
 Plug 'mhinz/vim-grepper'
 " Test suport
-Plug 'ilyachur/cmake4vim'
+Plug 'jerryyin/vim-cmake'
 " File switch between cpp and header
 Plug 'ericcurtin/CurtineIncSw.vim'
 " A Vim plugin to copy text through SSH with OSC52
@@ -326,44 +326,11 @@ let g:dispatch_no_maps = 1
 nnoremap <leader>qo :Copen<CR>:10wincmd_<CR>
 nnoremap <leader>qc :cclose<CR>
 
-" Note dipatch disrupt the error format parsing so use dispatch directly with
-" either Dispatch -- --build ../build or Make --build ../build, if makeprg is
-" set to cmake. Because of this, switch to use cmake4vim plugin that use
-" locally defined errorformat.
-let g:cmake_build_dir = "./build"
-
-function! RunCMakeWithEfm()
-  let l:original_errorformat = &errorformat
-  " Uncolored efm
-  let &errorformat = '%f:%l:%c: %trror: %m, ' . &errorformat
-  " [1m stands for bold, escape the color from filename
-  " This efm is dependent on CMAKE_COLOR_DIAGNOSTICS set
-  let &errorformat = '%.%#[1m%f:%l:%c: %.%#m%trror: %m, ' . &errorformat
-  execute 'CMakeBuild'
-  let &errorformat = l:original_errorformat
-endfunction
-nnoremap <leader>bb :call RunCMakeWithEfm()<CR>
-" CMake build will not populate color and efm captured correctly by cmake4vim
-nnoremap <leader>bp :CMake --preset rocm<CR>
-
-function! RunCTestWithArgs(extra_args)
-  let l:original_errorformat = &errorformat
-
-  " The line number should be %l + offset, but vim doesn't support that
-  let &errorformat = '%.%#at %f:%l offset :%.%#:%.%#: %trror: %m,'
-  let &errorformat = &errorformat . '%f:%l:%c: %trror: %m'
-
-  let l:args = '--output-on-failure '
-  let l:args .= '-E cuda\|metal\|vulkan\|cpu '
-  let l:args .= ' ' . join(a:extra_args)
-
-  " Run CTest with the constructed arguments string
-  call cmake4vim#CTest(0, l:args)
-  let &errorformat = l:original_errorformat
-endfunction
-
-nnoremap <leader>tf :call RunCTestWithArgs(['-R', expand('%:t')])<CR>
-nnoremap <leader>ta :call RunCTestWithArgs(['all', '-j32'])<CR>
+nnoremap <leader>bb :CMakeBuild<CR>
+" IREE specific setup, do ROCm build
+nnoremap <leader>bp :CMakeConfigure --preset rocm<CR>
+nnoremap <leader>tf :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
+nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 
 " Do not allow auto-resize of quickfix window
 let g:lens#disabled_filetypes = ['qf, fugitive']
