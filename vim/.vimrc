@@ -530,3 +530,11 @@ nmap <Leader>dh <Plug>VimspectorStepOut
 nmap <Leader>dl <Plug>VimspectorStepInto
 nmap <Leader>dj <Plug>VimspectorStepOver
 nmap <leader>J <Plug>VimspectorBalloonEval
+
+" Termdebug
+let g:termdebug_map_K = 0
+nmap E :Evaluate<CR>
+nmap J :Over<CR>
+nmap S :Step<CR>
+nmap B :Break<CR>
+nmap C :Clear<CR>
