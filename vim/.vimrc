@@ -537,4 +537,5 @@ nmap E :Evaluate<CR>
 nmap J :Over<CR>
 nmap S :Step<CR>
 nmap B :Break<CR>
-nmap C :Clear<CR>
+nmap D :Clear<CR>
+nmap C :Continue<CR>
