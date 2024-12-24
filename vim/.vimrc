@@ -113,7 +113,7 @@ Plug 'Makaze/AnsiEsc'
 " Startup window and session management
 Plug 'mhinz/vim-startify'
 " Auto resize split
-Plug 'camspiers/lens.vim'
+"Plug 'camspiers/lens.vim'
 Plug 'simeji/winresizer'
 " Toggle line number
 Plug 'jeffkreeftmeijer/vim-numbertoggle'
@@ -532,10 +532,41 @@ nmap <Leader>dj <Plug>VimspectorStepOver
 nmap <leader>J <Plug>VimspectorBalloonEval
 
 " Termdebug
-let g:termdebug_map_K = 0
-nmap E :Evaluate<CR>
-nmap J :Over<CR>
-nmap S :Step<CR>
-nmap B :Break<CR>
-nmap D :Clear<CR>
-nmap C :Continue<CR>
+if !has('nvim')
+  " Mappings
+  let g:termdebug_map_K = 0
+  nmap E :Evaluate<CR>
+  nmap J :Over<CR>
+  nmap S :Step<CR>
+  nmap B :Break<CR>
+  nmap D :Clear<CR>
+  nmap C :Continue<CR>
+
+  " Call :Dbg to load and run debugging session
+  function! s:AdjustTermdebugLayout() abort
+    " Move terminal window to bottom
+    wincmd k
+    wincmd J
+    " Resize top for it to capture majority of height
+    wincmd t
+    let l:full_height = str2float(&lines)
+    let l:source_height = float2nr(l:full_height * 0.7)
+    execute "resize " . l:source_height
+    " Move focus back to gdb window
+    wincmd j
+    let l:gdb_height = float2nr(l:full_height * 0.2)
+    execute "resize " . l:gdb_height
+  endfunction
+
+  let g:termdebug_loaded = 0
+  function! s:LoadTermdebug(...) abort
+    if g:termdebug_loaded == 0
+      packadd termdebug
+      let g:termdebug_loaded = 1
+    endif
+    execute 'Termdebug' join(a:000, ' ')
+    " Customize layout: Move GDB output pane to the bottom
+    call s:AdjustTermdebugLayout()
+  endfunction
+  command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
+endif
