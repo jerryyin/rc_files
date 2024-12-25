@@ -534,7 +534,6 @@ nmap <leader>J <Plug>VimspectorBalloonEval
 " Termdebug
 if !has('nvim')
   " Mappings
-  let g:termdebug_map_K = 0
   nmap E :Evaluate<CR>
   nmap J :Over<CR>
   nmap S :Step<CR>
@@ -572,7 +571,11 @@ if !has('nvim')
 
   let g:termdebug_config = {}
   " Both windows are disabled by default
+  " Use :Asm to open
   let g:termdebug_config['disasm_window'] = v:false
+  " Use :Var to open
   let g:termdebug_config['variables_window'] = v:false
   let g:termdebug_config['evaluate_in_popup'] = v:true
+  " K is already mapped in coc.nvim, it is mapped to E instead
+  let g:termdebug_config['map_K'] = v:false
 endif
