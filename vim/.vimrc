@@ -558,11 +558,11 @@ if !has('nvim')
     execute "resize " . l:gdb_height
   endfunction
 
-  let g:termdebug_loaded = 0
+  let g:dbg_loaded = 0
   function! s:LoadTermdebug(...) abort
-    if g:termdebug_loaded == 0
+    if g:dbg_loaded == 0
       packadd termdebug
-      let g:termdebug_loaded = 1
+      let g:dbg_loaded = 1
     endif
     execute 'Termdebug' join(a:000, ' ')
     " Customize layout: Move GDB output pane to the bottom
