@@ -569,4 +569,10 @@ if !has('nvim')
     call s:AdjustTermdebugLayout()
   endfunction
   command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
+
+  let g:termdebug_config = {}
+  " Both windows are disabled by default
+  let g:termdebug_config['disasm_window'] = v:false
+  let g:termdebug_config['variables_window'] = v:false
+  let g:termdebug_config['evaluate_in_popup'] = v:true
 endif
