@@ -69,8 +69,9 @@ tnoremap <C-h> <c-\><C-n><C-w>h
 tnoremap <C-j> <c-\><C-n><C-w>j
 tnoremap <C-k> <c-\><C-n><C-w>k
 tnoremap <C-l> <c-\><C-n><C-w>l
-tnoremap <C-w> <c-\><C-n><C-w>w
 tnoremap <Esc> <C-\><C-N>
+" Use <C-V> in terminal for paste
+tnoremap <C-V> <C-W>""
 
 cabbrev bterm bo term ++rows=15
 
@@ -328,6 +329,7 @@ nnoremap <leader>qo :Copen<CR>:10wincmd_<CR>
 nnoremap <leader>qc :cclose<CR>
 
 nnoremap <leader>bb :CMakeBuild<CR>
+nnoremap <leader>bc :CMakeBuild --target clean<CR>
 " IREE specific setup, do ROCm build
 nnoremap <leader>bp :CMakeConfigure --preset rocm<CR>
 nnoremap <leader>tf :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
@@ -415,6 +417,7 @@ nmap <leader>gf :Git fetch<CR>
 nmap <leader>gp :Git pull --rebase<CR>
 nmap <leader>gl :Gclog<CR>
 nmap <leader>gw :Gwrite<CR>
+nmap <leader>gr :Gread<CR>
 
 nnoremap <leader>fn :NERDTreeToggle<CR>
 let g:NERDTreeAutoDeleteBuffer=1
