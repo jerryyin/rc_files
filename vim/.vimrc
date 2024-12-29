@@ -190,6 +190,18 @@ else
     set notermguicolors
 endif
 
+set spell
+" Undercurl
+let &t_Cs = "\e[4:3m"
+" Underdouble
+let &t_Us = "\e[4:2m"
+" Underdotted
+let &t_ds = "\e[4:4m"
+" Underdashed
+let &t_Ds = "\e[4:5m"
+" Reset
+let &t_Ce = "\e[4:0m"
+
 " This configuration option should be placed before `colorscheme gruvbox-material`.
 " Available values: 'hard', 'medium'(default), 'soft'
 let g:gruvbox_material_background = 'hard'
