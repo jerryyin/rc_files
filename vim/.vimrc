@@ -286,7 +286,7 @@ augroup ft
   autocmd BufNewFile,BufRead *.mlir set filetype=mlir
   autocmd BufNewFile,BufRead *.cu set filetype=cuda
   autocmd BufNewFile,BufRead *.dockerfile set filetype=dockerfile
-  autocmd FileType mlir setlocal comments+=://
+  autocmd FileType pov set syntax=cpp
 augroup END
 
 " Auto-pair
