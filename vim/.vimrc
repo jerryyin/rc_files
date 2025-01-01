@@ -562,8 +562,8 @@ nmap C :Continue<CR>
 function! s:AdjustTermdebugLayout() abort
   " Check if there are exactly three vertically stacked panes
   let l:layout = winlayout()
-  if l:layout[0] != 'col' || len(l:layout[1]) != 3
-    echom "Error: Layout does not have exactly 3 vertical panes."
+  if l:layout[0] != 'col' || len(l:layout[1]) < 3
+    echom "Error: Layout should have at least 3 vertical panes."
     return
   endif
   " Resize top for it to capture majority of height
