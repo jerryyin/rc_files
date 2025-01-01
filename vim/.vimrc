@@ -593,8 +593,37 @@ endfunction
 command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
 nnoremap <Leader>dl :call <SID>AdjustTermdebugLayout()<CR>
 
+function! GetMLIRTestCommand()
+  " Search for the RUN line in the current buffer
+  let l:run_line = search('^// RUN: ', 'n')
+
+  if l:run_line == 0
+    echo "No RUN line found in the file."
+    return
+  endif
+
+  " Get the content of the RUN line
+  let l:run_cmd = getline(l:run_line)
+  " Remove the '// RUN: ' prefix
+  let l:run_cmd = substitute(l:run_cmd, '^// RUN: ', '', '')
+  " Remove the FileCheck part and everything after it
+  let l:run_cmd = substitute(l:run_cmd, '| FileCheck.*$', '', '')
+
+  " Substitute %s with the full path of the current file
+  let l:full_path = expand('%:p')
+  let l:run_cmd = substitute(l:run_cmd, '%s', l:full_path, 'g')
+
+  " Trim any leading or trailing whitespace
+  let l:run_cmd = substitute(l:run_cmd, '^\s*\(.\{-}\)\s*$', '\1', '')
+
+  " Echo the command or copy it to the clipboard
+  "echo "MLIR Test Command: " . l:run_cmd
+  let @" = l:run_cmd  " Copy to clipboard (requires Vim with clipboard support)
+  return l:run_cmd
+endfunction
 " Copy path of current buffer into unamed register
-nnoremap <silent> <leader>yp :let @" = expand('%:p')<CR>
+nnoremap <silent> <leader>yt :call GetMLIRTestCommand()<CR>
+nnoremap <silent> <leader>dt :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
 
 let g:termdebug_config = {}
 " Both windows are disabled by default
