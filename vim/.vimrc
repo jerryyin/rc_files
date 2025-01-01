@@ -483,7 +483,7 @@ nnoremap <C-e> <C-^>
 " Use <ctrl>-s to open split on the right
 nnoremap <C-s> :<C-u>execute 'vert belowright sb ' . v:count<CR>
 
-nmap <leader>y <Plug>OSCYankOperator
+nmap <leader>yy <Plug>OSCYankOperator
 vmap <leader>y <Plug>OSCYankVisual
 
 " CurtineIncSw
@@ -592,6 +592,9 @@ function! s:LoadTermdebug(...) abort
 endfunction
 command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
 nnoremap <Leader>dl :call <SID>AdjustTermdebugLayout()<CR>
+
+" Copy path of current buffer into unamed register
+nnoremap <silent> <leader>yp :let @" = expand('%:p')<CR>
 
 let g:termdebug_config = {}
 " Both windows are disabled by default
