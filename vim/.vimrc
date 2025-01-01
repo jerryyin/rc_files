@@ -560,9 +560,12 @@ nmap C :Continue<CR>
 
 " Call :Dbg to load and run debugging session
 function! s:AdjustTermdebugLayout() abort
-  " Move terminal window to bottom
-  wincmd k
-  wincmd J
+  " Check if there are exactly three vertically stacked panes
+  let l:layout = winlayout()
+  if l:layout[0] != 'col' || len(l:layout[1]) != 3
+    echom "Error: Layout does not have exactly 3 vertical panes."
+    return
+  endif
   " Resize top for it to capture majority of height
   wincmd t
   let l:full_height = str2float(&lines)
@@ -581,10 +584,14 @@ function! s:LoadTermdebug(...) abort
     let g:dbg_loaded = 1
   endif
   execute 'Termdebug' join(a:000, ' ')
+  " Move terminal window to bottom
+  wincmd k
+  wincmd J
   " Customize layout: Move GDB output pane to the bottom
   call s:AdjustTermdebugLayout()
 endfunction
 command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
+nnoremap <Leader>dl :call <SID>AdjustTermdebugLayout()<CR>
 
 let g:termdebug_config = {}
 " Both windows are disabled by default
