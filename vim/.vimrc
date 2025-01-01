@@ -615,15 +615,13 @@ function! GetMLIRTestCommand()
 
   " Trim any leading or trailing whitespace
   let l:run_cmd = substitute(l:run_cmd, '^\s*\(.\{-}\)\s*$', '\1', '')
-
-  " Echo the command or copy it to the clipboard
-  "echo "MLIR Test Command: " . l:run_cmd
-  let @" = l:run_cmd  " Copy to clipboard (requires Vim with clipboard support)
   return l:run_cmd
 endfunction
 " Copy path of current buffer into unamed register
-nnoremap <silent> <leader>yt :call GetMLIRTestCommand()<CR>
+nnoremap <silent> <leader>yt :let @" = GetMLIRTestCommand()<CR>
 nnoremap <silent> <leader>dt :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
+nnoremap <silent> <leader>rt :execute 'Dispatch '. GetMLIRTestCommand()<CR>
+nnoremap <leader>ml :set syntax=mlir<CR>
 
 let g:termdebug_config = {}
 " Both windows are disabled by default
