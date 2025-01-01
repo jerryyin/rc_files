@@ -207,5 +207,5 @@ function dbuild() {
 
 export CLICOLOR_FORCE=1
 export NODE_TLS_REJECT_UNAUTHORIZED=0
-export PATH=/root/iree/build/tools:$PATH
+export PATH=$HOME/iree/build/tools:$PATH
 #zprof
