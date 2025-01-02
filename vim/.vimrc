@@ -594,28 +594,40 @@ command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
 nnoremap <Leader>dl :call <SID>AdjustTermdebugLayout()<CR>
 
 function! GetMLIRTestCommand()
-  " Search for the RUN line in the current buffer
-  let l:run_line = search('^// RUN: ', 'n')
+  " Search for all RUN lines in the current buffer
+  let l:run_lines = []
+  let l:line_num = 1
+  while l:line_num <= line('$')
+    let l:line = getline(l:line_num)
+    if l:line =~ '^// RUN: '
+      call add(l:run_lines, l:line)
+    endif
+    let l:line_num += 1
+  endwhile
 
-  if l:run_line == 0
-    echo "No RUN line found in the file."
+  if empty(l:run_lines)
+    echo "No RUN lines found in the file."
     return
   endif
 
-  " Get the content of the RUN line
-  let l:run_cmd = getline(l:run_line)
-  " Remove the '// RUN: ' prefix
-  let l:run_cmd = substitute(l:run_cmd, '^// RUN: ', '', '')
-  " Remove the FileCheck part and everything after it
-  let l:run_cmd = substitute(l:run_cmd, '| FileCheck.*$', '', '')
+  " Process each RUN line and concatenate them with '&&'
+  let l:run_cmds = []
+  for l:run_line in l:run_lines
+    " Remove the '// RUN: ' prefix
+    let l:run_cmd = substitute(l:run_line, '^// RUN: ', '', '')
+    " Remove the FileCheck part and everything after it
+    let l:run_cmd = substitute(l:run_cmd, '| FileCheck.*$', '', '')
+    " Substitute %s with the full path of the current file
+    let l:full_path = expand('%:p')
+    let l:run_cmd = substitute(l:run_cmd, '%s', l:full_path, 'g')
+    " Trim any leading or trailing whitespace
+    let l:run_cmd = substitute(l:run_cmd, '^\s*\(.\{-}\)\s*$', '\1', '')
+    call add(l:run_cmds, l:run_cmd)
+  endfor
 
-  " Substitute %s with the full path of the current file
-  let l:full_path = expand('%:p')
-  let l:run_cmd = substitute(l:run_cmd, '%s', l:full_path, 'g')
-
-  " Trim any leading or trailing whitespace
-  let l:run_cmd = substitute(l:run_cmd, '^\s*\(.\{-}\)\s*$', '\1', '')
-  return l:run_cmd
+  " Join all commands with ' && '
+  let l:final_cmd = join(l:run_cmds, ' && ')
+  return l:final_cmd
 endfunction
 " Copy path of current buffer into unamed register
 nnoremap <silent> <leader>yt :let @" = GetMLIRTestCommand()<CR>
