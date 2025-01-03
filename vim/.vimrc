@@ -594,42 +594,58 @@ command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
 nnoremap <Leader>dl :call <SID>AdjustTermdebugLayout()<CR>
 
 function! GetMLIRTestCommand()
-  " Search for all RUN lines in the current buffer
-  let l:run_lines = []
-  let l:line_num = 1
-  while l:line_num <= line('$')
-    let l:line = getline(l:line_num)
-    if l:line =~ '^// RUN: '
-      call add(l:run_lines, l:line)
+  " Initialize variables
+  let l:commands = []
+  let l:current_cmd = ""
+  let l:run_found = 0
+
+  " Iterate through all lines in the buffer
+  for l:line in getline(1, '$')
+    " Check if the line starts with '// RUN:'
+    if l:line =~ '^// RUN:'
+      " Mark that we found a RUN line
+      let l:run_found = 1
+
+      " Remove the '// RUN: ' prefix
+      let l:line = substitute(l:line, '^// RUN: ', '', '')
+
+      " Check if the line ends with a backslash
+      if l:line =~ '\\$'
+        " Remove the backslash and add to the current command
+        let l:current_cmd .= substitute(l:line, '\\$', '', '') . " "
+      else
+        " Add the complete line to the current command and finalize it
+        let l:current_cmd .= l:line
+        call add(l:commands, l:current_cmd)
+        let l:current_cmd = ""
+      endif
+    elseif l:run_found
+      " Break the loop if we've already found RUN lines and encounter a non-RUN line
+      break
     endif
-    let l:line_num += 1
-  endwhile
-
-  if empty(l:run_lines)
-    echo "No RUN lines found in the file."
-    return
-  endif
-
-  " Process each RUN line and concatenate them with '&&'
-  let l:run_cmds = []
-  for l:run_line in l:run_lines
-    " Remove the '// RUN: ' prefix
-    let l:run_cmd = substitute(l:run_line, '^// RUN: ', '', '')
-    " Remove the FileCheck part and everything after it
-    let l:run_cmd = substitute(l:run_cmd, '| FileCheck.*$', '', '')
-    " Substitute %s with the full path of the current file
-    let l:full_path = expand('%:p')
-    let l:run_cmd = substitute(l:run_cmd, '%s', l:full_path, 'g')
-    " Trim any leading or trailing whitespace
-    let l:run_cmd = substitute(l:run_cmd, '^\s*\(.\{-}\)\s*$', '\1', '')
-    call add(l:run_cmds, l:run_cmd)
   endfor
 
-  " Join all commands with ' && '
-  let l:final_cmd = join(l:run_cmds, ' && ')
-  return l:final_cmd
+  " Handle the case where the last line is incomplete
+  if l:current_cmd != ""
+    call add(l:commands, l:current_cmd)
+  endif
+
+  " Process each command
+  let l:full_path = expand('%:p')
+  for i in range(len(l:commands))
+    " Remove FileCheck from command
+    let l:commands[i] = substitute(l:commands[i], '| FileCheck.*$', '', '')
+    " Substitute %s with the full path of the current file
+    let l:commands[i] = substitute(l:commands[i], '%s', l:full_path, 'g')
+    " Trim leading or trailing whitespace
+    let l:commands[i] = substitute(l:commands[i], '^\s*\(.\{-}\)\s*$', '\1', '')
+  endfor
+
+  " Join all commands into a single string, separated by semicolons
+  return join(l:commands, " ; ")
 endfunction
-" Copy path of current buffer into unamed register
+
+" Copy test command of current buffer into unamed register
 nnoremap <silent> <leader>yt :let @" = GetMLIRTestCommand()<CR>
 nnoremap <silent> <leader>dt :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
 nnoremap <silent> <leader>rt :execute 'Dispatch '. GetMLIRTestCommand()<CR>
