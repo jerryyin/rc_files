@@ -648,9 +648,24 @@ endfunction
 " Copy test command of current buffer into unamed register
 nnoremap <silent> <leader>yt :let @" = GetMLIRTestCommand()<CR>
 nnoremap <silent> <leader>dt :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
-nnoremap <silent> <leader>rt :execute 'Dispatch '. GetMLIRTestCommand()<CR>
 nnoremap <leader>ml :set syntax=mlir<CR>
 
+function! RunToScratch(cmd)
+  " Capture the result of the given command
+  let l:result = system(a:cmd)
+
+  " Open a new vertical split for the scratch buffer
+  vertical new
+  setlocal buftype=nofile bufhidden=wipe noswapfile
+
+  " Split the result into lines and insert them into the scratch buffer
+  let l:lines = split(l:result, '\n')
+  call append(0, l:lines)
+endfunction
+command! -nargs=1 R :call RunToScratch(<f-args>)
+nnoremap <silent> <leader>rt :call RunToScratch(GetMLIRTestCommand())<CR>:set filetype=mlir<CR>
+
+" Convenience function to pipe result from quickfix to Scratch buffer
 function! QuickfixToScratch()
   " Open a new vertical split for the scratch buffer
   vertical new
