@@ -651,6 +651,23 @@ nnoremap <silent> <leader>dt :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
 nnoremap <silent> <leader>rt :execute 'Dispatch '. GetMLIRTestCommand()<CR>
 nnoremap <leader>ml :set syntax=mlir<CR>
 
+function! QuickfixToScratch()
+  " Open a new vertical split for the scratch buffer
+  vertical new
+  setlocal buftype=nofile bufhidden=wipe noswapfile filetype=mlir
+
+  " Get the contents of the quickfix list
+  let l:quickfix_contents = map(getqflist(), 'v:val.text')
+
+  " Remove the '||' prefix from each line
+  let l:filtered_contents = map(l:quickfix_contents, 'substitute(v:val, "^\\s*||\\s*", "", "")')
+
+  " Add the filtered lines to the buffer
+  call append(0, l:filtered_contents)
+endfunction
+" Map <leader>qs to the function
+nnoremap <leader>qs :call QuickfixToScratch()<CR>
+
 let g:termdebug_config = {}
 " Both windows are disabled by default
 " Use :Asm to open
