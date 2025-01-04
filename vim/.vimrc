@@ -281,9 +281,8 @@ endfunction
 augroup ft
   autocmd!
   " Can enable filetype specific settings
-  "autocmd FileType cpp    set shiftwidth=2 tabstop=2 expandtab
   autocmd FileType qf setlocal wrap
-  autocmd BufNewFile,BufRead *.mlir set filetype=mlir
+  autocmd FileType mlir setlocal iskeyword+=%
   autocmd BufNewFile,BufRead *.cu set filetype=cuda
   autocmd BufNewFile,BufRead *.dockerfile set filetype=dockerfile
   autocmd FileType pov set syntax=cpp
