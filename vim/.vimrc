@@ -646,8 +646,8 @@ function! GetMLIRTestCommand()
 endfunction
 
 " Copy test command of current buffer into unamed register
-nnoremap <silent> <leader>yt :let @" = GetMLIRTestCommand()<CR>
-nnoremap <silent> <leader>dt :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
+nnoremap <silent> <leader>ty :let @" = GetMLIRTestCommand()<CR>
+nnoremap <silent> <leader>td :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
 nnoremap <leader>ml :set syntax=mlir<CR>
 
 function! RunToScratch(cmd)
@@ -663,7 +663,7 @@ function! RunToScratch(cmd)
   call append(0, l:lines)
 endfunction
 command! -nargs=1 R :call RunToScratch(<f-args>)
-nnoremap <silent> <leader>rt :call RunToScratch(GetMLIRTestCommand())<CR>:set filetype=mlir<CR>
+nnoremap <silent> <leader>tr :call RunToScratch(GetMLIRTestCommand())<CR>:set filetype=mlir<CR>
 
 " Convenience function to pipe result from quickfix to Scratch buffer
 function! QuickfixToScratch()
@@ -682,6 +682,20 @@ function! QuickfixToScratch()
 endfunction
 " Map <leader>qs to the function
 nnoremap <leader>qs :call QuickfixToScratch()<CR>
+
+function! GenerateTestChecksFromBuffer()
+  " Get current buffer path and contents
+  let l:buffer_path = expand('%:p')
+  let l:buffer_content = join(getline(1, '$'), "\n")
+
+  " Define the path to the generate-test-checks.py script (relative to iree folder)
+  let l:script_path = './third_party/llvm-project/mlir/utils/generate-test-checks.py'
+
+  " Construct the command to run
+  let l:cmd = GetMLIRTestCommand().' | python '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
+  call RunToScratch(l:cmd)
+endfunction
+nnoremap <silent> <leader>tg :call GenerateTestChecksFromBuffer()<CR>:set filetype=mlir<CR>
 
 let g:termdebug_config = {}
 " Both windows are disabled by default
