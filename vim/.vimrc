@@ -683,19 +683,31 @@ endfunction
 " Map <leader>qs to the function
 nnoremap <leader>qs :call QuickfixToScratch()<CR>
 
-function! GenerateTestChecksFromBuffer()
-  " Get current buffer path and contents
-  let l:buffer_path = expand('%:p')
-  let l:buffer_content = join(getline(1, '$'), "\n")
-
-  " Define the path to the generate-test-checks.py script (relative to iree folder)
+function! GenerateTestChecks(cmd_type)
+  " Define the path to the generate-test-checks.py script
   let l:script_path = './third_party/llvm-project/mlir/utils/generate-test-checks.py'
+ 	let l:buffer_content = join(getline(1, '$'), "\n")
 
-  " Construct the command to run
-  let l:cmd = GetMLIRTestCommand().' | python '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
+  if a:cmd_type == 'buffer'
+  	let l:cmd = 'echo '.shellescape(l:buffer_content).' | python '.shellescape(l:script_path).' -'
+	elseif a:cmd_type == 'file'
+		let l:buffer_path = expand('%:p')
+  	let l:cmd = GetMLIRTestCommand(). ' | python '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
+  	"let l:cmd = '('. GetMLIRTestCommand(). ') | python -O '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
+  else
+    echohl ErrorMsg
+    echo "Invalid command type. Use 'buffer' or 'file'."
+    echohl None
+    return
+  endif
+
   call RunToScratch(l:cmd)
 endfunction
-nnoremap <silent> <leader>tg :call GenerateTestChecksFromBuffer()<CR>:set filetype=mlir<CR>
+" \tg only works for the last // RUN command and ignores previous ones
+nnoremap <silent> <leader>tg :call GenerateTestChecks('file')<CR>:set filetype=mlir<CR>
+" If there are multiple // RUN commands, \tr first and \tb on the scratch buffer
+" This wouldn't be necessary if the generate-test-checks.py support (cmd1; cmd2) chained source as input
+nnoremap <silent> <leader>tb :call GenerateTestChecks('buffer')<CR>:set filetype=mlir<CR>
 
 let g:termdebug_config = {}
 " Both windows are disabled by default
