@@ -343,7 +343,7 @@ nnoremap <leader>bb :CMakeBuild<CR>
 nnoremap <leader>bc :CMakeBuild --target clean<CR>
 " IREE specific setup, do ROCm build
 nnoremap <leader>bp :CMakeConfigure --preset rocm -Wno-dev<CR>
-nnoremap <leader>tf :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
+nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 
 " Copy to tmux clipboard and paste from tmux clipboard
@@ -702,8 +702,8 @@ function! GenerateTestChecks(cmd_type)
 
   call RunToScratch(l:cmd)
 endfunction
-" \tg only works for the last // RUN command and ignores previous ones
-nnoremap <silent> <leader>tg :call GenerateTestChecks('file')<CR>:set filetype=mlir<CR>
+" \tf only works for the last // RUN command and ignores previous ones
+nnoremap <silent> <leader>tf :call GenerateTestChecks('file')<CR>:set filetype=mlir<CR>
 " If there are multiple // RUN commands, \tr first and \tb on the scratch buffer
 " This wouldn't be necessary if the generate-test-checks.py support (cmd1; cmd2) chained source as input
 nnoremap <silent> <leader>tb :call GenerateTestChecks('buffer')<CR>:set filetype=mlir<CR>
