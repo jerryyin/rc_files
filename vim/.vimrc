@@ -347,7 +347,7 @@ nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulka
 nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 
 " Copy to tmux clipboard and paste from tmux clipboard
-vnoremap <leader>ty y<cr>:call system("tmux load-buffer -", @0)<cr>gv
+vnoremap <leader>tc y<cr>:call system("tmux load-buffer -", @0)<cr>gv
 nnoremap <leader>tp :let @0 = system("tmux save-buffer -")<cr>"0p<cr>g;"
 
 " Do not allow auto-resize of quickfix window
