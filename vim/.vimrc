@@ -351,7 +351,7 @@ vnoremap <leader>tc y<cr>:call system("tmux load-buffer -", @0)<cr>gv
 nnoremap <leader>tp :let @0 = system("tmux save-buffer -")<cr>"0p<cr>g;"
 
 " Do not allow auto-resize of quickfix window
-let g:lens#disabled_filetypes = ['qf, fugitive', 'termdebug', '']
+let g:lens#disabled_filetypes = ['qf', 'fugitive', 'termdebug', '']
 augroup QuickfixCustomSettings
   autocmd!
   " Apply AnsiEsc when buffer is loaded, one time setup
