@@ -645,7 +645,9 @@ function! GetMLIRTestCommand()
 endfunction
 
 " Copy test command of current buffer into unamed register
-nnoremap <silent> <leader>ty :let @" = GetMLIRTestCommand()<CR>
+"nnoremap <silent> <leader>ty :let @" = GetMLIRTestCommand()<CR>
+" Copy test command of current buffer into tmux buffer
+nnoremap <silent> <leader>ty :let @" = GetMLIRTestCommand()<CR>:call system("tmux load-buffer -", @0)<CR>
 nnoremap <silent> <leader>td :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
 nnoremap <leader>ml :set syntax=mlir<CR>
 
