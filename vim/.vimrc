@@ -633,7 +633,7 @@ function! GetMLIRTestCommand()
   let l:full_path = expand('%:p')
   for i in range(len(l:commands))
     " Remove FileCheck from command
-    let l:commands[i] = substitute(l:commands[i], '| FileCheck.*$', '', '')
+    let l:commands[i] = substitute(l:commands[i], '|\s*FileCheck.*$', '', '')
     " Substitute %s with the full path of the current file
     let l:commands[i] = substitute(l:commands[i], '%s', l:full_path, 'g')
     " Trim leading or trailing whitespace
