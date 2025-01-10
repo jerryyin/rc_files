@@ -690,14 +690,14 @@ nnoremap <leader>qs :call QuickfixToScratch()<CR>
 function! GenerateTestChecks(cmd_type)
   " Define the path to the generate-test-checks.py script
   let l:script_path = './third_party/llvm-project/mlir/utils/generate-test-checks.py'
- 	let l:buffer_content = join(getline(1, '$'), "\n")
+  let l:buffer_content = join(getline(1, '$'), "\n")
 
   if a:cmd_type == 'buffer'
-  	let l:cmd = 'echo '.shellescape(l:buffer_content).' | python '.shellescape(l:script_path).' -'
-	elseif a:cmd_type == 'file'
-		let l:buffer_path = expand('%:p')
-  	let l:cmd = GetMLIRTestCommand(). ' | python '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
-  	"let l:cmd = '('. GetMLIRTestCommand(). ') | python -O '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
+    let l:cmd = 'echo '.shellescape(l:buffer_content).' | python '.shellescape(l:script_path).' -'
+  elseif a:cmd_type == 'file'
+    let l:buffer_path = expand('%:p')
+    let l:cmd = GetMLIRTestCommand(). ' | python '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
+    "let l:cmd = '('. GetMLIRTestCommand(). ') | python -O '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
   else
     echohl ErrorMsg
     echo "Invalid command type. Use 'buffer' or 'file'."
