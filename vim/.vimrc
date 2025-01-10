@@ -284,6 +284,7 @@ augroup ft
   autocmd FileType qf setlocal wrap
   autocmd FileType mlir setlocal iskeyword+=%
   autocmd BufNewFile,BufRead *.cu set filetype=cuda
+  autocmd BufNewFile,BufRead *.inc set syntax=cpp
   autocmd BufNewFile,BufRead *.dockerfile set filetype=dockerfile
   autocmd FileType pov set syntax=cpp
 augroup END
