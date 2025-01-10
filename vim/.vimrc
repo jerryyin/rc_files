@@ -417,6 +417,8 @@ let g:Lf_MruEnable = 0
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
 let g:Lf_WindowPosition = 'popup'
+" Exclude build, include third_party/llvm-project/mlir, and everything else
+let g:Lf_ExternalCommand = 'cd %s && git ls-files --recurse-submodules | grep -v "^build/" | grep -E "^(third_party/llvm-project/mlir/|[^t])"'
 
 " Fugitive
 augroup fuDeleteBuffer
