@@ -348,7 +348,7 @@ nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulka
 nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 
 " Copy to tmux clipboard and paste from tmux clipboard
-vnoremap <leader>tc y<cr>:call system("tmux load-buffer -", @0)<cr>gv
+vnoremap <leader>ty y<cr>:call system("tmux load-buffer -", @0)<cr>gv
 nnoremap <leader>tp :let @0 = system("tmux save-buffer -")<cr>"0p<cr>g;"
 
 " Do not allow auto-resize of quickfix window
@@ -585,8 +585,9 @@ function! s:LoadTermdebug(...) abort
     packadd termdebug
     let g:dbg_loaded = 1
   endif
-  execute 'Termdebug' join(a:000, ' ')
+  execute 'TermdebugCommand ' join(a:000, ' ')
   " Move terminal window to bottom
+  wincmd J
   wincmd k
   wincmd J
   " Customize layout: Move GDB output pane to the bottom
@@ -650,8 +651,8 @@ endfunction
 " Copy test command of current buffer into unamed register
 "nnoremap <silent> <leader>ty :let @" = GetMLIRTestCommand()<CR>
 " Copy test command of current buffer into tmux buffer
-nnoremap <silent> <leader>ty :let @" = GetMLIRTestCommand()<CR>:call system("tmux load-buffer -", @0)<CR>
-nnoremap <silent> <leader>td :execute 'Dbg --args '. GetMLIRTestCommand()<CR>
+nnoremap <silent> <leader>tc :let @" = GetMLIRTestCommand()<CR>:call system("tmux load-buffer -", @0)<CR>
+nnoremap <silent> <leader>td :execute 'Dbg '. GetMLIRTestCommand()<CR>
 nnoremap <leader>ml :set syntax=mlir<CR>
 
 function! RunToScratch(cmd)
