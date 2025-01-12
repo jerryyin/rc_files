@@ -141,7 +141,7 @@ Plug 'tpope/vim-dispatch'
 " Grep async support
 Plug 'mhinz/vim-grepper'
 " Test suport
-Plug 'jerryyin/vim-cmake'
+Plug 'jerryyin/vim-mlirtools'
 " File switch between cpp and header
 Plug 'ericcurtin/CurtineIncSw.vim'
 " A Vim plugin to copy text through SSH with OSC52
