@@ -122,8 +122,6 @@ Plug 'jeffkreeftmeijer/vim-numbertoggle'
 Plug 'pseewald/vim-anyfold'
 " Indent guides line
 Plug 'nathanaelkane/vim-indent-guides'
-" Auto decide indent amount
-Plug 'tpope/vim-sleuth'
 
 " Utility
 " Auto inserts or deletes bracket, parens, quotes in pair
