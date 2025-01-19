@@ -155,6 +155,7 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'tpope/vim-rsi'
 " Surround text object
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-obsession'
 Plug 'tpope/vim-unimpaired'
 " Markdown syntax highlighting
 Plug 'vim-pandoc/vim-pandoc-syntax'
@@ -333,6 +334,18 @@ let g:lightline = {
   \   'tabline': 1
   \ }
 \ }
+
+augroup ObsessionGroup
+  autocmd!
+  " Automatically start a new session with a unique name based on dir_date_time
+  autocmd VimEnter * nested
+    \ if !&modified && empty(v:this_session) |
+    \   let file_dir = fnamemodify(expand('%:p:h'), ':t') |
+    \   let datetime = strftime("%m%d-%H%M") |
+    \   let session_name = ".vim/session/" . file_dir . "_" . datetime . ".vim" |
+    \   execute "Obsession " . session_name |
+    \ endif
+augroup END
 
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
