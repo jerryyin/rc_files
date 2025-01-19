@@ -166,7 +166,6 @@ Plug 'tpope/vim-eunuch'
 Plug 'aymericbeaumet/vim-symlink'
 Plug 'github/copilot.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'puremourning/vimspector'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -566,21 +565,6 @@ nmap <leader>cr <Plug>(coc-rename)
 " Apply the most preferred quickfix action to fix diagnostic on the current
 " line
 nmap <leader>cf <Plug>(coc-fix-current)
-
-" Vimspector, needs setup using below
-" :VimspectorInstall vscode-cpptools
-nnoremap <Leader>dd :call vimspector#Launch()<CR>
-nnoremap <Leader>de :call vimspector#Reset()<CR>
-nnoremap <Leader>dc :call vimspector#Continue()<CR>
-
-nnoremap <Leader>db :call vimspector#ToggleBreakpoint()<CR>
-nnoremap <Leader>dB :call vimspector#ClearBreakpoints()<CR>
-
-nmap <Leader>dk <Plug>VimspectorRestart
-nmap <Leader>dh <Plug>VimspectorStepOut
-nmap <Leader>dl <Plug>VimspectorStepInto
-nmap <Leader>dj <Plug>VimspectorStepOver
-nmap <leader>J <Plug>VimspectorBalloonEval
 
 " Termdebug Mappings
 nmap E :Evaluate<CR>
