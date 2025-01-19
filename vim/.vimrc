@@ -335,15 +335,30 @@ let g:lightline = {
   \ }
 \ }
 
+let g:startify_lists = [
+    \ { 'type': 'sessions',  'header': ['   Sessions']       },
+    \ { 'type': 'dir',       'header': ['   MRU '. getcwd()] },
+    \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
+    \ { 'type': 'commands',  'header': ['   Commands']       },
+    \ ]
+
+" Obsession is invoked only when:
+" 1. No file is opened
+" 2. No session is loaded
+
+" Session is only tracked when:
+" 1. Obsession is invoked
+" 2. Session is loaded from Startify
 augroup ObsessionGroup
   autocmd!
-  " Automatically start a new session with a unique name based on dir_date_time
   autocmd VimEnter * nested
-    \ if !&modified && empty(v:this_session) |
-    \   let file_dir = fnamemodify(expand('%:p:h'), ':t') |
-    \   let datetime = strftime("%m%d-%H%M") |
-    \   let session_name = ".vim/session/" . file_dir . "_" . datetime . ".vim" |
-    \   execute "Obsession " . session_name |
+    \ if !argc() && empty(v:this_session) && !&modified |
+      \ let file_dir = fnamemodify(expand('%:p:h'), ':t') |
+      \ let base_name = ".vim/session/" . file_dir |
+      \ let default_session = base_name . ".vim" |
+      \ if !filereadable(default_session) |
+      \   execute "Obsession " . default_session |
+      \ endif |
     \ endif
 augroup END
 
