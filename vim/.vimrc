@@ -533,6 +533,9 @@ let g:tmuxline_powerline_separators = 0
 let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright']
 let g:coc_disable_startup_warning = 1
 
+" Use <c-t> to trigger completion
+inoremap <silent><expr> <c-t> coc#refresh()
+
 " Make <CR> to accept selected completion item or notify coc.nvim to format
 " <C-g>u breaks current undo because accepting a completion or inserting a
 " newline is treated as a separate undo step
