@@ -155,7 +155,6 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'tpope/vim-rsi'
 " Surround text object
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-obsession'
 Plug 'tpope/vim-unimpaired'
 " Markdown syntax highlighting
 Plug 'vim-pandoc/vim-pandoc-syntax'
@@ -342,22 +341,18 @@ let g:startify_lists = [
     \ { 'type': 'commands',  'header': ['   Commands']       },
     \ ]
 
-" Obsession is invoked only when:
-" 1. No file is opened
-" 2. No session is loaded
-
+let g:startify_session_persistence = 1
 " Session is only tracked when:
-" 1. Obsession is invoked
+" 1. SSave is invoked
 " 2. Session is loaded from Startify
-augroup ObsessionGroup
+augroup StartifyGroup
   autocmd!
   autocmd VimEnter * nested
     \ if !argc() && empty(v:this_session) && !&modified |
       \ let file_dir = fnamemodify(expand('%:p:h'), ':t') |
-      \ let base_name = ".vim/session/" . file_dir |
-      \ let default_session = base_name . ".vim" |
+      \ let default_session = expand("~/.vim/session/") . file_dir . ".vim" |
       \ if !filereadable(default_session) |
-      \   execute "Obsession " . default_session |
+      \   execute "SSave! " . file_dir . ".vim" |
       \ endif |
     \ endif
 augroup END
