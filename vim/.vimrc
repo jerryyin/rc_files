@@ -340,6 +340,11 @@ let g:startify_lists = [
     \ ]
 
 let g:startify_session_persistence = 1
+" Function to get the default session name based on the current file's directory
+function! GetDefaultSession()
+  return fnamemodify(getcwd(), ':t') . ".vim"
+endfunction
+
 " Session is only tracked when:
 " 1. SSave is invoked
 " 2. Session is loaded from Startify
@@ -347,13 +352,17 @@ augroup StartifyGroup
   autocmd!
   autocmd VimEnter * nested
     \ if !argc() && empty(v:this_session) && !&modified |
-      \ let file_dir = fnamemodify(expand('%:p:h'), ':t') |
-      \ let default_session = expand("~/.vim/session/") . file_dir . ".vim" |
+      \ let default_session = expand("~/.vim/session/") . GetDefaultSession() |
       \ if !filereadable(default_session) |
-      \   execute "SSave! " . file_dir . ".vim" |
+      \   execute "SSave! " . GetDefaultSession() |
       \ endif |
     \ endif
 augroup END
+
+" Mappings for session commands
+nnoremap <leader>sl :execute 'SLoad ' . GetDefaultSession()<CR>
+nnoremap <leader>sv :execute 'SSave! ' . GetDefaultSession()<CR>
+nnoremap <leader>sd :execute 'SDelete! ' . GetDefaultSession()<CR>
 
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
