@@ -369,12 +369,12 @@ let g:dispatch_no_maps = 1
 nnoremap <leader>qo :Copen<CR>:10wincmd_<CR>
 nnoremap <leader>qc :cclose<CR>
 
-nnoremap <leader>bb :CMakeBuild<CR>
-nnoremap <leader>bc :CMakeBuild --target clean<CR>
+nnoremap <leader>bb :call CMakeBuild('')<CR>
+nnoremap <leader>bc :call CMakeBuild('', '--target clean')<CR>
 " IREE specific setup, do ROCm build
-nnoremap <leader>bp :CMakeConfigure --preset rocm -Wno-dev<CR>
-nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
-nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
+nnoremap <leader>bp :call CMakeConfigure('', '--preset rocm', '-Wno-dev')<CR>
+nnoremap <leader>tt :call CMakeTest('', '-R', expand('%:t'), '--output-on-failure', '-E "cuda\|metal\|vulkan\|cpu\|e2e"')<CR>
+nnoremap <leader>ta :call CMakeTest('', 'all', '-j32', '--output-on-failure', '-E "cuda\|metal\|vulkan\|cpu\|e2e"')<CR>
 
 " Copy to tmux clipboard and paste from tmux clipboard
 vnoremap <leader>ty y<cr>:call system("tmux load-buffer -", @0)<cr>gv
