@@ -372,7 +372,7 @@ nnoremap <leader>qc :cclose<CR>
 nnoremap <leader>bb :CMakeBuild<CR>
 nnoremap <leader>bc :CMakeBuild --target clean<CR>
 " IREE specific setup, do ROCm build
-nnoremap <leader>bp :CMakeConfigure --preset rocm -Wno-dev<CR>
+nnoremap <leader>bp :CMakeConfigure --preset dbg -Wno-dev<CR>
 nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 
