@@ -620,18 +620,6 @@ nnoremap <silent> <leader>tc :let @" = GetMLIRTestCommand()<CR>:call system("tmu
 nnoremap <silent> <leader>td :execute 'Dbg '. GetMLIRTestCommand()<CR>
 nnoremap <leader>ml :set syntax=mlir<CR>
 
-function! RunToScratch(cmd)
-  " Capture the result of the given command
-  let l:result = system(a:cmd)
-
-  " Open a new vertical split for the scratch buffer
-  vertical new
-  setlocal buftype=nofile bufhidden=wipe noswapfile
-
-  " Split the result into lines and insert them into the scratch buffer
-  let l:lines = split(l:result, '\n')
-  call append(0, l:lines)
-endfunction
 command! -nargs=1 R :call RunToScratch(<f-args>)
 nnoremap <silent> <leader>tr :call RunToScratch(GetMLIRTestCommand())<CR>:set filetype=mlir<CR>
 
@@ -653,26 +641,6 @@ endfunction
 " Map <leader>qs to the function
 nnoremap <leader>qs :call QuickfixToScratch()<CR>
 
-function! GenerateTestChecks(cmd_type)
-  " Define the path to the generate-test-checks.py script
-  let l:script_path = './third_party/llvm-project/mlir/utils/generate-test-checks.py'
-  let l:buffer_content = join(getline(1, '$'), "\n")
-
-  if a:cmd_type == 'buffer'
-    let l:cmd = 'echo '.shellescape(l:buffer_content).' | python '.shellescape(l:script_path).' -'
-  elseif a:cmd_type == 'file'
-    let l:buffer_path = expand('%:p')
-    let l:cmd = GetMLIRTestCommand(). ' | python '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
-    "let l:cmd = '('. GetMLIRTestCommand(). ') | python -O '.shellescape(l:script_path).' --source '.shellescape(l:buffer_path)
-  else
-    echohl ErrorMsg
-    echo "Invalid command type. Use 'buffer' or 'file'."
-    echohl None
-    return
-  endif
-
-  call RunToScratch(l:cmd)
-endfunction
 " \tf only works for the last // RUN command and ignores previous ones
 nnoremap <silent> <leader>tf :call GenerateTestChecks('file')<CR>:set filetype=mlir<CR>
 " If there are multiple // RUN commands, \tr first and \tb on the scratch buffer
