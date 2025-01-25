@@ -279,7 +279,7 @@ augroup ft
   autocmd!
   " Can enable filetype specific settings
   autocmd FileType qf setlocal wrap
-  autocmd FileType mlir setlocal iskeyword+=%
+  autocmd BufNewFile,BufRead *.mlir set iskeyword+=%
   autocmd BufNewFile,BufRead *.cu set filetype=cuda
   autocmd BufNewFile,BufRead *.inc set syntax=cpp
   autocmd BufNewFile,BufRead *.dockerfile set filetype=dockerfile
@@ -688,3 +688,23 @@ let g:termdebug_config['variables_window'] = v:false
 let g:termdebug_config['evaluate_in_popup'] = v:true
 " K is already mapped in coc.nvim, it is mapped to E instead
 let g:termdebug_config['map_K'] = v:false
+
+function! Rnvar()
+  " Get the word under the cursor to be replaced
+  let word_to_replace = expand("<cword>")
+  " Prompt the user for the replacement name
+  let replacement = input("New name: ")
+
+  let start = search('^\s*\(func\.func\|util.func\)', 'bW')
+  let end = search('^}', 'W')
+  echom string(start) . " " . string(end)
+
+  if start == 0 || end == 0
+    echo "Not inside a function or function boundaries not found."
+    return
+  endif
+
+  " Perform substitution within the function boundaries
+  execute start . ',' . end . 's/\V\<'.word_to_replace.'\>/'.replacement.'/gc'
+endfunction
+nnoremap <leader>rn :call Rnvar()<CR>
