@@ -207,5 +207,18 @@ function dbuild() {
 
 export CLICOLOR_FORCE=1
 export NODE_TLS_REJECT_UNAUTHORIZED=0
-export PATH=$HOME/iree/build/tools:$PATH
+
+export_iree_tools() {
+  local BUILD_DIR="$HOME/iree/build"
+
+  # Find the first valid tools directory under a <build type> folder
+  local TOOLS_DIR
+  TOOLS_DIR=$(find "$BUILD_DIR" -mindepth 2 -maxdepth 2 -type d -name "tools" 2>/dev/null | head -n 1)
+
+  if [[ -n "$TOOLS_DIR" ]]; then
+    export PATH="$TOOLS_DIR:$PATH"
+  fi
+}
+export_iree_tools
+
 #zprof
