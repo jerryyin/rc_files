@@ -49,7 +49,7 @@ if [ ! -d "$TMUX_PLUGIN_DIR" ]; then
     # Install tmux plugins
     if [ -f "$HOME/.tmux.conf" ]; then
         echo "Installing tmux plugins..."
-        TMUX_PLUGIN_MANAGER_PATH="$TMUX_PLUGIN_DIR" "$TMUX_PLUGIN_DIR/scripts/install_plugins.sh"
+        $TMUX_PLUGIN_DIR/bin/install_plugins
     else
         echo "Warning: .tmux.conf not found. Skipping plugin installation."
     fi
