@@ -166,6 +166,7 @@ Plug 'tpope/vim-eunuch'
 Plug 'aymericbeaumet/vim-symlink'
 Plug 'github/copilot.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'liuchengxu/vista.vim'
 
 " Tags
 Plug 'ludovicchabant/vim-gutentags'
@@ -296,17 +297,30 @@ let g:lens#width_resize_max = 85
 let g:winresizer_start_key = '<C-t>'
 let g:winresizer_finish_with_escape = 1
 
+let g:vista#renderer#enable_icon = 1
+let g:vista#executives = ['coc', 'ctags']
+let g:vista_default_executive = 'ctags'
+let g:vista_executive_for = {'cc': 'coc', 'c': 'coc', 'cpp': 'coc'}
+nmap <leader>vv :Vista!!<CR>
+function! NearestMethodOrFunction() abort
+  return get(b:, 'vista_nearest_method_or_function', '')
+endfunction
+
 " lightline
 " Customize colorscheme, branch and tabline
 set showtabline=2
+set laststatus=2
+set noshowmode
 let g:lightline = {
   \ 'colorscheme': 'gruvbox_material',
   \ 'active': {
   \   'left': [['mode', 'paste'],
-  \            ['gitbranch', 'readonly', 'filename', 'modified']]
+  \            ['gitbranch', 'readonly', 'modified', 'method']],
+  \   'right': [['lineinfo'], ['percent'], ['filetype']]
   \ },
   \ 'component_function': {
-  \   'gitbranch': 'FugitiveHead'
+  \   'gitbranch': 'FugitiveHead',
+  \   'method': 'NearestMethodOrFunction'
   \ },
   \ 'tabline': {
   \   'left': [ [ 'mrubuffers' ] ],
@@ -381,7 +395,7 @@ vnoremap <leader>ty y<cr>:call system("tmux load-buffer -", @0)<cr>gv
 nnoremap <leader>tp :let @0 = system("tmux save-buffer -")<cr>"0p<cr>g;"
 
 " Do not allow auto-resize of quickfix window
-let g:lens#disabled_filetypes = ['qf', 'fugitive', 'termdebug', '']
+let g:lens#disabled_filetypes = ['qf', 'fugitive', 'termdebug', 'vista', '']
 augroup QuickfixCustomSettings
   autocmd!
   " Apply AnsiEsc when buffer is loaded, one time setup
