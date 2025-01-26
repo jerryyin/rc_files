@@ -544,7 +544,7 @@ let g:tmuxline_powerline_separators = 0
 
 " Coc settings
 " Extensions
-let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright']
+let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright', 'coc-snippets']
 let g:coc_disable_startup_warning = 1
 
 " Use <c-t> to trigger completion
