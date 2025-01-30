@@ -96,16 +96,20 @@ zinit snippet OMZP::extract
 # Configuration and Alias
 # Configure zsh options
 setopt extended_glob
+setopt append_history
 setopt inc_append_history
 setopt hist_ignore_space
 setopt hist_ignore_dups
+setopt hist_ignore_all_dups
 setopt hist_expire_dups_first
+setopt hist_save_no_dups
 setopt hist_find_no_dups
 setopt hist_reduce_blanks
 setopt hist_verify
 setopt share_history
 HISTFILE=~/.zsh_history
 SAVEHIST=10000
+HISTSIZE=10000
 
 # Aliases
 alias ll='ls -alF'
@@ -130,10 +134,10 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
   # Ubuntu or other Linux distributions
   # Use showkey -a (provided by kbd) for escape sequence
   alias ls='ls --color'
-  UP_ARROW='^[OA'
-  DOWN_ARROW='^[OB'
-  LEFT_ARROW='^[[1;3D'
-  RIGHT_ARROW='^[[1;3C'
+  UP_ARROW='OA'
+  DOWN_ARROW='OB'
+  LEFT_ARROW='OD'
+  RIGHT_ARROW='OC'
 fi
 
 # Override default bindings for zsh-vi-mode
