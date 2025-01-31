@@ -173,8 +173,6 @@ Plug 'ludovicchabant/vim-gutentags'
 
 " Code formating
 Plug 'vim-autoformat/vim-autoformat'
-" Help correctly indent file in edit mode
-Plug 'google/styleguide', { 'do': 'mkdir -p after/indent; cp -f *.vim after/indent/python.vim' }
 Plug 'llvm/llvm.vim'
 call plug#end()
 
