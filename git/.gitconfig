@@ -1,0 +1,9 @@
+[user]
+  email = zhuoryin@amd.com
+  name = jerryyin
+[pager]
+  branch = false
+[core]
+  excludesfile = ~/.gitignore
+[push]
+  autoSetupRemote = true
