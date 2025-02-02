@@ -465,8 +465,18 @@ augroup fuDeleteBuffer
   autocmd!
   autocmd BufReadPost fugitive://* set bufhidden=delete
 augroup END
-" Set Gstatus to fixed length
-nmap <leader>gg :Git<CR>:10wincmd_<CR>
+
+function! s:toggle_gstatus() abort
+  for l:winnr in range(1, winnr('$'))
+    if !empty(getwinvar(l:winnr, 'fugitive_status'))
+      execute l:winnr . 'close'
+      return
+    endif
+  endfor
+  Git
+  execute "10wincmd _"
+endfunction
+nnoremap <leader>gg :call <SID>toggle_gstatus()<CR>
 nmap <leader>gb :Git blame<CR>
 nmap <leader>gc :Git commit<CR>
 nmap <leader>gd :Gvdiffsplit<CR>
