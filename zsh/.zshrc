@@ -212,16 +212,27 @@ function dbuild() {
 export CLICOLOR_FORCE=1
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 
-export_iree_tools() {
-  local BUILD_DIR="$HOME/iree/build"
+function export_iree_tools() {
+  local BUILD_DIR="${1:-$HOME/iree/build}"
+  local SYMLINK="$BUILD_DIR/compile_commands.json"
 
-  # Find the first valid tools directory under a <build type> folder
-  local TOOLS_DIR
-  TOOLS_DIR=$(find "$BUILD_DIR" -mindepth 2 -maxdepth 2 -type d -name "tools" 2>/dev/null | head -n 1)
-
-  if [[ -n "$TOOLS_DIR" ]]; then
-    export PATH="$TOOLS_DIR:$PATH"
+  if [[ ! -L "$SYMLINK" ]]; then
+    return
   fi
+
+  # Resolve the symlink target
+  local TARGET
+  TARGET=$(readlink "$SYMLINK")
+
+  # Extract the directory containing compile_commands.json
+  local BUILD_TYPE_DIR
+  BUILD_TYPE_DIR=$(dirname "$TARGET")
+
+  # Ensure it's a valid directory
+  if [[ -d "$BUILD_TYPE_DIR/tools" ]]; then
+    export PATH="$BUILD_TYPE_DIR/tools:$PATH"
+  fi
+  
 }
 export_iree_tools
 
