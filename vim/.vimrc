@@ -313,7 +313,7 @@ let g:lightline = {
   \ 'colorscheme': 'gruvbox_material',
   \ 'active': {
   \   'left': [['mode', 'paste'],
-  \            ['gitbranch', 'readonly', 'modified', 'method']],
+  \            ['gitbranch', 'readonly', 'modified', 'filename', 'method']],
   \   'right': [['lineinfo'], ['percent'], ['filetype']]
   \ },
   \ 'component_function': {
