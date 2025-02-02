@@ -70,8 +70,6 @@ tnoremap <C-j> <c-\><C-n><C-w>j
 tnoremap <C-k> <c-\><C-n><C-w>k
 tnoremap <C-l> <c-\><C-n><C-w>l
 tnoremap <Esc> <C-\><C-N>
-" Use <C-V> in terminal for paste
-tnoremap <C-V> <C-W>""
 
 cabbrev bterm bo term ++rows=15
 
@@ -589,23 +587,24 @@ nmap B :Break<CR>
 nmap D :Clear<CR>
 nmap C :Continue<CR>
 
-" Call :Dbg to load and run debugging session
-function! s:AdjustTermdebugLayout() abort
-  " Check if there are exactly three vertically stacked panes
+function! s:AdjustLayout() abort
+  " Get window layout
   let l:layout = winlayout()
-  if l:layout[0] != 'col' || len(l:layout[1]) < 3
-    echom "Error: Layout should have at least 3 vertical panes."
+  let l:full_height = str2float(&lines)
+
+  if l:layout[0] != 'col'
     return
   endif
-  " Resize top for it to capture majority of height
-  wincmd t
+
+  let l:num_panes = len(l:layout[1])
+  let l:source_ratio = (l:num_panes == 2) ? 0.8 : 0.7
+  let l:gdb_ratio = 0.2
   let l:full_height = str2float(&lines)
-  let l:source_height = float2nr(l:full_height * 0.7)
-  execute "resize " . l:source_height
-  " Move focus back to gdb window
+
+  wincmd t
+  execute "resize " . float2nr(l:full_height * l:source_ratio)
   wincmd j
-  let l:gdb_height = float2nr(l:full_height * 0.2)
-  execute "resize " . l:gdb_height
+  execute "resize " . float2nr(l:full_height * l:gdb_ratio)
 endfunction
 
 let g:dbg_loaded = 0
@@ -620,10 +619,10 @@ function! s:LoadTermdebug(...) abort
   wincmd k
   wincmd J
   " Customize layout: Move GDB output pane to the bottom
-  call s:AdjustTermdebugLayout()
+  call s:AdjustLayout()
 endfunction
 command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
-nnoremap <Leader>dl :call <SID>AdjustTermdebugLayout()<CR>
+nnoremap <Leader>dl :call <SID>AdjustLayout()<CR>
 
 " Copy test command of current buffer into unamed register
 "nnoremap <silent> <leader>ty :let @" = GetMLIRTestCommand()<CR>
