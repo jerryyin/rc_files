@@ -489,11 +489,9 @@ nmap <leader>gr :Gread<CR>
 nnoremap <leader>fn :NERDTreeToggle<CR>
 let g:NERDTreeAutoDeleteBuffer=1
 let g:NERDTreeShowLineNumbers=1
+let g:NERDTreeShowHidden=1
+let g:NERDTreeMapUpdir='-'
 
-" Vinegar/netrw enable relative line number
-"let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
-" Disable fast browse, this prevents netrw from opening a buffer
-"Let g:netrw_fastbrowse = 0
 function! s:opendir(cmd) abort
   if expand('%') =~# '^$\|^term:[\/][\/]'
     execute a:cmd '.'
@@ -501,10 +499,7 @@ function! s:opendir(cmd) abort
     execute a:cmd '%:h' . (expand('%:p') =~# '^\a\a\+:' ? s:slash() : '')
   endif
 endfunction
-nnoremap <silent> <Plug>VinegarUp :call <SID>opendir('edit')<CR>
-if empty(maparg('-', 'n')) && !hasmapto('<Plug>VinegarUp')
-  nmap - <Plug>VinegarUp
-endif
+nmap - :call <SID>opendir('edit')<CR>
 
 " Grepper
 let g:grepper = {}
