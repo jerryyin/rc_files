@@ -136,8 +136,8 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
   alias ls='ls --color'
   UP_ARROW='OA'
   DOWN_ARROW='OB'
-  LEFT_ARROW='OD'
-  RIGHT_ARROW='OC'
+  LEFT_ARROW='[1;3D'
+  RIGHT_ARROW='[1;3C'
 fi
 
 # Override default bindings for zsh-vi-mode
