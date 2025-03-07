@@ -276,11 +276,11 @@ augroup ft
   autocmd!
   " Can enable filetype specific settings
   autocmd FileType qf setlocal wrap
-  autocmd BufNewFile,BufRead *.mlir set iskeyword+=%
+  autocmd FileType mlir setlocal iskeyword+=%
   autocmd BufNewFile,BufRead *.cu set filetype=cuda
   autocmd BufNewFile,BufRead *.inc set syntax=cpp
   autocmd BufNewFile,BufRead *.dockerfile set filetype=dockerfile
-  autocmd FileType pov set syntax=cpp
+  autocmd FileType pov setlocal syntax=cpp
 augroup END
 
 " Auto-pair
