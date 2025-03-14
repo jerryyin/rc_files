@@ -613,20 +613,23 @@ function! s:AdjustLayout() abort
 endfunction
 
 let g:dbg_loaded = 0
-function! s:LoadTermdebug(...) abort
+function! s:RunTermdebug(...) abort
   if g:dbg_loaded == 0
     packadd termdebug
     let g:dbg_loaded = 1
   endif
+  " Move source window to be leftmost so wincmd k later works
+  wincmd H
   execute 'TermdebugCommand ' join(a:000, ' ')
-  " Move terminal window to bottom
+  " Make GDB window to be global bottom temporarily
   wincmd J
   wincmd k
+  " Make Output window to be global bottom
   wincmd J
   " Customize layout: Move GDB output pane to the bottom
   call s:AdjustLayout()
 endfunction
-command! -nargs=* Dbg call s:LoadTermdebug(<q-args>)
+command! -nargs=* Dbg call s:RunTermdebug(<q-args>)
 nnoremap <Leader>dl :call <SID>AdjustLayout()<CR>
 
 " Copy test command of current buffer into unamed register
