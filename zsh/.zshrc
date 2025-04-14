@@ -235,5 +235,7 @@ function export_iree_tools() {
   
 }
 export_iree_tools
+export PATH=~/iree/third_party/tracy/build:$PATH
+export PATH=~/iree/third_party/llvm-project/build/bin:$PATH
 
 #zprof
