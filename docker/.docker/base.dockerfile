@@ -12,10 +12,9 @@ WORKDIR /root
 # Debug build scripts
 #COPY scripts scripts
 
-RUN apt-get update && apt-get -y install git && \
-    git clone https://github.com/jerryyin/scripts.git
-
-RUN bash scripts/docker/init_min.sh
+RUN apt-get update && apt-get -y install wget && \
+    wget -O /tmp/init_min.sh https://raw.githubusercontent.com/jerryyin/scripts/master/docker/init_min.sh && \
+    bash /tmp/init_min.sh
 
 ARG SERVICE_NAME  
 RUN echo "Service name is: $SERVICE_NAME"; \  
