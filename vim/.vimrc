@@ -385,7 +385,8 @@ nnoremap <leader>bc :CMakeBuild --target clean<CR>
 nnoremap <leader>bp :CMakePreset dbg -Wno-dev<CR>
 nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
-nnoremap <leader>tg :CMakeTest all --output-on-failure --label-regex '^requires-gpu\|^driver=hip$'<CR>
+" Note used cdna3 for simplicity. Needs to change label on different gpus
+nnoremap <leader>tg :CMakeTest all --output-on-failure --label-regex '^requires-gpu-cdna3$\|^driver=hip$'<CR>
 
 " Copy to tmux clipboard and paste from tmux clipboard
 vnoremap <leader>ty y<cr>:call system("tmux load-buffer -", @0)<cr>gv
