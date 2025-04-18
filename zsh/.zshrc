@@ -239,5 +239,6 @@ export PATH=~/iree/build/model/tracy:$PATH
 export PATH=~/iree/third_party/tracy/csvexport/build:$PATH
 export PATH=~/iree/third_party/llvm-project/build/bin:$PATH
 export PYTHONPATH=~/iree/build/model/compiler/bindings/python:~/iree/build/model/runtime/bindings/python:$PYTHONPATH
+export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=4096
 
 #zprof
