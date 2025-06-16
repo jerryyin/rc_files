@@ -381,6 +381,7 @@ nnoremap <leader>qc :cclose<CR>
 
 nnoremap <leader>bb :CMakeBuild<CR>
 nnoremap <leader>bc :CMakeBuild --target clean<CR>
+nnoremap <leader>bt :CMakeBuild --target iree-test-deps<CR>
 " IREE specific setup, do ROCm build
 nnoremap <leader>bd :CMakePreset dbg -Wno-dev<CR>
 nnoremap <leader>bm :CMakePreset model -Wno-dev<CR>
