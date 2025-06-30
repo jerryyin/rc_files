@@ -462,8 +462,9 @@ let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_PreviewResult = {'Function':0, 'BufTag':0, 'Buffer':0, 'File':0}
 let g:Lf_WindowPosition = 'popup'
 let g:Lf_PopupWidth = 0.3
-" Exclude build, include third_party/llvm-project/mlir, and everything else
-let g:Lf_ExternalCommand = 'cd %s && git ls-files --recurse-submodules | grep -v "^build/" | grep -E "^(third_party/llvm-project/mlir/|[^t])"'
+" 1) Exclude build, but files that end with inc,
+" 2) Include third_party/llvm-project/mlir, but everything else
+let g:Lf_ExternalCommand = 'cd %s && (git ls-files --recurse-submodules; find build -name "*.inc") | grep -E "^(third_party/llvm-project/mlir/|[^t])"'
 
 " Fugitive
 augroup fuDeleteBuffer
