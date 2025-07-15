@@ -227,6 +227,7 @@ function! s:gruvbox_material_custom() abort
   call gruvbox_material#highlight('String', l:palette.purple, l:palette.none)
   " CocCommand semanticTokens.inspect
   call gruvbox_material#highlight('CocSemTypeProperty', l:palette.aqua, l:palette.none,'underline')
+  call gruvbox_material#highlight('debugPC', l:palette.none, l:palette.grey0)
 endfunction
 
 augroup GruvboxMaterialCustom
