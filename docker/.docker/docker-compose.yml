@@ -22,7 +22,7 @@ x-base-service: &base-service
     - "${HOME}/.vscode-server:exec"
   volumes:
     - /data:/data
-    - $HOME:/${USER:-zyin}
+    - $HOME:/zyin
     - tools_volume:/usr/local  # Mount tools volume into /usr/local
 
 services:
