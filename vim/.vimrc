@@ -383,9 +383,10 @@ nnoremap <leader>qc :cclose<CR>
 nnoremap <leader>bb :CMakeBuild<CR>
 nnoremap <leader>bc :CMakeBuild --target clean<CR>
 nnoremap <leader>bt :CMakeBuild --target iree-test-deps<CR>
-" IREE specific setup, do ROCm build
-nnoremap <leader>bd :CMakePreset dbg -Wno-dev<CR>
-nnoremap <leader>bm :CMakePreset model -Wno-dev<CR>
+" IREE specific setup, do dbg or model build
+" This relies on export_iree_tools defined in ~/.zshrc	
+nnoremap <leader>bd :CMakePreset dbg -Wno-dev<CR>:!zsh -i -c 'export_iree_tools'<CR>
+nnoremap <leader>bm :CMakePreset model -Wno-dev<CR>:!zsh -i -c 'export_iree_tools'<CR>
 nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 " Note used cdna3 for simplicity. Needs to change label on different gpus
@@ -487,7 +488,7 @@ nnoremap <leader>gg :call <SID>toggle_gstatus()<CR>
 nmap <leader>gb :Git blame<CR>
 nmap <leader>gc :Git commit<CR>
 nmap <leader>gd :Gvdiffsplit<CR>
-nmap <leader>gf :Git fetch<CR>
+nmap <leader>gf :Git clang-format<CR>
 nmap <leader>gp :Git pull --rebase<CR>
 nmap <leader>gl :Gclog<CR>
 nmap <leader>gw :Gwrite<CR>
