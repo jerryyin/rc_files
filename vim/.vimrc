@@ -349,6 +349,8 @@ let g:startify_lists = [
     \ { 'type': 'commands',  'header': ['   Commands']       },
     \ ]
 
+" Disable cursor blinking
+set guicursor=n-v-c:block-blinkon0,o:hor50-blinkon0,i-ci:hor15-blinkon0,r-cr:hor30-blinkon0,sm:block-blinkon0
 let g:startify_session_persistence = 1
 " Function to get the default session name based on the current file's directory
 function! GetDefaultSession()
