@@ -58,8 +58,8 @@ services:
   rocmlir:
     <<: *base-service
     build:
-      context: .
-      dockerfile: base.dockerfile
+      context: ..
+      dockerfile: .docker/base.dockerfile
       args:
         BASE_IMAGE: rocm/mlir:latest
         SERVICE_NAME: rocmlir
@@ -71,8 +71,8 @@ services:
   triton:
     <<: *base-service
     build:
-      context: .
-      dockerfile: base.dockerfile
+      context: ..
+      dockerfile: .docker/base.dockerfile
       args:
         BASE_IMAGE: rocm/pytorch:rocm6.2.2_ubuntu22.04_py3.10_pytorch_2.5.1_asan
         SERVICE_NAME: triton
@@ -84,8 +84,8 @@ services:
   iree:
     <<: *base-service
     build:
-      context: .
-      dockerfile: base.dockerfile
+      context: ..
+      dockerfile: .docker/base.dockerfile
       args:
         BASE_IMAGE: rocm/dev-ubuntu-24.04:latest
         SERVICE_NAME: iree

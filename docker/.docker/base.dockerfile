@@ -10,7 +10,8 @@ RUN echo "Acquire::http::proxy \"$HTTP_PROXY\";\nAcquire::https::proxy \"$HTTPS_
 WORKDIR /root
 
 # Debug build scripts
-#COPY scripts scripts
+#COPY scripts scripts 
+#RUN bash scripts/docker/init_min.sh
 
 RUN apt-get update && apt-get -y install wget && \
     wget -O /tmp/init_min.sh https://raw.githubusercontent.com/jerryyin/scripts/master/docker/init_min.sh && \
