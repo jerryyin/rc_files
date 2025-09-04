@@ -38,7 +38,7 @@ vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall || true
 
 # Install CoC dependencies
 echo "Installing CoC dependencies..."
-vim --not-a-term +":CocInstall coc-json coc-tsserver coc-pyright" +q
+vim --not-a-term +":CocInstall! coc-json coc-tsserver coc-pyright" +qall || true
 
 # Install tmux plugin manager
 TMUX_PLUGIN_DIR="$HOME/.tmux/plugins/tpm"

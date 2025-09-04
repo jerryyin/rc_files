@@ -74,7 +74,7 @@ services:
       context: .
       dockerfile: base.dockerfile
       args:
-        BASE_IMAGE: rocm/pytorch:rocm6.1_ubuntu22.04_py3.10_pytorch_2.4
+        BASE_IMAGE: rocm/pytorch:rocm6.2.2_ubuntu22.04_py3.10_pytorch_2.5.1_asan
         SERVICE_NAME: triton
     image: "jeryin/dev:triton"
     depends_on:
