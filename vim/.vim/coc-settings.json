@@ -5,6 +5,7 @@
   "semanticTokens.enable": true,
   "diagnostic.virtualText": true,
   "diagnostic.errorSign": "",
+  "python.analysis.typeCheckingMode": "off",
   "languageserver": {
     "clangd": {
       "command": "clangd",
