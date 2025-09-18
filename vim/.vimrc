@@ -386,9 +386,19 @@ nnoremap <leader>bb :CMakeBuild<CR>
 nnoremap <leader>bc :CMakeBuild --target clean<CR>
 nnoremap <leader>bt :CMakeBuild --target iree-test-deps<CR>
 " IREE specific setup, do dbg or model build
-" This relies on export_iree_tools defined in ~/.zshrc	
-nnoremap <leader>bd :CMakePreset dbg -Wno-dev<CR>:!zsh -i -c 'export_iree_tools'<CR>
-nnoremap <leader>bm :CMakePreset model -Wno-dev<CR>:!zsh -i -c 'export_iree_tools'<CR>
+" This relies on export_iree_tools defined in ~/.zshrc
+function! ExportIreeToolsFromShell()
+  let output = system("zsh -i -c 'export_iree_tools; echo PATH=$PATH'")
+  for line in split(output, "\n")
+    if line =~ '^PATH='
+      let $PATH = substitute(line, '^PATH=', '', '')
+    endif
+  endfor
+endfunction
+
+" Shortcut: run CMakePreset then import tools
+nnoremap <leader>bd :CMakePreset dbg -Wno-dev<CR>:call ExportIreeToolsFromShell()<CR>
+nnoremap <leader>bm :silent CMakePreset model -Wno-dev<CR>:call ExportIreeToolsFromShell()<CR>
 nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 " Note used cdna3 for simplicity. Needs to change label on different gpus
