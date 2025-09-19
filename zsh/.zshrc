@@ -166,6 +166,13 @@ bindkey -e
 #----------------------------------------------
 # Custom settings unrelated with zsh
 #
+
+function attprof() {
+  ROCPROF_ATT_LIBRARY_PATH=/opt/rocm/lib \
+    rocprofv3 --advanced-thread-trace \
+    -i ~/scripts/iree/att.json -d output -- "$@"
+}
+
 export LESS="-XFR"
 
 alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
@@ -232,7 +239,7 @@ function export_iree_tools() {
   if [[ -d "$BUILD_TYPE_DIR/tools" ]]; then
     export PATH="$BUILD_TYPE_DIR/tools:$PATH"
   fi
-  
+
 }
 export_iree_tools
 export PATH=~/iree/build/model/tracy:$PATH
