@@ -168,8 +168,16 @@ bindkey -e
 #
 
 function attprof() {
+  # If "output" folder exists, move it aside
+  if [ -d output ]; then
+    # if bkp_trace already exists, overwrite it
+    rm -rf bkp_trace
+    mv output bkp_trace
+  fi
+
   ROCPROF_ATT_LIBRARY_PATH=/opt/rocm/lib \
-    rocprofv3 --advanced-thread-trace \
+    rocprofv3 --att-perfcounter-ctrl 3 \
+    --att-perfcounters "SQ_LDS_BANK_CONFLICT, SQ_WAIT_INST_LDS" \
     -i ~/scripts/iree/att.json -d output -- "$@"
 }
 
