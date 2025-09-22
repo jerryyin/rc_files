@@ -388,7 +388,7 @@ nnoremap <leader>bt :CMakeBuild --target iree-test-deps<CR>
 " IREE specific setup, do dbg or model build
 " This relies on export_iree_tools defined in ~/.zshrc
 function! ExportIreeToolsFromShell()
-  let output = system("zsh -i -c 'export_iree_tools; echo PATH=$PATH'")
+  let output = system("zsh -c 'export_iree_tools; echo PATH=$PATH'")
   for line in split(output, "\n")
     if line =~ '^PATH='
       let $PATH = substitute(line, '^PATH=', '', '')
@@ -396,8 +396,9 @@ function! ExportIreeToolsFromShell()
   endfor
 endfunction
 
+nnoremap <leader>bp :silent call ExportIreeToolsFromShell()<CR>
 " Shortcut: run CMakePreset then import tools
-nnoremap <leader>bd :CMakePreset dbg -Wno-dev<CR>:call ExportIreeToolsFromShell()<CR>
+nnoremap <leader>bd :silent CMakePreset dbg -Wno-dev<CR>:call ExportIreeToolsFromShell()<CR>
 nnoremap <leader>bm :silent CMakePreset model -Wno-dev<CR>:call ExportIreeToolsFromShell()<CR>
 nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
 nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
