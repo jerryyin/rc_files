@@ -13,7 +13,6 @@
       "rootPatterns": [".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git/"],
       "args": [
         "--background-index",
-        "--compile-commands-dir=build",
         "--clang-tidy",
         "--all-scopes-completion",
         "--completion-style=detailed",
