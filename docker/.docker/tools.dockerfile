@@ -37,14 +37,15 @@ RUN git clone https://github.com/universal-ctags/ctags.git && \
     make install
 
 # Build GNU Global -> static build doesn't work
-ENV GLOBAL_VERSION=6.6.13
-WORKDIR /tmp
-RUN wget -q https://ftp.gnu.org/pub/gnu/global/global-${GLOBAL_VERSION}.tar.gz && \
-    tar -xzf global-${GLOBAL_VERSION}.tar.gz && \
-    cd global-${GLOBAL_VERSION} && \
-    ./configure --with-universal-ctags=/tools/usr/local/bin/ctags && \
-    make -j$(nproc) && \
-    make install
+# Right now failing because of network failure
+#ENV GLOBAL_VERSION=6.6.14
+#WORKDIR /tmp
+#RUN wget -q https://ftp.gnu.org/pub/gnu/global/global-${GLOBAL_VERSION}.tar.gz && \
+#    tar -xzf global-${GLOBAL_VERSION}.tar.gz && \
+#    cd global-${GLOBAL_VERSION} && \
+#    ./configure --with-universal-ctags=/tools/usr/local/bin/ctags && \
+#    make -j$(nproc) && \
+#    make install
 
 # Build GDB -> use rocGDB instead
 #ENV GDB_VERSION=15.1
