@@ -28,6 +28,8 @@ RUN echo "Service name is: $SERVICE_NAME"; \
     elif [ "$SERVICE_NAME" = "iree" ]; then \  
       echo "Running additional setup for iree"; \  
       bash scripts/docker/init_iree.sh; \  
+      echo "Setting up IREE workspace"; \  
+      bash scripts/kubernetes/interactive/setup-workspace.sh; \  
     elif [ "$SERVICE_NAME" = "base" ]; then \  
       echo "Running no additional setup for base"; \  
     else \  
