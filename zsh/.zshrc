@@ -171,6 +171,8 @@ export LESS="-XFR"
 
 alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 
+alias ssh='autossh -M 0'
+
 # Function to set the COMPOSE_PROJECT_NAME if not already set
 function set_compose_project_name() {
   local DATE=$(date "+%m%d")
@@ -243,3 +245,27 @@ export PYTHONPATH=~/iree/build/model/compiler/bindings/python:~/iree/build/model
 export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=4096
 
 #zprof
+#
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+export KUBECONFIG="$HOME/.kube/configs/tw-tus1-bm-private-sso.conf"
+source <(switcher init zsh)
+source <(switch completion zsh)
+
+# SSH agent auto-start
+SSH_ENV="$HOME/.ssh-agent-env"
+function start_agent {
+    echo "Starting SSH agent..."
+    ssh-agent -s > "${SSH_ENV}"
+    chmod 600 "${SSH_ENV}"
+    source "${SSH_ENV}" > /dev/null
+    ssh-add ~/.ssh/id_rsa 2>/dev/null
+}
+
+# Source SSH agent environment if it exists
+if [ -f "${SSH_ENV}" ]; then
+    source "${SSH_ENV}" > /dev/null
+    # Check if agent is still running
+    ps -p ${SSH_AGENT_PID} > /dev/null 2>&1 || start_agent
+else
+    start_agent
+fi
