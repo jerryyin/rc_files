@@ -2,9 +2,10 @@
 ARG BASE_IMAGE=ubuntu:24.04
 FROM ${BASE_IMAGE}
 
+USER root
 WORKDIR /root
 
-RUN echo "Acquire::http::proxy \"$HTTP_PROXY\";\nAcquire::https::proxy \"$HTTPS_PROXY\";" > /etc/apt/apt.conf
+RUN printf 'Acquire::http::proxy "%s";\nAcquire::https::proxy "%s";\n' "${HTTP_PROXY:-}" "${HTTPS_PROXY:-}" > /etc/apt/apt.conf
 
 # lightweight setup script
 WORKDIR /root

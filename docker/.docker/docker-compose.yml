@@ -94,6 +94,31 @@ services:
       - tools-setup  # Ensure tools-setup runs first
     profiles: ["triton"]
 
+  mi450:
+    build:
+      context: ..
+      dockerfile: scripts/docker/triton-mi450.dockerfile
+      args:
+        DOCKER_USERID: "32000"
+        DOCKER_GROUPID: "32000"
+        DOCKER_RENDERID: "107"  # render group GID so mirror user can access GPU nodes
+    image: "jeryin/dev:mi450"
+    profiles: ["triton-mi450"]
+
+  triton-mi450:
+    <<: *base-service
+    build:
+      context: ..
+      dockerfile: .docker/base.dockerfile
+      args:
+        BASE_IMAGE: jeryin/dev:mi450
+        SERVICE_NAME: triton
+    image: "jeryin/dev:triton-mi450"
+    depends_on:
+      - tools-setup
+      - mi450
+    profiles: ["triton-mi450"]
+
   iree:
     <<: *base-service
     build:
