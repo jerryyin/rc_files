@@ -169,6 +169,21 @@ bindkey -e
 
 export LESS="-XFR"
 
+# Automatically import the FFM-Lite environment (used by Triton MI450 dev shells)
+function load_ffm_env() {
+  local ffm_root="/ffm"
+  local env_vars
+
+  if [[ ! -d "$ffm_root" || ! -f "$ffm_root/ffmlite_env.sh" ]]; then
+    return
+  fi
+
+  env_vars=$(command bash -lc "source $ffm_root/ffmlite_env.sh >/dev/null && env" \
+    | grep -E '^(LD_LIBRARY_PATH|HSA_|TEST_SUIT_DIR)=') || return
+  eval "$env_vars"
+}
+load_ffm_env
+
 alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 
 alias ssh='autossh -M 0'
@@ -248,8 +263,12 @@ export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=4096
 #
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export KUBECONFIG="$HOME/.kube/configs/tw-tus1-bm-private-sso.conf"
-source <(switcher init zsh)
-source <(switch completion zsh)
+if command -v switcher >/dev/null 2>&1; then
+  source <(switcher init zsh)
+fi
+if command -v switch >/dev/null 2>&1; then
+  source <(switch completion zsh)
+fi
 
 # SSH agent auto-start
 SSH_ENV="$HOME/.ssh-agent-env"
