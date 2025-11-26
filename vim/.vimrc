@@ -382,10 +382,69 @@ let g:dispatch_no_maps = 1
 nnoremap <leader>qo :Copen<CR>:10wincmd_<CR>
 nnoremap <leader>qc :cclose<CR>
 
-nnoremap <leader>bb :CMakeBuild<CR>
-nnoremap <leader>bc :CMakeBuild --target clean<CR>
+" Project detection helper - check if repo name is in current path
+function! IsTritonProject()
+  return getcwd() =~ '/triton'
+endfunction
+
+function! IsIreeProject()
+  return getcwd() =~ '/iree'
+endfunction
+
+" Project-aware build command
+function! ProjectBuild()
+  if IsTritonProject()
+    " Triton: incremental C++ build via ninja
+    execute 'Dispatch make all'
+  elseif IsIreeProject()
+    execute 'CMakeBuild'
+  else
+    echo "Unknown project type"
+  endif
+endfunction
+
+" Project-aware clean command
+function! ProjectClean()
+  if IsTritonProject()
+    execute 'Dispatch ninja -C build/cmake.* clean'
+  elseif IsIreeProject()
+    execute 'CMakeBuild --target clean'
+  else
+    echo "Unknown project type"
+  endif
+endfunction
+
+" Project-aware test current file
+function! ProjectTestFile()
+  if IsTritonProject()
+    " Triton: run pytest on current file
+    let l:file = expand('%:p')
+    execute 'Dispatch pytest -xvs ' . l:file
+  elseif IsIreeProject()
+    execute "CMakeTest -R " . expand('%:t') . " --output-on-failure -E 'cuda\\|metal\\|vulkan\\|cpu\\|e2e'"
+  else
+    echo "Unknown project type"
+  endif
+endfunction
+
+" Project-aware test all
+function! ProjectTestAll()
+  if IsTritonProject()
+    execute 'Dispatch make test-lit'
+  elseif IsIreeProject()
+    execute "CMakeTest all -j32 --output-on-failure -E 'cuda\\|metal\\|vulkan\\|cpu\\|e2e'"
+  else
+    echo "Unknown project type"
+  endif
+endfunction
+
+nnoremap <leader>bb :call ProjectBuild()<CR>
+nnoremap <leader>bc :call ProjectClean()<CR>
+nnoremap <leader>tt :call ProjectTestFile()<CR>
+nnoremap <leader>ta :call ProjectTestAll()<CR>
+
+" IREE specific commands
 nnoremap <leader>bt :CMakeBuild --target iree-test-deps<CR>
-" IREE specific setup, do dbg or model build
 " This relies on export_iree_tools defined in ~/.zshrc
 function! ExportIreeToolsFromShell()
   let output = system("zsh -c 'export_iree_tools; echo PATH=$PATH'")
@@ -395,13 +454,35 @@ function! ExportIreeToolsFromShell()
     endif
   endfor
 endfunction
-
 nnoremap <leader>bp :silent call ExportIreeToolsFromShell()<CR>
-" Shortcut: run CMakePreset then import tools
-nnoremap <leader>bd :silent CMakePreset dbg -Wno-dev<CR>:call ExportIreeToolsFromShell()<CR>
-nnoremap <leader>bm :silent CMakePreset model -Wno-dev<CR>:call ExportIreeToolsFromShell()<CR>
-nnoremap <leader>tt :CMakeTest -R %:t --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
-nnoremap <leader>ta :CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e'<CR>
+
+" Project-aware debug build
+function! ProjectBuildDebug()
+  if IsTritonProject()
+    execute 'Dispatch DEBUG=1 pip install -e . --no-build-isolation'
+  elseif IsIreeProject()
+    silent CMakePreset dbg -Wno-dev
+    call ExportIreeToolsFromShell()
+  else
+    echo "Unknown project type"
+  endif
+endfunction
+
+" Project-aware release/model build
+function! ProjectBuildRelease()
+  if IsTritonProject()
+    execute 'Dispatch pip install -e . --no-build-isolation'
+  elseif IsIreeProject()
+    silent CMakePreset model -Wno-dev
+    call ExportIreeToolsFromShell()
+  else
+    echo "Unknown project type"
+  endif
+endfunction
+
+nnoremap <leader>bd :call ProjectBuildDebug()<CR>
+nnoremap <leader>bm :call ProjectBuildRelease()<CR>
+
 " Note used cdna3 for simplicity. Needs to change label on different gpus
 nnoremap <leader>tg :CMakeTest all --output-on-failure --label-regex '^requires-gpu-cdna3$\|^driver=hip$'<CR>
 
@@ -477,9 +558,11 @@ let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_PreviewResult = {'Function':0, 'BufTag':0, 'Buffer':0, 'File':0}
 let g:Lf_WindowPosition = 'popup'
 let g:Lf_PopupWidth = 0.3
-" 1) Exclude build, but files that end with inc,
-" 2) Include third_party/llvm-project/mlir, but everything else
-let g:Lf_ExternalCommand = 'cd %s && (git ls-files --recurse-submodules 2>/dev/null; find build -name "*.inc" 2>/dev/null) | grep -E "^(third_party/llvm-project/mlir/|[^t])"'
+" Project-aware file listing:
+" - IREE: Include third_party/llvm-project/mlir, exclude other third_party
+" - Triton: Include third_party/amd, proton; exclude f2reduce, nvidia
+" - Other: Include all files
+let g:Lf_ExternalCommand = 'cd %s && (git ls-files --recurse-submodules 2>/dev/null; find build -name "*.inc" 2>/dev/null) | if [ -d "iree" ]; then grep -E "^(third_party/llvm-project/mlir/|[^t])"; elif [ -d "python/triton" ]; then grep -v -E "^third_party/(f2reduce|nvidia)/"; else cat; fi'
 
 " Fugitive
 augroup fuDeleteBuffer
