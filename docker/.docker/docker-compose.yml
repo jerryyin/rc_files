@@ -102,6 +102,9 @@ services:
         DOCKER_USERID: "32000"
         DOCKER_GROUPID: "32000"
         DOCKER_RENDERID: "107"  # render group GID so mirror user can access GPU nodes
+        USE_NPI_ROCM: "TRUE"
+        USE_NPI_TORCH: "TRUE"
+        ROCM_BUILD_NUMBER: "710"
     image: "jeryin/dev:mi450"
     profiles: ["triton-mi450"]
 
