@@ -414,12 +414,30 @@ function! ProjectClean()
   endif
 endfunction
 
+" Pytest compiler settings for quickfix parsing
+function! SetPytestCompiler()
+  " Error format for pytest --tb=short output:
+  "   file.py:123: in test_function
+  "   file.py:456: AssertionError
+  compiler! pytest
+  " Fallback if no pytest compiler exists
+  if &makeprg !~ 'pytest'
+    setlocal makeprg=pytest\ --tb=short\ -q
+    setlocal errorformat=
+      \%f:%l:\ in\ %m,
+      \%f:%l:\ %m,
+      \%E%f:%l:\ %m,
+      \%-G%.%#
+  endif
+endfunction
+
 " Project-aware test current file
 function! ProjectTestFile()
   if IsTritonProject()
     " Triton: run pytest on current file
+    call SetPytestCompiler()
     let l:file = expand('%:p')
-    execute 'Dispatch pytest -xvs ' . l:file
+    execute 'Dispatch pytest --tb=short -xvs ' . l:file
   elseif IsIreeProject()
     execute "CMakeTest -R " . expand('%:t') . " --output-on-failure -E 'cuda\\|metal\\|vulkan\\|cpu\\|e2e'"
   else
@@ -427,10 +445,50 @@ function! ProjectTestFile()
   endif
 endfunction
 
-" Project-aware test all
+" Find the test function name at cursor position
+function! GetTestFunctionAtCursor()
+  " Save cursor position
+  let l:save_pos = getpos('.')
+  " Search backward for def test_*
+  let l:line = search('^\s*def test_\w\+(', 'bcnW')
+  if l:line == 0
+    " Also try @pytest decorated functions
+    let l:line = search('^\s*def test_\w\+(', 'bnW')
+  endif
+  " Restore cursor position
+  call setpos('.', l:save_pos)
+  if l:line == 0
+    return ''
+  endif
+  " Extract function name
+  let l:content = getline(l:line)
+  let l:match = matchstr(l:content, 'def \zstest_\w\+\ze(')
+  return l:match
+endfunction
+
+" Run the specific test at cursor
+function! ProjectTestAtCursor()
+  let l:test_name = GetTestFunctionAtCursor()
+  if l:test_name == ''
+    echo "No test function found at cursor"
+    return
+  endif
+  let l:file = expand('%:p')
+  if IsTritonProject()
+    call SetPytestCompiler()
+    execute 'Dispatch pytest --tb=short -xvs ' . l:file . '::' . l:test_name
+  elseif IsIreeProject()
+    execute "CMakeTest -R " . l:test_name . " --output-on-failure -E 'cuda\\|metal\\|vulkan\\|cpu\\|e2e'"
+  else
+    echo "Unknown project type"
+  endif
+endfunction
+
+" Project-aware test all (lit + cpp tests)
 function! ProjectTestAll()
   if IsTritonProject()
-    execute 'Dispatch make test-lit'
+    " Run both lit tests and C++ unit tests
+    execute 'Dispatch make test-lit test-cpp'
   elseif IsIreeProject()
     execute "CMakeTest all -j32 --output-on-failure -E 'cuda\\|metal\\|vulkan\\|cpu\\|e2e'"
   else
@@ -441,6 +499,7 @@ endfunction
 nnoremap <leader>bb :call ProjectBuild()<CR>
 nnoremap <leader>bc :call ProjectClean()<CR>
 nnoremap <leader>tt :call ProjectTestFile()<CR>
+nnoremap <leader>tu :call ProjectTestAtCursor()<CR>
 nnoremap <leader>ta :call ProjectTestAll()<CR>
 
 " IREE specific commands
