@@ -172,15 +172,29 @@ export LESS="-XFR"
 # Automatically import the FFM-Lite environment (used by Triton MI450 dev shells)
 function load_ffm_env() {
   local ffm_root="/ffm"
-  local env_vars
 
   if [[ ! -d "$ffm_root" || ! -f "$ffm_root/ffmlite_env.sh" ]]; then
     return
   fi
 
-  env_vars=$(command bash -lc "source $ffm_root/ffmlite_env.sh >/dev/null && env" \
-    | grep -E '^(LD_LIBRARY_PATH|HSA_|TEST_SUIT_DIR)=') || return
-  eval "$env_vars"
+  # Skip if already loaded (check if HSA_MODEL_LIB is already set to prevent
+  # duplicate LD_LIBRARY_PATH entries from nested shells/tmux)
+  if [[ "$HSA_MODEL_LIB" == "$ffm_root/lib/libhsakmtmodel.so" ]]; then
+    return
+  fi
+
+  # Set FFM environment variables directly (ffmlite_env.sh uses BASH_SOURCE which
+  # doesn't work when sourced via bash -c, so we replicate the logic here)
+  export TEST_SUIT_DIR="$ffm_root"
+  export HSA_MODEL_LIB="$ffm_root/lib/libhsakmtmodel.so"
+  export HSA_MODEL_TOPOLOGY="$ffm_root/topology/mi450"
+  export HSA_ENABLE_SDMA=0
+  export HSA_ENABLE_INTERRUPT=0
+  export HSA_KMT_MODEL_GPUVM_BASE=0x4000
+
+  # Set LD_LIBRARY_PATH with /opt/rocm/lib FIRST (required for torch to find
+  # the correct libamd_smi.so), then FFM libs
+  export LD_LIBRARY_PATH="/opt/rocm/lib:$ffm_root:$ffm_root/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 }
 load_ffm_env
 
