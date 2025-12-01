@@ -1,0 +1,61 @@
+---
+globs: **/iree/**
+---
+
+## Project Context
+
+This is the IREE compiler project - a retargetable MLIR-based machine learning compiler and runtime toolkit.
+
+### Project Structure
+- `compiler/` - MLIR-based compiler (follows LLVM/MLIR style guide)
+- `runtime/` - Lightweight runtime (follows Google style guide)
+- `tools/` - Command-line tools (`iree-opt`, `iree-compile`, etc.)
+- `tests/` - End-to-end and integration tests
+
+### Build System
+
+1. **Find the build directory**: Check the `compile_commands.json` symlink:
+   ```bash
+   readlink -f compile_commands.json
+   ```
+   Use this build directory for all cmake/ninja/ctest commands.
+
+2. **Build a specific target**:
+   ```bash
+   cmake --build <build-dir> --target <target-name>
+   ```
+   Common targets: `iree-opt`, `iree-compile`, `iree-run-module`
+
+3. **Run tests**: Use ctest from the build directory:
+   ```bash
+   cd <build-dir> && ctest -R <test-name-pattern> --output-on-failure
+   ```
+
+### Code Style
+
+- **Compiler code**: Follows [MLIR style guide](https://mlir.llvm.org/getting_started/DeveloperGuide/#style-guide) based on LLVM coding standards
+  - Exception: Use braces with single-line `if` statements and loops
+- **Runtime code**: Follows [Google Style Guides](http://google.github.io/styleguide/)
+- **Formatting**: Use `clang-format` for C/C++, `black` for Python
+- Always run `git clang-format` before committing
+
+### Debugging
+
+- Use `LDBG()` macro (from `llvm/Support/DebugLog.h`) for debug logging
+- Control output with `DEBUG_TYPE` macro at the top of each file
+- Enable at runtime: `-debug-only=<debug-type>`
+
+### Verify Changes
+
+After any code modification:
+1. Build the specific target (not the whole project)
+2. Run relevant tests with ctest
+3. Check for linter errors only on modified files
+4. Run `git clang-format` and adopt all suggestions
+
+## Workflow
+
+- Read code first to understand context before making changes
+- Make incremental changes and test after each one
+- Keep todos for multi-step tasks
+- Don't assume paths - verify with tools first
