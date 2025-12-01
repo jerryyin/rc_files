@@ -21,10 +21,6 @@ export HSA_KMT_MODEL_GPUVM_BASE=0x4000
 
 # LD_LIBRARY_PATH: ROCm libs must come FIRST to avoid libamd_smi.so conflicts
 export LD_LIBRARY_PATH="/opt/rocm/lib:/ffm:/ffm/lib:$LD_LIBRARY_PATH"
-
-# Triton workaround: disable HW NaN propagation for FFM
-# (FFM doesn't support s_minimum_f32/s_maximum_f32 instructions)
-export TRITON_AMD_DISABLE_HW_NAN_PROPAGATION=1
 ```
 
 ## Quick Setup
@@ -34,5 +30,4 @@ If `/ffm` exists, you can source the environment with:
 ```bash
 cd /ffm && source ./ffmlite_env.sh && cd -
 export LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH
-export TRITON_AMD_DISABLE_HW_NAN_PROPAGATION=1
 ```
