@@ -25,12 +25,12 @@ RUN echo "Service name is: $SERVICE_NAME"; \
       bash scripts/docker/init_mlir.sh; \  
     elif [ "$SERVICE_NAME" = "triton" ]; then \  
       echo "Running additional setup for triton"; \  
-      bash scripts/docker/init_triton.sh; \  
+      bash scripts/kubernetes/interactive/setup-workspace-triton.sh; \  
     elif [ "$SERVICE_NAME" = "iree" ]; then \  
       echo "Running additional setup for iree"; \  
       bash scripts/docker/init_iree.sh; \  
       echo "Setting up IREE workspace"; \  
-      bash scripts/kubernetes/interactive/setup-workspace.sh; \  
+      bash scripts/kubernetes/interactive/setup-workspace-iree.sh; \  
     elif [ "$SERVICE_NAME" = "base" ]; then \  
       echo "Running no additional setup for base"; \  
     else \  
