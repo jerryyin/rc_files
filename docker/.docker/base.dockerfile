@@ -12,25 +12,25 @@ WORKDIR /root
 
 # Debug build scripts
 #COPY scripts scripts 
-#RUN bash scripts/docker/init_min.sh
+#RUN bash scripts/docker/env/min.sh
 
 RUN apt-get update && apt-get -y install wget && \
-    wget -O /tmp/init_min.sh https://raw.githubusercontent.com/jerryyin/scripts/master/docker/init_min.sh && \
-    bash /tmp/init_min.sh
+    wget -O /tmp/min.sh https://raw.githubusercontent.com/jerryyin/scripts/master/docker/env/min.sh && \
+    bash /tmp/min.sh
 
 ARG SERVICE_NAME  
 RUN echo "Service name is: $SERVICE_NAME"; \  
     if [ "$SERVICE_NAME" = "rocmlir" ]; then \  
       echo "Running additional setup for rocmlir"; \  
-      bash scripts/docker/init_mlir.sh; \  
+      bash scripts/docker/env/mlir.sh; \  
     elif [ "$SERVICE_NAME" = "triton" ]; then \  
       echo "Running additional setup for triton"; \  
-      bash scripts/kubernetes/interactive/setup-workspace-triton.sh; \  
+      bash scripts/docker/workspace/triton.sh; \  
     elif [ "$SERVICE_NAME" = "iree" ]; then \  
       echo "Running additional setup for iree"; \  
-      bash scripts/docker/init_iree.sh; \  
+      bash scripts/docker/env/iree.sh; \  
       echo "Setting up IREE workspace"; \  
-      bash scripts/kubernetes/interactive/setup-workspace-iree.sh; \  
+      bash scripts/docker/workspace/iree.sh; \  
     elif [ "$SERVICE_NAME" = "base" ]; then \  
       echo "Running no additional setup for base"; \  
     else \  

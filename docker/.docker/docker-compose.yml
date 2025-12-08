@@ -5,7 +5,7 @@ volumes:
 x-base-service: &base-service
   container_name: ${COMPOSE_PROJECT_NAME:-dev}
   hostname: ${COMPOSE_PROJECT_NAME:-zyin}
-  command: ["bash", "-c", "scripts/docker/init_priv.sh && exec /bin/zsh"]
+  command: ["bash", "-c", "scripts/docker/env/priv.sh && exec /bin/zsh"]
   tty: true
   stdin_open: true
   network_mode: host
