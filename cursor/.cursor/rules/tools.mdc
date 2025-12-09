@@ -1,0 +1,12 @@
+---
+globs: **/*
+---
+
+## Useful Scripts
+
+### GitHub Issue Attachments
+Download attachments from GitHub issues:
+```bash
+python3 ~/scripts/tools/download_github_attachment.py <issue_id>
+# Downloads to ./downloads/ directory
+```
