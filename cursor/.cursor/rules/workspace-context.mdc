@@ -1,0 +1,81 @@
+---
+globs: 
+---
+
+# Workspace Context Guidelines
+
+## Meta-Workspace Concept
+
+This is a meta-workspace pattern for AI-assisted development. Rather than making the project directory itself the AI workspace, a separate meta-repository serves as a "control center" that:
+
+- Provides centralized context and documentation for AI assistants
+- Maps out where all the various directories live
+- Contains workflows, notes, and helper scripts
+- Stays version-controlled without polluting the actual project repositories
+
+## Working Environment
+
+**Important:** Maintain a `directory-map.md` for all directory locations.
+
+Actual source and build directories may be scattered across the filesystem and should be referenced by absolute paths.
+
+## Usage Pattern
+
+```bash
+cd /path/to/meta-workspace
+# Launch AI assistant here
+# AI can read/edit files anywhere via absolute paths
+```
+
+## Communication Guidelines
+
+When working with AI:
+
+### Do
+- Provide task-specific instructions for configuration and incremental builds
+- Give explicit authorization before pushing or amending commits
+- Make decisions when there's genuine disagreement
+- Be direct about what you want
+
+### Don't Expect
+- AI to claim work is "production ready" without justification
+- Sycophantic responses - light debate on technical matters is encouraged
+- AI to initiate long build time activities without confirmation
+
+## Design Documentation
+
+When writing design docs, always include an "Alternatives Considered" section:
+- List major, rejected options
+- Don't include nit-picky differences
+- Focus on major architectural alternatives
+
+## Common Tasks
+
+### Building
+- Builds typically happen in separate build trees (see directory-map.md)
+- Out-of-tree builds are standard practice
+- Multiple build configurations often maintained simultaneously
+
+### Source Navigation
+- Source code may be across multiple repositories and worktrees
+- Git submodules may be used extensively
+- When editing build configs, check both source tree and build tree caches
+
+### Testing
+- Run relevant tests after changes
+- Use specific test patterns rather than running all tests
+
+## Git Conventions
+
+### Branch Naming
+Use the pattern: `users/<username>/<short-description>`
+
+### Submodules
+- Git submodules may be used extensively
+- When editing build configs, check both source tree and build tree caches
+
+### Important Rules
+- Never do `git push` without explicit authorization
+- Do not amend commits without explicit authorization
+- Stage changes and ask for reviews before committing
+- GitHub issue references should use short form #NNNN instead of full URLs

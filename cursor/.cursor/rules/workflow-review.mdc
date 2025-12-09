@@ -1,0 +1,146 @@
+---
+globs: 
+---
+
+# Code Review Workflow
+
+This guide documents the review workflow for working with AI assistants on code changes.
+
+## Commit Stack Workflow
+
+We work in commit stacks. AI commits incrementally with WIP commits, user reviews, we iterate, then squash to PR at milestones.
+
+### Two Review Modes
+
+| Mode | When | Diff |
+|------|------|------|
+| **Incremental** | After each AI batch | HEAD~1..HEAD (or HEAD~N) |
+| **Milestone** | Before PR/squash | main..HEAD |
+
+Incremental is the hot path—zero friction for "what did AI just do."
+
+## Review Comment Format
+
+Add comments inline using `RVW:` or `RVWY:` prefix:
+
+| Marker | Meaning |
+|--------|---------|
+| `RVW:` | Discuss - AI proposes fix, waits for confirmation |
+| `RVWY:` | YOLO - AI makes the fix without asking |
+
+```python
+# RVW: This logic seems backwards - let's discuss
+# RVWY: Add error handling here
+```
+
+```cpp
+// RVW: Should this handle the null case?
+// RVWY: Rename this variable to be clearer
+```
+
+## Workflow Commands
+
+### Stage Changes for Review
+
+```bash
+# Stage all changes and create WIP commit
+git add -A
+git commit -m "WIP: staged for review"
+
+# View the diff
+git diff HEAD~1..HEAD
+```
+
+### Find Review Comments
+
+```bash
+# Find all RVW/RVWY comments in codebase
+grep -rn -E "RVWY?:" --include="*.py" --include="*.cpp" --include="*.c" \
+  --include="*.h" --include="*.cmake" --include="CMakeLists.txt" .
+```
+
+### Process Review Comments
+
+For each `RVW:` comment:
+1. Read the context around the comment
+2. Propose a specific fix
+3. Wait for user confirmation
+4. Make the fix and remove the marker
+
+For each `RVWY:` comment:
+1. Read the context
+2. Make the fix you think is best
+3. Remove the marker
+4. Briefly report what you did
+
+### After All Comments Addressed
+
+```bash
+git add -A
+git commit -m "Address review feedback"
+```
+
+## Typical Flow
+
+```
+AI: [makes changes]
+AI: "Ready for review?"
+
+You: [review diff, add RVW: comments]
+
+You: "Process review comments"
+AI: [shows each comment, proposes fix, waits for confirmation]
+AI: [fixes, removes RVW marker, commits]
+
+You: "Prep for PR"
+[Full diff review since main]
+```
+
+## Squash Prep
+
+Before submitting PR, analyze the commit stack:
+
+```bash
+# Show commits since main
+git log main..HEAD --oneline
+
+# Show overall diff stats
+git diff main --stat
+```
+
+Summarize:
+- Number of commits to squash
+- Files changed
+- Key changes (look at commit messages)
+
+Suggest a PR commit message following the format:
+```
+<Short summary>
+
+<Description of what changed and why>
+
+Changes:
+- Bullet points
+```
+
+## Git Workflow
+
+### Branch Naming
+Use the pattern: `users/<username>/<short-description>`
+
+Examples:
+- `users/myname/add-feature`
+- `users/myname/fix-bug`
+
+### Commit Message Best Practices
+- First line: Short summary (50-72 chars)
+- Blank line after summary
+- Detailed description explaining what and why
+- Include "Changes:" section with bullet points for key modifications
+- Add testing/verification notes
+
+### Important Rules
+- Never do `git push` without explicit authorization
+- Do not amend commits without explicit authorization
+- Stage changes and ask for reviews before committing
+- Use short form issue references (#NNNN) instead of full URLs

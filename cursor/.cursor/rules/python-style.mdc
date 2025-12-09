@@ -1,0 +1,224 @@
+---
+globs: **/*.py
+---
+
+# Python Style Guide
+
+This guide documents Python coding standards and best practices for robust, maintainable code.
+
+## Core Principles
+
+### 1. Fail-Fast Behavior
+
+**Always fail immediately on errors. Never silently continue or produce incomplete results.**
+
+❌ **Bad:**
+```python
+if not path.exists():
+    print(f"Warning: Path does not exist: {path}")
+    continue  # Silently produces incomplete output
+
+try:
+    process_file(path)
+except Exception as e:
+    print(f"Warning: {e}")
+    # Continues with incomplete data
+```
+
+✅ **Good:**
+```python
+if not path.exists():
+    raise FileNotFoundError(
+        f"Path does not exist: {path}\n"
+        f"This indicates a corrupted or incomplete artifact"
+    )
+
+# Let exceptions propagate - if we can't process, we must fail
+process_file(path)
+```
+
+**Key points:**
+- If data is missing, corrupted, or unreadable → raise an exception
+- Don't catch exceptions unless you can meaningfully handle them
+- "Warnings" that indicate data problems should be errors
+
+### 2. Use Dataclasses, Not Tuples
+
+**For non-trivial data with multiple fields, use dataclasses instead of tuples.**
+
+❌ **Bad:**
+```python
+def create_files(...) -> Dict[str, Tuple[Path, int, int]]:
+    """Returns: Dict mapping name to (path, size, count)"""
+    return {"item": (path, 12345, 42)}  # What's what?
+```
+
+✅ **Good:**
+```python
+@dataclass
+class FileInfo:
+    """Information about a created file."""
+    path: Path
+    size: int
+    count: int
+
+def create_files(...) -> Dict[str, FileInfo]:
+    return {"item": FileInfo(path=path, size=12345, count=42)}
+```
+
+**When tuples are OK:**
+- Simple pairs where meaning is obvious: `(x, y)`, `(min, max)`
+- Unpacking from standard library functions: `os.path.split()`
+
+### 3. Type Hints
+
+**Always use specific type hints. Never use `Any` except in rare generic code.**
+
+❌ **Bad:**
+```python
+from typing import Any
+
+def process(handlers: List[Any]) -> Dict[str, Any]:
+    pass
+```
+
+✅ **Good:**
+```python
+from mymodule import Handler, ResultInfo
+
+def process(handlers: List[Handler]) -> Dict[str, ResultInfo]:
+    pass
+```
+
+#### Extract Complex Type Signatures
+
+**If a type signature is complex or repeated, extract it into a named type.**
+
+```python
+class InputData(NamedTuple):
+    """Input data for processing.
+
+    Attributes:
+        path: Path to the file
+        arch: Target architecture
+        data: Raw binary data
+        metadata: Optional metadata dict
+    """
+    path: str
+    arch: str
+    data: bytes
+    metadata: dict[str, object] | None
+```
+
+### 4. Error Handling and Distinction
+
+**Distinguish between different error conditions. Don't treat all errors the same.**
+
+✅ **Good:**
+```python
+try:
+    with open(file_path, 'rb') as f:
+        magic = f.read(4)
+        if magic != b'\x7fELF':
+            return False  # Not ELF, definitely not target
+except FileNotFoundError:
+    raise  # Propagate - caller should know file is missing
+except OSError as e:
+    raise RuntimeError(f"Cannot read file {file_path}: {e}") from e
+
+try:
+    output = subprocess.check_output([tool, "-S", str(file_path)])
+    return ".target_section" in output
+except subprocess.CalledProcessError as e:
+    if e.returncode == 1:
+        return False  # Tool returns 1 for valid file without target section
+    raise RuntimeError(f"{tool} failed on {file_path}: {e.output}") from e
+```
+
+### 5. No Timeouts on Basic Tools
+
+**NEVER add timeouts to basic operations (readelf, objcopy, etc.).**
+
+❌ **Bad:**
+```python
+subprocess.check_output([readelf, "-S", file], timeout=10)
+```
+
+✅ **Good:**
+```python
+subprocess.check_output([readelf, "-S", file])
+```
+
+### 6. Output Validation
+
+**Validate that operations actually succeeded. Don't assume.**
+
+✅ **Good:**
+```python
+archive.write(output_file)
+
+# Validate file was created successfully
+if not output_file.exists():
+    raise RuntimeError(f"Failed to create file: {output_file}")
+
+file_size = output_file.stat().st_size
+if file_size == 0:
+    raise RuntimeError(f"File is empty: {output_file}")
+```
+
+### 7. No Magic Numbers
+
+**Don't use unexplained magic numbers, especially for estimates.**
+
+❌ **Bad:**
+```python
+original_size = binary_path.stat().st_size + 8000000  # Estimate original size
+print(f"Stripped {original_size - new_size} bytes")
+```
+
+✅ **Good:**
+```python
+new_size = binary_path.stat().st_size
+print(f"Processed, new size: {new_size} bytes")
+```
+
+### 8. Performance Best Practices
+
+```python
+# Compile regex once at module level
+_PATTERN = re.compile(r'pattern(\d+[a-z]*)')
+
+def detect(self, path: Path) -> Optional[str]:
+    match = _PATTERN.search(path.name)
+```
+
+### 9. Import Organization
+
+**Put all imports at the top of the file. Avoid inline imports except for rare special cases.**
+
+**When inline imports ARE acceptable:**
+- **Circular dependency workaround**: Document with comment explaining why
+
+### 10. Code Organization
+
+**Class size guidelines:**
+- Classes should be < 200 lines (ideally)
+- Methods should be < 30 lines (ideally)
+- If a class has 7+ responsibilities, split it
+
+## Code Review Checklist
+
+Before submitting code, verify:
+
+- [ ] No silent error handling (fail-fast on all errors)
+- [ ] No `Any` type hints (use specific types)
+- [ ] Complex type signatures extracted to NamedTuple/dataclass
+- [ ] No magic numbers or fake estimates
+- [ ] Tuples only for simple pairs, dataclasses for structured data
+- [ ] All imports at top of file (except documented circular dependencies)
+- [ ] No timeouts on basic tool operations
+- [ ] Output validation after critical operations
+- [ ] No duplicate code
+- [ ] Specific exception handling (not broad `except Exception`)
+- [ ] Methods < 30 lines (or have a good reason)
+- [ ] Classes < 200 lines (or split into focused components)

@@ -1,0 +1,228 @@
+---
+globs: 
+---
+
+# Task Management System
+
+This system supports juggling multiple tasks simultaneously with persistent context.
+
+## Directory Structure
+
+```
+workspace/
+├── tasks/
+│   ├── active/           # Currently active tasks
+│   │   ├── example-task.md
+│   │   └── my-feature.md
+│   └── completed/        # Archived completed tasks
+│       └── old-task.md
+├── ACTIVE-TASKS.md       # Quick reference of current tasks
+└── directory-map.md      # Map of all project directories
+```
+
+## Starting a New Task
+
+1. Create a new file: `tasks/active/your-task-name.md`
+2. Copy the template below
+3. Add your task to `ACTIVE-TASKS.md`
+4. Tell AI: "I'm working on your-task-name"
+
+## Working with Tasks
+
+- **Switch tasks verbally:** "Let's work on the feature-x task now"
+- **Check active tasks:** Ask AI to read `ACTIVE-TASKS.md`
+
+## Completing Tasks
+
+```bash
+# Move to completed directory
+mv tasks/active/task-name.md tasks/completed/
+
+# Update ACTIVE-TASKS.md to remove it from the list
+```
+
+## Why This Approach?
+
+- **Single session:** No need to restart when switching tasks
+- **Shared context:** Tasks can reference each other when they overlap
+- **Organized:** Easy to see what's active vs completed
+- **Flexible:** Works for short-term and long-term tasks
+
+---
+
+## Task Template
+
+```markdown
+---
+repositories:
+  - repo-alias-1    # Alias from directory-map.md
+  # - repo-alias-2  # Add more repos as needed
+---
+
+# Task Name
+
+**Status:** Not started | In progress | Blocked | Review | Completed
+**Priority:** P0 (Critical) | P1 (High) | P2 (Medium) | P3 (Low)
+**Started:** YYYY-MM-DD
+**Target:** YYYY-MM-DD
+
+## Overview
+
+Brief description of what this task is about and why it's important.
+
+## Goals
+
+- [ ] Main objective 1
+- [ ] Main objective 2
+- [ ] Main objective 3
+
+## Context
+
+### Background
+What led to this task? What's the problem or opportunity?
+
+### Related Work
+- Links to related tasks (if any)
+- Dependencies on other work
+- Related issues/PRs
+
+### Directories/Files Involved
+```
+/path/to/relevant/directory/
+/path/to/build/
+```
+
+## Investigation Notes
+
+### YYYY-MM-DD - Initial Investigation
+[Your findings here]
+
+### YYYY-MM-DD - Progress Update
+[What you learned/discovered]
+
+## Decisions & Trade-offs
+
+Document important decisions made during this task:
+- **Decision:** Brief description
+  - **Rationale:** Why this approach?
+  - **Alternatives considered:** What else did you consider?
+
+## Code Changes
+
+### Files Modified
+- `path/to/file.cpp` - What changed and why
+- `path/to/CMakeLists.txt` - Build system updates
+
+### Testing Done
+- What tests were run
+- Results and any issues found
+
+## Blockers & Issues
+
+### Active Blockers
+- **Issue description**
+  - Impact: How does this block progress?
+  - Waiting on: Who/what?
+
+### Resolved Issues
+- ~~Previous blocker~~ - How it was resolved
+
+## Resources & References
+
+- [Documentation link](url)
+- [Similar code example](file/path)
+- [Relevant RFC or design doc](url)
+
+## Next Steps
+
+1. [ ] Immediate next action
+2. [ ] Following action
+3. [ ] Future consideration
+
+## Completion Notes
+
+<!-- Fill this in when task is done -->
+
+### Summary
+What was accomplished?
+
+### Lessons Learned
+What would you do differently next time?
+
+### Follow-up Tasks
+Any new work that came out of this task?
+```
+
+---
+
+## ACTIVE-TASKS.md Template
+
+```markdown
+# Active Tasks
+
+This file tracks current and background tasks. Update it as you start new work or complete tasks.
+
+## Current Focus
+
+**[task-name](tasks/active/task-name.md)** - Priority 1
+Brief description of the task
+
+## Background Tasks
+
+<!-- Add tasks you're working on but not currently focused on -->
+- **[background-task](tasks/active/background-task.md)** - Background work description
+
+## Quick Start New Task
+
+1. Create a new file: `tasks/active/task-name.md`
+2. Copy the template
+3. Add it to this list
+4. Tell AI: "I'm working on task-name"
+
+## Moving to Completed
+
+When a task is done:
+```bash
+mv tasks/active/task-name.md tasks/completed/
+```
+
+Then remove it from this list.
+
+---
+
+## Recently Completed
+
+<!-- Keep a short list of recently completed tasks for reference -->
+- **[completed-task](tasks/completed/completed-task.md)** (YYYY-MM-DD) - What was accomplished
+```
+
+---
+
+## Directory Map Template
+
+```markdown
+# Directory Map
+
+This document maps out where all project-related directories live on this system.
+
+**Update the paths below to match your actual setup.**
+
+## Repository Aliases
+
+These aliases are used by commands to resolve short names to paths.
+
+| Alias | Path | Notes |
+|-------|------|-------|
+| main-repo | /path/to/main/repo | Main project repository |
+| build | /path/to/build | Build directory |
+| worktree | /path/to/worktree | Git worktree (if used) |
+| workspace | /path/to/workspace | This meta-workspace |
+
+## Build Trees
+
+### Active Builds
+- **Main build:** `/path/to/build`
+  - Configuration: Release
+  - Target: [target info]
+  - CMake flags: [flags]
+```
