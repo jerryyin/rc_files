@@ -36,44 +36,47 @@ done
 echo "Initializing vim-plug and installing Vim plugins..."
 vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall || true
 
-# Install CoC dependencies
-echo "Installing CoC dependencies..."
-vim --not-a-term +":CocInstall! coc-json coc-tsserver coc-pyright" +qall || true
+# Note: CoC extensions should be installed manually in vim with:
+#   :CocInstall coc-json coc-tsserver coc-pyright
+# Batch installation doesn't work reliably in non-interactive mode.
+echo "Note: Install CoC extensions manually in vim with :CocInstall coc-json coc-tsserver coc-pyright"
 
 # Install tmux plugin manager
 TMUX_PLUGIN_DIR="$HOME/.tmux/plugins/tpm"
 if [ ! -d "$TMUX_PLUGIN_DIR" ]; then
     echo "Installing tmux plugin manager..."
     git clone https://github.com/tmux-plugins/tpm "$TMUX_PLUGIN_DIR"
+fi
 
-    # Install tmux plugins
-    if [ -f "$HOME/.tmux.conf" ]; then
-        echo "Installing tmux plugins..."
-        $TMUX_PLUGIN_DIR/bin/install_plugins
-    else
-        echo "Warning: .tmux.conf not found. Skipping plugin installation."
-    fi
+# Install tmux plugins
+# Start a detached tmux session to source tmux.conf and initialize TPM, then install plugins
+if [ -d "$TMUX_PLUGIN_DIR" ] && [ -f "$HOME/.tmux.conf" ]; then
+    echo "Installing tmux plugins..."
+    tmux new-session -d -s _tpm_install "sleep 2" 2>/dev/null && sleep 0.5
+    "$TMUX_PLUGIN_DIR/bin/install_plugins" || true
+    tmux kill-session -t _tpm_install 2>/dev/null || true
 fi
 
 # Make Zsh the default shell and configure Zsh
 echo "Setting Zsh as the default shell and configuring Zsh..."
 if command -v zsh >/dev/null 2>&1; then
-    sudo chsh -s "$(which zsh)"
+    # Change shell for current user (not root)
+    sudo chsh -s "$(which zsh)" "$USER"
     
-    # Process .zshrc to remove 'wait' from zinit ice
+    # Process .zshrc to remove 'wait' from zinit ice for initial plugin install
     TEMP_ZSHRC="/tmp/zshrc_processed"
     sed "/zinit ice/s/wait'[^']*'//g" "$HOME/.zshrc" > "$TEMP_ZSHRC"
-    zsh -c "source $TEMP_ZSHRC; exit"
+    zsh -c "source $TEMP_ZSHRC; exit" || true
 else
     echo "Error: Zsh is not installed. Please install it and re-run this script."
     exit 1
 fi
 
-# Configure Neovim
-echo "Configuring Neovim..."
-mkdir -p "$HOME/.local/share/nvim"
-ln -sf "$HOME/.vim" "$HOME/.local/share/nvim/site"
-mkdir -p "$HOME/.config/nvim"
-ln -sf "$HOME/.vimrc" "$HOME/.config/nvim/init.vim"
+# Configure Neovim (share vim plugins via site symlink)
+# Note: ~/.config/nvim/init.vim is managed by stow and sources ~/.vimrc
+# TODO: Uncomment when neovim setup is fully working
+# echo "Configuring Neovim..."
+# mkdir -p "$HOME/.local/share/nvim"
+# ln -sf "$HOME/.vim" "$HOME/.local/share/nvim/site"
 
 echo "Setup completed successfully!"
