@@ -36,10 +36,19 @@ done
 echo "Initializing vim-plug and installing Vim plugins..."
 vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall || true
 
-# Note: CoC extensions should be installed manually in vim with:
-#   :CocInstall coc-json coc-tsserver coc-pyright
-# Batch installation doesn't work reliably in non-interactive mode.
-echo "Note: Install CoC extensions manually in vim with :CocInstall coc-json coc-tsserver coc-pyright"
+# Install CoC extensions via npm (more reliable than vim's :CocInstall in non-interactive mode)
+if command -v npm >/dev/null 2>&1; then
+    echo "Installing CoC extensions..."
+    COC_EXT_DIR="$HOME/.config/coc/extensions"
+    mkdir -p "$COC_EXT_DIR"
+    # Create package.json if it doesn't exist
+    if [ ! -f "$COC_EXT_DIR/package.json" ]; then
+        echo '{"dependencies":{}}' > "$COC_EXT_DIR/package.json"
+    fi
+    cd "$COC_EXT_DIR" && npm install --no-save coc-json coc-tsserver coc-pyright coc-snippets || true
+else
+    echo "Note: npm not found. Install CoC extensions manually in vim with :CocInstall coc-json coc-tsserver coc-pyright coc-snippets"
+fi
 
 # Install tmux plugin manager
 TMUX_PLUGIN_DIR="$HOME/.tmux/plugins/tpm"
