@@ -24,28 +24,30 @@ Rather than cluttering your actual project with AI context files, this separate 
 
 ## Directory Structure
 
+All files live under `~/.cursor/` (hidden) via stow symlinks from `~/rc_files/cursor/.cursor/`:
+
 ```
-~/rc_files/cursor/
-├── .cursor/
-│   └── rules/                    # Cursor rule files (.mdc)
-│       ├── python-style.mdc      # Python coding standards
-│       ├── workflow-review.mdc   # Review workflow with RVW: comments
-│       ├── task-management.mdc   # Task templates and tracking
-│       ├── debugging-tips.mdc    # Debugging tips and commands
-│       ├── workspace-context.mdc # General workspace guidelines
-│       ├── iree.mdc              # IREE-specific rules
-│       └── triton-ffm-development.mdc
-├── scripts/
-│   ├── review.py                 # Find RVW: comments, show commit stack
-│   ├── sync-status.sh            # Check git status across repos
-│   └── nuke-vscode.sh            # Kill stale VSCode remote server
-├── tasks/
-│   ├── active/                   # Currently active tasks
-│   │   └── example-task.md       # Task template
-│   └── completed/                # Archived completed tasks
-├── ACTIVE-TASKS.md               # Quick reference of current work
-├── directory-map.md              # Map of all project directories
-└── INSTRUCTIONS.md               # This file
+~/.cursor/
+├── rules/                        # Cursor rule files (.mdc) - Cursor auto-loads these
+│   ├── python-style.mdc          # Python coding standards
+│   ├── workflow-review.mdc       # Review workflow with RVW: comments
+│   ├── task-management.mdc       # Task templates and tracking
+│   ├── debugging-tips.mdc        # Debugging tips and commands
+│   ├── workspace-context.mdc     # General workspace guidelines
+│   ├── iree.mdc                  # IREE-specific rules
+│   └── ...
+└── workspace/                    # AI workspace files
+    ├── scripts/
+    │   ├── review.py             # Find RVW: comments, show commit stack
+    │   ├── sync-status.sh        # Check git status across repos
+    │   └── nuke-vscode.sh        # Kill stale VSCode remote server
+    ├── tasks/
+    │   ├── active/               # Currently active tasks
+    │   │   └── example-task.md   # Task template
+    │   └── completed/            # Archived completed tasks
+    ├── ACTIVE-TASKS.md           # Quick reference of current work
+    ├── directory-map.md          # Map of all project directories
+    └── INSTRUCTIONS.md           # This file
 ```
 
 ---
@@ -133,7 +135,7 @@ When reviewing AI-generated code, add inline comments:
 
 Use the review script:
 ```bash
-python ~/rc_files/cursor/scripts/review.py comments /path/to/repo
+python ~/.cursor/workspace/scripts/review.py comments /path/to/repo
 ```
 
 Or tell AI: "Find and process review comments"
@@ -163,7 +165,7 @@ AI: [shows full diff since main, suggests squash message]
 
 1. Copy the template:
    ```bash
-   cp ~/rc_files/cursor/tasks/active/example-task.md ~/rc_files/cursor/tasks/active/my-feature.md
+   cp ~/.cursor/workspace/tasks/active/example-task.md ~/.cursor/workspace/tasks/active/my-feature.md
    ```
 
 2. Fill in the sections:
@@ -184,7 +186,7 @@ AI will read the task file and pick up context.
 ### Completing Tasks
 
 ```bash
-mv ~/rc_files/cursor/tasks/active/my-feature.md ~/rc_files/cursor/tasks/completed/
+mv ~/.cursor/workspace/tasks/active/my-feature.md ~/.cursor/workspace/tasks/completed/
 ```
 
 Update `ACTIVE-TASKS.md` to remove from active and add to "Recently Completed".
