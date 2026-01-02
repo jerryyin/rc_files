@@ -105,6 +105,7 @@ services:
         USE_NPI_ROCM: "TRUE"
         USE_NPI_TORCH: "TRUE"
         ROCM_BUILD_NUMBER: "710"
+        FFM_DIR: "${FFM_DIR:-rocm-ffmlite-mi450-eaafd2a}"
     image: "jeryin/dev:mi450"
     profiles: ["triton-mi450"]
 
