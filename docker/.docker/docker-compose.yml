@@ -104,8 +104,7 @@ services:
         DOCKER_RENDERID: "107"  # render group GID so mirror user can access GPU nodes
         USE_NPI_ROCM: "TRUE"
         USE_NPI_TORCH: "TRUE"
-        ROCM_BUILD_NUMBER: "710"
-        FFM_DIR: "${FFM_DIR:-rocm-ffmlite-mi450-eaafd2a}"
+        ROCM_BUILD_NUMBER: "781"
     image: "jeryin/dev:mi450"
     profiles: ["triton-mi450"]
 
@@ -122,6 +121,10 @@ services:
       - tools-setup
       - mi450
     profiles: ["triton-mi450"]
+    # FFM volume mount - set FFM_DIR env var to switch versions
+    # e.g., FFM_DIR=~/rocm-ffmlite-mi450-NEW drun triton-mi450
+    volumes:
+      - ${FFM_DIR:-$HOME/rocm-ffmlite-mi450-eaafd2a}:/ffm
 
   iree:
     <<: *base-service
@@ -134,5 +137,3 @@ services:
     image: "jeryin/dev:iree"
     depends_on:
       - tools-setup  # Ensure tools-setup runs first
-
-
