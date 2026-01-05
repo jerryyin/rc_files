@@ -4,11 +4,16 @@ alwaysApply: false
 ---
 # FFM Environment for Triton Development
 
-When working on Triton with FFM (Functional Model) for gfx1250, the following environment setup is required.
+When working on Triton with FFM (Functional Model) for gfx1250.
 
-## Terminal Environment Variables
+## Automatic Setup
 
-Before running any Triton tests or compiling kernels in the terminal, ensure these environment variables are set:
+The FFM environment is **automatically loaded** by `~/.zshrc` when `/ffm` exists.
+No manual setup is required in interactive shells.
+
+## Environment Variables (Reference)
+
+These variables are set automatically by `load_ffm_env()` in `~/.zshrc`:
 
 ```bash
 # FFM HSA model configuration
@@ -23,9 +28,15 @@ export HSA_KMT_MODEL_GPUVM_BASE=0x4000
 export LD_LIBRARY_PATH="/opt/rocm/lib:/ffm:/ffm/lib:$LD_LIBRARY_PATH"
 ```
 
-## Quick Setup
+## Manual Setup (Non-Interactive Shells Only)
 
-If `/ffm` exists, you can source the environment with:
+If running in a non-interactive shell or script where `~/.zshrc` isn't sourced:
+
+```bash
+source ~/.zshrc  # Loads load_ffm_env() automatically
+```
+
+Or directly source the FFM environment:
 
 ```bash
 cd /ffm && source ./ffmlite_env.sh && cd -
