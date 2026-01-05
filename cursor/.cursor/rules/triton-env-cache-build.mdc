@@ -1,0 +1,108 @@
+---
+globs: **/triton*/**
+alwaysApply: false
+---
+# Triton Environment, Cache, and Build Reference
+
+Quick reference for environment variables, cache management, and build configuration.
+
+## IR Dump Environment Variables
+
+| Variable | Effect |
+|----------|--------|
+| `MLIR_ENABLE_DUMP=1` | Dump MLIR IR after each pass |
+| `LLVM_IR_ENABLE_DUMP=1` | Dump LLVM IR |
+| `AMDGCN_ENABLE_DUMP=1` | Dump AMD GCN assembly |
+
+**Usage:**
+```bash
+MLIR_ENABLE_DUMP=1 python script.py 2>&1 | tee ir_dump.txt
+```
+
+## Compilation Control
+
+| Variable | Effect |
+|----------|--------|
+| `TRITON_ALWAYS_COMPILE=1` | Skip cache, always recompile |
+| `TRITON_CACHE_DIR=/path` | Override cache directory |
+
+## AMD Backend Variables
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `AMDGCN_USE_BUFFER_OPS` | off | Enable buffer_load/store instructions |
+| `AMDGCN_USE_BUFFER_ATOMICS` | on | Enable buffer_atomics instructions |
+| `TRITON_HIP_USE_BLOCK_PINGPONG` | auto | Enable ping-pong scheduling for matmul |
+| `TRITON_HIP_USE_IN_THREAD_TRANSPOSE` | auto | Transpose loaded elements within thread before LDS store |
+| `TRITON_HIP_USE_ASYNC_COPY` | off | Enable direct-to-LDS loads |
+| `TRITON_HIP_GLOBAL_PREFETCH` | 0 | Stages between load and local_store |
+| `TRITON_HIP_LOCAL_PREFETCH` | 0 | Stages between local_load and dot |
+| `AMDGCN_SCALARIZE_PACKED_FOPS` | off | Break packed math ops into unpacked versions |
+
+## Cache Structure
+
+**Location:** `~/.triton/cache/<hash>/`
+
+| File Extension | Content |
+|----------------|---------|
+| `*.ttir` | Triton IR (high-level) |
+| `*.ttgir` | Triton GPU IR (with layouts) |
+| `*.llir` | LLVM IR |
+| `*.amdgcn` | AMD assembly |
+| `*.ptx` | NVIDIA PTX |
+| `*.hsaco` | AMD binary |
+| `*.cubin` | NVIDIA binary |
+| `*.json` | Compilation metadata |
+
+**Clear cache:**
+```bash
+rm -rf ~/.triton/cache
+```
+
+## Build from Source
+
+**Standard build (uses pre-built LLVM):**
+```bash
+cd triton && pip install -e .
+```
+
+**With custom LLVM:**
+```bash
+LLVM_BUILD_DIR=/path/to/llvm/build pip install -e .
+```
+
+**Limit parallel jobs:**
+```bash
+MAX_JOBS=8 pip install -e .
+```
+
+**Generate compile_commands.json:**
+Automatically generated at `${triton_src}/python/build/cmake.*/compile_commands.json`
+
+## Programmatic Cache Access
+
+```python
+compiled = my_kernel._compile(...)
+print(f"Cache hash: {compiled.hash}")
+# Files at: ~/.triton/cache/{compiled.hash}/
+```
+
+## Accessing Compiled Artifacts
+
+```python
+from triton.compiler import compile
+
+compiled = compile(kernel, ...)
+print(compiled.asm['ttir'])   # Triton IR
+print(compiled.asm['ttgir'])  # Triton GPU IR
+print(compiled.asm['llir'])   # LLVM IR
+print(compiled.asm['amdgcn']) # Assembly
+```
+
+## Metadata Inspection
+
+```python
+print(f"Shared memory: {compiled.metadata.shared}")
+print(f"Num warps: {compiled.metadata.num_warps}")
+print(f"Num stages: {compiled.metadata.num_stages}")
+```

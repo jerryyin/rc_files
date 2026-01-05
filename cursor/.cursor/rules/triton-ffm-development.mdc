@@ -1,5 +1,5 @@
 ---
-globs: **/triton/**
+globs: **/triton*/**
 alwaysApply: false
 ---
 # FFM Environment for Triton Development
