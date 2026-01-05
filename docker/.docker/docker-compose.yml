@@ -123,7 +123,11 @@ services:
     profiles: ["triton-mi450"]
     # FFM volume mount - set FFM_DIR env var to switch versions
     # e.g., FFM_DIR=~/rocm-ffmlite-mi450-NEW drun triton-mi450
+    # Note: Must duplicate base volumes since YAML merge replaces arrays entirely
     volumes:
+      - /data:/data
+      - $HOME:/zyin
+      - tools_volume:/usr/local
       - ${FFM_DIR:-$HOME/rocm-ffmlite-mi450-eaafd2a}:/ffm
 
   iree:
