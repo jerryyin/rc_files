@@ -439,7 +439,7 @@ function! ProjectTestFile()
     let l:file = expand('%:p')
     execute 'Dispatch pytest --tb=short -xvs ' . l:file
   elseif IsIreeProject()
-    execute "CMakeTest -R " . expand('%:t') . " --output-on-failure -E 'cuda\\|metal\\|vulkan\\|cpu\\|e2e'"
+    execute "CMakeTest -R " . expand('%:t') . " --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e\|cts'"
   else
     echo "Unknown project type"
   endif
@@ -478,7 +478,7 @@ function! ProjectTestAtCursor()
     call SetPytestCompiler()
     execute 'Dispatch pytest --tb=short -xvs ' . l:file . '::' . l:test_name
   elseif IsIreeProject()
-    execute "CMakeTest -R " . l:test_name . " --output-on-failure -E 'cuda\\|metal\\|vulkan\\|cpu\\|e2e'"
+    execute "CMakeTest -R " . l:test_name . " --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e\|cts'"
   else
     echo "Unknown project type"
   endif
@@ -490,7 +490,7 @@ function! ProjectTestAll()
     " Run both lit tests and C++ unit tests
     execute 'Dispatch make test-lit test-cpp'
   elseif IsIreeProject()
-    execute "CMakeTest all -j32 --output-on-failure -E 'cuda\\|metal\\|vulkan\\|cpu\\|e2e'"
+    execute "CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e\|cts'"
   else
     echo "Unknown project type"
   endif
