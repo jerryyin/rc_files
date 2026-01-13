@@ -273,6 +273,14 @@ export PATH=~/iree/third_party/llvm-project/build/bin:$PATH
 export PYTHONPATH=~/iree/build/model/compiler/bindings/python:~/iree/build/model/runtime/bindings/python:$PYTHONPATH
 export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=4096
 
+# Triton tools (triton-opt, triton-llvm-opt, triton-lsp, triton-reduce, triton-tensor-layout)
+# Uses glob to find build directory regardless of Python version
+TRITON_BUILD=$(command ls -d ~/triton-mi450/build/cmake.* 2>/dev/null | head -1)
+if [[ -n "$TRITON_BUILD" && -d "$TRITON_BUILD/bin" ]]; then
+  export PATH="$TRITON_BUILD/bin:$PATH"
+fi
+export PYTHONPATH=~/triton-mi450/python:$PYTHONPATH
+
 #zprof
 #
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
