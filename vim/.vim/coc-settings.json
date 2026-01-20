@@ -28,7 +28,7 @@
     },
     "triton-mlir": {
       "command": "python3",
-      "args": ["${workspaceFolder}/scripts/triton/triton_lsp.py"],
+      "args": ["~/scripts/triton/triton_lsp.py"],
       "filetypes": ["mlir"],
       "rootPatterns": ["python/triton/__init__.py", "include/triton", "bin/triton-lsp.cpp"],
     },
