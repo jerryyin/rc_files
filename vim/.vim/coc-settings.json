@@ -17,13 +17,20 @@
         "--all-scopes-completion",
         "--completion-style=detailed",
         "--header-insertion=iwyu",
-        "--pch-storage=memory"
+        "--pch-storage=memory",
+        "--localstorage-file=/tmp/clangd-local.idx"
       ],
     },
     "mlir": {
       "command": "iree-mlir-lsp-server",
       "filetypes": ["mlir"],
-      "rootPatterns": [".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git/"],
+      "rootPatterns": ["compiler/src/iree", "runtime/src/iree", "tools/iree-compile", "tools/iree-opt"],
+    },
+    "triton-mlir": {
+      "command": "python3",
+      "args": ["${workspaceFolder}/scripts/triton/triton_lsp.py"],
+      "filetypes": ["mlir"],
+      "rootPatterns": ["python/triton/__init__.py", "include/triton", "bin/triton-lsp.cpp"],
     },
   }
 }
