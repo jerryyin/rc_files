@@ -382,9 +382,10 @@ let g:dispatch_no_maps = 1
 nnoremap <leader>qo :Copen<CR>:10wincmd_<CR>
 nnoremap <leader>qc :cclose<CR>
 
-" Project detection helper - check if repo name is in current path
+" Project detection helper - check if repo name contains 'triton' anywhere
 function! IsTritonProject()
-  return getcwd() =~ '/triton'
+  " Match any path containing 'triton' (e.g., /triton, /triton-mi450, /my-triton-fork)
+  return getcwd() =~? 'triton'
 endfunction
 
 function! IsIreeProject()
@@ -710,6 +711,10 @@ let g:tmuxline_powerline_separators = 0
 " Extensions
 let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright', 'coc-snippets']
 let g:coc_disable_startup_warning = 1
+" Work around Node 25 localStorage requirement: provide a storage file for coc's node runtime
+silent! call mkdir(expand('~/.cache'), 'p')
+silent! call writefile([], expand('~/.cache/coc-node-localstorage'), 'a')
+let g:coc_node_args = ['--localstorage-file', expand('~/.cache/coc-node-localstorage')]
 
 " Use <c-t> to trigger completion
 inoremap <silent><expr> <c-t> coc#refresh()
