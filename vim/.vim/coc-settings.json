@@ -26,14 +26,10 @@
       "rootPatterns": ["compiler/src/iree", "runtime/src/iree", "tools/iree-compile", "tools/iree-opt"],
     },
     "triton-mlir": {
-      "command": "/root/scripts/triton/triton_lsp.py",
+      "command": "sh",
+      "args": ["-c", "TRITON_REPO_ROOT=$(echo ~/triton-mi450) exec ~/scripts/triton/triton_lsp.py \"$@\"", "--"],
       "filetypes": ["mlir"],
-      "rootPatterns": ["python/triton/__init__.py", "include/triton", "bin/triton-lsp.cpp"],
-      "initializationOptions": {},
-      "settings": {},
-      "env": {
-        "TRITON_REPO_ROOT": "/root/triton-mi450"
-      }
+      "rootPatterns": ["python/triton/__init__.py", "include/triton", "bin/triton-lsp.cpp"]
     }
   }
 }
