@@ -17,8 +17,7 @@
         "--all-scopes-completion",
         "--completion-style=detailed",
         "--header-insertion=iwyu",
-        "--pch-storage=memory",
-        "--localstorage-file=/tmp/clangd-local.idx"
+        "--pch-storage=memory"
       ],
     },
     "mlir": {
