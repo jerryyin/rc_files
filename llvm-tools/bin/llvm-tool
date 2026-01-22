@@ -1,0 +1,141 @@
+#!/bin/bash
+# Unified LLVM/MLIR tool dispatcher
+# Detects project type and finds the appropriate binary
+
+TOOL_NAME=$(basename "$0")
+
+# Hint from tool name prefix
+case "$TOOL_NAME" in
+    triton-*) HINT="triton" ;;
+    iree-*)   HINT="iree" ;;
+    *)        HINT="" ;;
+esac
+
+# Tool name mapping for generic tools (resolved after project detection)
+declare -A TOOL_MAP_TRITON=(
+    ["mlir-lsp"]="triton-lsp"
+)
+declare -A TOOL_MAP_IREE=(
+    ["mlir-lsp"]="iree-mlir-lsp-server"
+)
+
+# Resolve actual tool name based on project type
+resolve_tool_name() {
+    local project_type="$1"
+    local tool_name="$2"
+    
+    case "$project_type" in
+        triton)
+            echo "${TOOL_MAP_TRITON[$tool_name]:-$tool_name}"
+            ;;
+        iree)
+            echo "${TOOL_MAP_IREE[$tool_name]:-$tool_name}"
+            ;;
+        *)
+            echo "$tool_name"
+            ;;
+    esac
+}
+
+# Project detection from PWD
+find_project() {
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        # Check for Triton markers
+        if [[ -f "$dir/python/triton/__init__.py" ]] || [[ -d "$dir/include/triton" ]]; then
+            echo "triton:$dir"
+            return
+        fi
+        # Check for IREE markers
+        if [[ -d "$dir/compiler/src/iree" ]] || [[ -d "$dir/runtime/src/iree" ]]; then
+            echo "iree:$dir"
+            return
+        fi
+        dir="$(dirname "$dir")"
+    done
+    echo "unknown:"
+}
+
+# Find project roots (searches common locations)
+find_project_root() {
+    local project_type="$1"
+    
+    # Search in home directory for matching repos
+    case "$project_type" in
+        triton)
+            for repo in "$HOME"/triton* "$HOME"/*/triton*; do
+                if [[ -d "$repo" ]] && [[ -f "$repo/python/triton/__init__.py" ]]; then
+                    echo "$repo"
+                    return
+                fi
+            done
+            ;;
+        iree)
+            for repo in "$HOME"/iree* "$HOME"/*/iree*; do
+                if [[ -d "$repo" ]] && [[ -d "$repo/compiler/src/iree" ]]; then
+                    echo "$repo"
+                    return
+                fi
+            done
+            ;;
+    esac
+}
+
+# Find binary in project's build directory
+find_binary() {
+    local project_root="$1"
+    local tool_name="$2"
+    
+    if [[ -n "$project_root" ]] && [[ -d "$project_root/build" ]]; then
+        # Find the most recently modified matching binary
+        find "$project_root/build" -name "$tool_name" -type f -executable 2>/dev/null | \
+            xargs -r ls -t 2>/dev/null | head -1
+    fi
+}
+
+# Main logic
+PROJECT_INFO=$(find_project)
+PROJECT_TYPE="${PROJECT_INFO%%:*}"
+PROJECT_ROOT="${PROJECT_INFO#*:}"
+
+# Resolve tool name based on detected project (handles mlir-lsp -> triton-lsp etc.)
+RESOLVED_TOOL=$(resolve_tool_name "$PROJECT_TYPE" "$TOOL_NAME")
+
+# If we detected a project from PWD, use it
+if [[ "$PROJECT_TYPE" != "unknown" ]] && [[ -n "$PROJECT_ROOT" ]]; then
+    BINARY=$(find_binary "$PROJECT_ROOT" "$RESOLVED_TOOL")
+fi
+
+# If not found and we have a hint from tool name prefix, search for that project
+if [[ -z "$BINARY" ]] && [[ -n "$HINT" ]]; then
+    PROJECT_ROOT=$(find_project_root "$HINT")
+    if [[ -n "$PROJECT_ROOT" ]]; then
+        BINARY=$(find_binary "$PROJECT_ROOT" "$TOOL_NAME")
+    fi
+fi
+
+# If still not found for generic tools (mlir-*), try each project type
+if [[ -z "$BINARY" ]] && [[ -z "$HINT" ]]; then
+    for try_type in triton iree; do
+        PROJECT_ROOT=$(find_project_root "$try_type")
+        if [[ -n "$PROJECT_ROOT" ]]; then
+            RESOLVED_TOOL=$(resolve_tool_name "$try_type" "$TOOL_NAME")
+            BINARY=$(find_binary "$PROJECT_ROOT" "$RESOLVED_TOOL")
+            [[ -n "$BINARY" ]] && break
+        fi
+    done
+fi
+
+# Execute if found
+if [[ -x "$BINARY" ]]; then
+    exec "$BINARY" "$@"
+fi
+
+# Error message with helpful info
+echo "Error: $TOOL_NAME not found" >&2
+if [[ -n "$PROJECT_ROOT" ]]; then
+    echo "  Searched in: $PROJECT_ROOT/build" >&2
+else
+    echo "  No project detected. Build the project first or cd into it." >&2
+fi
+exit 1

@@ -5,6 +5,9 @@ export TERM=xterm-256color
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
+# Add ~/bin to PATH for user scripts
+export PATH="$HOME/bin:$PATH"
+
 # TMUX
 # # If not running interactively, do not do anything
 # # This configuration allows multiple tmux sessions
@@ -244,41 +247,14 @@ function dbuild() {
 export CLICOLOR_FORCE=1
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 
-function export_iree_tools() {
-  local BUILD_DIR="${1:-$HOME/iree/build}"
-  local SYMLINK="$BUILD_DIR/compile_commands.json"
-
-  if [[ ! -L "$SYMLINK" ]]; then
-    return
-  fi
-
-  # Resolve the symlink target
-  local TARGET
-  TARGET=$(readlink "$SYMLINK")
-
-  # Extract the directory containing compile_commands.json
-  local BUILD_TYPE_DIR
-  BUILD_TYPE_DIR=$(dirname "$TARGET")
-
-  # Ensure it's a valid directory
-  if [[ -d "$BUILD_TYPE_DIR/tools" ]]; then
-    export PATH="$BUILD_TYPE_DIR/tools:$PATH"
-  fi
-
-}
-export_iree_tools
+# IREE environment
 export PATH=~/iree/build/model/tracy:$PATH
 export PATH=~/iree/third_party/tracy/csvexport/build:$PATH
 export PATH=~/iree/third_party/llvm-project/build/bin:$PATH
 export PYTHONPATH=~/iree/build/model/compiler/bindings/python:~/iree/build/model/runtime/bindings/python:$PYTHONPATH
 export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=4096
 
-# Triton tools (triton-opt, triton-llvm-opt, triton-lsp, triton-reduce, triton-tensor-layout)
-# Uses glob to find build directory regardless of Python version
-TRITON_BUILD=$(command ls -d ~/triton-mi450/build/cmake.* 2>/dev/null | head -1)
-if [[ -n "$TRITON_BUILD" && -d "$TRITON_BUILD/bin" ]]; then
-  export PATH="$TRITON_BUILD/bin:$PATH"
-fi
+# Triton environment
 export PYTHONPATH=~/triton-mi450/python:$PYTHONPATH
 
 #zprof

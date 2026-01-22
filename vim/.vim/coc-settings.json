@@ -21,15 +21,13 @@
       ],
     },
     "mlir": {
-      "command": "iree-mlir-lsp-server",
+      "command": "mlir-lsp",
       "filetypes": ["mlir"],
-      "rootPatterns": ["compiler/src/iree", "runtime/src/iree", "tools/iree-compile", "tools/iree-opt"],
-    },
-    "triton-mlir": {
-      "command": "sh",
-      "args": ["-c", "TRITON_REPO_ROOT=$(echo ~/triton-mi450) exec ~/scripts/triton/triton_lsp.py \"$@\"", "--"],
-      "filetypes": ["mlir"],
-      "rootPatterns": ["python/triton/__init__.py", "include/triton", "bin/triton-lsp.cpp"]
+      "rootPatterns": [
+        "python/triton/__init__.py", "include/triton",
+        "compiler/src/iree", "runtime/src/iree",
+        ".git"
+      ]
     }
   }
 }
