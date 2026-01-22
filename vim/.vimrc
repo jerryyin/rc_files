@@ -282,6 +282,11 @@ augroup ft
   autocmd BufNewFile,BufRead *.inc set syntax=cpp
   autocmd BufNewFile,BufRead *.dockerfile set filetype=dockerfile
   autocmd FileType pov setlocal syntax=cpp
+  " Triton IR file extensions -> mlir syntax
+  autocmd BufNewFile,BufRead *.ttir set filetype=mlir
+  autocmd BufNewFile,BufRead *.ttgir set filetype=mlir
+  autocmd BufNewFile,BufRead *.llir set filetype=llvm
+  autocmd BufNewFile,BufRead *.amdgcn set filetype=asm
 augroup END
 
 " Auto-pair
