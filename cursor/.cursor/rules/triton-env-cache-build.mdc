@@ -10,21 +10,56 @@ Quick reference for environment variables, cache management, and build configura
 
 | Variable | Effect |
 |----------|--------|
-| `MLIR_ENABLE_DUMP=1` | Dump MLIR IR after each pass |
+| `MLIR_ENABLE_DUMP=1` | Dump MLIR IR after each pass (or `=func_name` for specific function) |
 | `LLVM_IR_ENABLE_DUMP=1` | Dump LLVM IR |
 | `AMDGCN_ENABLE_DUMP=1` | Dump AMD GCN assembly |
+| `NVPTX_ENABLE_DUMP=1` | Dump NVIDIA PTX assembly |
+| `TRITON_DUMP_MIR=<path>` | Dump Machine IR to specified path |
+| `TRITON_SAVETEMPS_DIR=<path>` | Save all intermediate IR files to directory |
 
 **Usage:**
 ```bash
 MLIR_ENABLE_DUMP=1 python script.py 2>&1 | tee ir_dump.txt
+TRITON_SAVETEMPS_DIR=./ir_output python script.py  # Saves .ttir, .ttgir, .llir, etc.
 ```
+
+## Debug Logging (LLVM Debug Infrastructure)
+
+| Variable | Effect |
+|----------|--------|
+| `TRITON_ENABLE_LLVM_DEBUG=1` | Enable ALL LLVM debug output (very verbose) |
+| `TRITON_LLVM_DEBUG_ONLY=<type>` | Enable debug only for specific `DEBUG_TYPE` |
+| `MLIR_ENABLE_DIAGNOSTICS=<level>` | Enable MLIR diagnostics |
+| `MLIR_ENABLE_TIMING=1` | Show pass timing information |
+
+**Usage (requires `DEBUG=1` build):**
+```bash
+# Build with debug enabled first
+DEBUG=1 pip install -e . --no-build-isolation
+
+# Run with filtered debug output (DEBUG_TYPE from C++ file header)
+TRITON_LLVM_DEBUG_ONLY=tritonamdgpu-pipeline-lower-loops python script.py 2>&1 | grep "Pattern"
+```
+
+**Adding debug logs in C++ passes:** Use `LDBG("message " << value)` macro.
 
 ## Compilation Control
 
 | Variable | Effect |
 |----------|--------|
 | `TRITON_ALWAYS_COMPILE=1` | Skip cache, always recompile |
-| `TRITON_CACHE_DIR=/path` | Override cache directory |
+| `TRITON_CACHE_DIR=<path>` | Override cache directory |
+| `DISABLE_LLVM_OPT=1` | Disable LLVM optimizations |
+| `MLIR_DISABLE_MULTITHREADING=1` | Disable multithreading (useful for debugging) |
+
+## Debugging/Troubleshooting
+
+| Variable | Effect |
+|----------|--------|
+| `TRITON_DEBUG=1` | Enable runtime device asserts (`tl.device_assert`) |
+| `TRITON_REPRODUCER_PATH=<path>` | Save crash reproducer to path |
+| `TRITON_ENABLE_PYTHON_STACKTRACE=1` | Show Python stacktrace on errors |
+| `TRITON_ENABLE_ASAN=1` | Enable address sanitizer |
 
 ## AMD Backend Variables
 
@@ -63,7 +98,17 @@ rm -rf ~/.triton/cache
 
 **Standard build (uses pre-built LLVM):**
 ```bash
-cd triton && pip install -e .
+cd triton && pip install -e . --no-build-isolation
+```
+
+**Debug build (enables LLVM_DEBUG macros):**
+```bash
+DEBUG=1 pip install -e . --no-build-isolation
+```
+
+**Incremental C++ rebuild (after initial build):**
+```bash
+make all  # or: ninja -C build/cmake.linux-x86_64-cpython-3.12
 ```
 
 **With custom LLVM:**
@@ -77,7 +122,7 @@ MAX_JOBS=8 pip install -e .
 ```
 
 **Generate compile_commands.json:**
-Automatically generated at `${triton_src}/python/build/cmake.*/compile_commands.json`
+Automatically generated at `${triton_src}/build/cmake.*/compile_commands.json`
 
 ## Programmatic Cache Access
 
