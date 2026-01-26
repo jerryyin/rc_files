@@ -649,7 +649,19 @@ nnoremap <leader>gg :call <SID>toggle_gstatus()<CR>
 nmap <leader>gb :Git blame<CR>
 nmap <leader>gc :Git commit<CR>
 nmap <leader>gd :Gvdiffsplit<CR>
-nmap <leader>gf :Git clang-format<CR>
+function! s:GitClangFormatHere() abort
+  let l:bufdir = expand('%:p:h')
+  let l:root = systemlist('git -C ' . shellescape(l:bufdir) . ' rev-parse --show-toplevel')
+  if v:shell_error || empty(l:root)
+    echo "Not a git repo"
+    return
+  endif
+  let l:cwd = getcwd()
+  execute 'cd ' . fnameescape(l:root[0])
+  Git clang-format
+  execute 'cd ' . fnameescape(l:cwd)
+endfunction
+nmap <leader>gf :call <SID>GitClangFormatHere()<CR>
 nmap <leader>gp :Git pull --rebase<CR>
 nmap <leader>gl :Gclog<CR>
 nmap <leader>gw :Gwrite<CR>
