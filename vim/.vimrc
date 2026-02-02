@@ -494,7 +494,7 @@ endfunction
 function! ProjectTestAll()
   if IsTritonProject()
     " Run both lit tests and C++ unit tests
-    execute 'Dispatch make test-lit test-cpp'
+    execute 'Dispatch make test-nogpu'
   elseif IsIreeProject()
     execute "CMakeTest all -j32 --output-on-failure -E 'cuda\|metal\|vulkan\|cpu\|e2e\|cts'"
   else
