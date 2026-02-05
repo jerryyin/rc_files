@@ -2,6 +2,10 @@
 ARG BASE_IMAGE=ubuntu:24.04
 FROM ${BASE_IMAGE}
 
+# Reset ENTRYPOINT from any base image so docker-compose command works correctly
+# (e.g., triton-mi450.dockerfile uses shell-form ENTRYPOINT which ignores CMD)
+ENTRYPOINT []
+
 USER root
 WORKDIR /root
 
