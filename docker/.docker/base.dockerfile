@@ -29,7 +29,7 @@ RUN echo "Service name is: $SERVICE_NAME"; \
       bash scripts/docker/env/mlir.sh; \  
     elif [ "$SERVICE_NAME" = "triton" ]; then \  
       echo "Running additional setup for triton"; \  
-      bash scripts/docker/env/iree.sh; \  
+      bash scripts/docker/env/triton.sh; \  
       bash scripts/docker/workspace/triton.sh; \  
     elif [ "$SERVICE_NAME" = "iree" ]; then \  
       echo "Running additional setup for iree"; \  
