@@ -1,13 +1,20 @@
 ---
-description: Prevent Cursor signature/trailer in git commits
+description: Commit messages must contain exactly what was planned — nothing added, nothing removed
 alwaysApply: true
 ---
 
-# No Cursor Signature in Commits
+# Strict Commit Message Integrity
 
-When creating git commits, NEVER include any Cursor-related trailers or signatures such as:
-- `Made-with: Cursor`
-- `Co-authored-by: Cursor <cursoragent@cursor.com>`
-- Any other auto-appended Cursor attribution
+The commit message that lands in git history MUST be exactly what was composed — no extra lines, trailers, signatures, or metadata appended by any tool, IDE, or automation.
 
-If Cursor automatically appends these trailers to a commit, immediately amend the commit to strip them before proceeding.
+## Rules
+
+1. **No auto-appended content.** Strip any trailers or lines that were not part of the planned message, including but not limited to:
+   - `Made-with: ...`
+   - `Co-authored-by: ...`
+   - `Signed-off-by: ...` (unless the user explicitly requested it)
+   - Any other key-value trailer or footer injected by tooling
+
+2. **Verify after every commit.** Run `git log -1 --format="%B"` immediately after committing. If the message contains anything beyond what was intended, amend the commit to remove the extra content before proceeding (e.g. `GIT_EDITOR="sed -i '/^Made-with:/d'" git commit --amend --no-verify`).
+
+3. **Do not add your own extras.** Never insert attribution, explanatory footers, or sign-off lines unless the user asks for them.
