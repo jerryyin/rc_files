@@ -1,0 +1,13 @@
+---
+description: Prevent Cursor signature/trailer in git commits
+alwaysApply: true
+---
+
+# No Cursor Signature in Commits
+
+When creating git commits, NEVER include any Cursor-related trailers or signatures such as:
+- `Made-with: Cursor`
+- `Co-authored-by: Cursor <cursoragent@cursor.com>`
+- Any other auto-appended Cursor attribution
+
+If Cursor automatically appends these trailers to a commit, immediately amend the commit to strip them before proceeding.
