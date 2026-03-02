@@ -130,6 +130,22 @@ services:
       - tools_volume:/usr/local
       - ${FFM_DIR:-$HOME/rocm-ffmlite-mi450-eaafd2a}:/ffm
 
+  triton-mi450-am:
+    <<: *base-service
+    image: "jeryin/dev:triton-mi450"
+    depends_on:
+      - tools-setup
+      - mi450
+    profiles: ["triton-mi450-am"]
+    # AM+FFM volume mount - set AM_FFM_DIR env var to switch versions
+    # e.g., AM_FFM_DIR=~/rocdtif-7.1-am+ffmlite-mi400-r2.03 drun triton-mi450-am
+    # Note: Must duplicate base volumes since YAML merge replaces arrays entirely
+    volumes:
+      - /data:/data
+      - $HOME:/zyin
+      - tools_volume:/usr/local
+      - ${AM_FFM_DIR:-$HOME/rocdtif-7.1-am+ffmlite-mi400-r2.03}:/am-ffm
+
   iree:
     <<: *base-service
     build:
