@@ -32,6 +32,13 @@ for dir in $(ls -d "$REPO_DIR"/*/ | awk -F "/" '{print $(NF-1)}'); do
     stow -d "$REPO_DIR" "$dir" -v -R -t "$HOME"
 done
 
+# Install Claude Code CLI and patch subscription key
+CLAUDE_SETUP="$HOME/scripts/docker/env/claude.sh"
+if [ -f "$CLAUDE_SETUP" ]; then
+    echo "Running Claude Code setup..."
+    bash "$CLAUDE_SETUP" || true
+fi
+
 # Initialize vim-plug and install plugins
 echo "Initializing vim-plug and installing Vim plugins..."
 vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall || true

@@ -1,0 +1,34 @@
+{
+  "numStartups": 0,
+  "installMethod": "native",
+  "autoUpdates": false,
+  "customApiKeyResponses": {
+    "approved": [
+      "dummy"
+    ],
+    "rejected": []
+  },
+  "env": {
+    "ANTHROPIC_API_KEY": "dummy",
+    "ANTHROPIC_BASE_URL": "https://llm-api.amd.com/Anthropic",
+    "ANTHROPIC_CUSTOM_HEADERS": "Ocp-Apim-Subscription-Key: __CLAUDE_SUB_KEY__",
+    "ANTHROPIC_MODEL": "Claude-Sonnet-4.5",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "Claude-Opus-4.5",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "Claude-Sonnet-4.5",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "Claude-Haiku-4.5",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "hasCompletedOnboarding": true,
+  "skipWelcome": true,
+  "skipApiKeyConfirmation": true,
+  "acceptedTerms": true,
+  "sonnet45MigrationComplete": true,
+  "opus45MigrationComplete": true,
+  "opusProMigrationComplete": true,
+  "thinkingMigrationComplete": true,
+  "officialMarketplaceAutoInstallAttempted": true,
+  "officialMarketplaceAutoInstalled": true,
+  "subscriptionNoticeCount": 0,
+  "hasAvailableSubscription": false,
+  "autoUpdatesProtectedForNative": true
+}

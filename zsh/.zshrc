@@ -16,13 +16,13 @@ export PATH="$HOME/bin:$PATH"
 
 # This configuration allows attaching to one base session
 # https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
-if command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]]; then
-  base_session=$(whoami)
-  if ! tmux has-session -t "$base_session" 2>/dev/null; then
-    tmux -2u new-session -d -s "$base_session"
-  fi
-  tmux -2u attach-session -t "$base_session"
-fi
+#if command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]]; then
+#  base_session=$(whoami)
+#  if ! tmux has-session -t "$base_session" 2>/dev/null; then
+#    tmux -2u new-session -d -s "$base_session"
+#  fi
+#  tmux -2u attach-session -t "$base_session"
+#fi
 
 # Load p10k instant promopt
 if [[ -r "$HOME/.p10k-lean.zsh" ]]; then
@@ -286,3 +286,6 @@ if [ -f "${SSH_ENV}" ]; then
 else
     start_agent
 fi
+
+# Add ~/.local/bin to PATH (for Claude Code)
+export PATH="$HOME/.local/bin:$PATH"
