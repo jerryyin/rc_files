@@ -880,3 +880,59 @@ function! Rnvar()
   execute start . ',' . end . 's/\V\<'.word_to_replace.'\>/'.replacement.'/gc'
 endfunction
 nnoremap <leader>rn :call Rnvar()<CR>
+
+" ============================================================================
+" Claude Code Integration (tmux-based)
+" ============================================================================
+" Prerequisite: Claude running in tmux split (manual: tmux split-window -h claude)
+" Usage:
+"   - Visual mode: Select code, hit \c  -> sends selection with context
+"   - Normal mode: Hit \c               -> sends entire buffer with line numbers
+" ============================================================================
+
+xnoremap <leader>cc :call SendToClaudeVisual()<CR>
+nnoremap <leader>cc :call SendToClaudeBuffer()<CR>
+
+" Helper: paste text into Claude tmux pane (no Enter, no screen flash)
+function! s:PasteToClaudeTmux(text)
+    let temp = tempname()
+    call writefile(split(a:text, "\n", 1), temp)
+    call system('tmux load-buffer ' . shellescape(temp))
+    call system('tmux paste-buffer -t {last}')
+    call delete(temp)
+endfunction
+
+function! SendToClaudeVisual() range
+    if empty($TMUX)
+        echo "Error: Not in tmux"
+        return
+    endif
+
+    " a:firstline and a:lastline are set by vim from the visual selection
+    let line_start = a:firstline
+    let line_end = a:lastline
+    let lines = getline(line_start, line_end)
+    let filename = expand('%:t')
+
+    " Build context header + code
+    let text = printf("File: %s (lines %d-%d)\n\n", filename, line_start, line_end)
+    let text .= join(lines, "\n")
+
+    call s:PasteToClaudeTmux(text)
+    echo "Pasted to Claude: " . filename . " (lines " . line_start . "-" . line_end . ")"
+endfunction
+
+function! SendToClaudeBuffer()
+    if empty($TMUX)
+        echo "Error: Not in tmux"
+        return
+    endif
+
+    " Just send file reference - Claude can read the file itself
+    let filepath = expand('%:p')
+    let cursor_line = line('.')
+    let text = filepath . ":" . cursor_line
+
+    call s:PasteToClaudeTmux(text)
+    echo "Pasted to Claude: " . text
+endfunction

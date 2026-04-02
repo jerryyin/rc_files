@@ -1,29 +1,30 @@
 {
-    "permissions": {
-        "deny": [
-            "Read(./.env)",
-            "Read(./.env.*)",
-            "Read(./secrets/**)",
-            "Read(./.aws/**)",
-            "Read(~/.ssh/**)",
-            "Read(./config/credentials.json)",
-            "Read(./appsettings.*.json)",
-            "Bash(curl:*)",
-            "Bash(wget:*)",
-            "Bash(rm -rf:*)",
-            "WebFetch"
-        ],
-        "ask": [
-            "Bash(git push:*)",
-            "Bash(npm publish:*)",
-            "Bash(docker:*)",
-            "Bash(kubectl:*)"
-        ]
-    },
-    "companyAnnouncements": [
-        "Welcome to Claude Code - AMD Edition!",
-        "Review AMD coding standards before committing code",
-        "Security reminder: Never commit credentials, API keys, or sensitive data",
-        "Tip: Use /help to see available commands and features"
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./.aws/**)",
+      "Read(~/.ssh/**)",
+      "Read(./config/credentials.json)",
+      "Read(./appsettings.*.json)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(rm -rf:*)",
+      "WebFetch"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(npm publish:*)",
+      "Bash(docker:*)",
+      "Bash(kubectl:*)"
     ]
+  },
+  "companyAnnouncements": [
+    "Welcome to Claude Code - AMD Edition!",
+    "Review AMD coding standards before committing code",
+    "Security reminder: Never commit credentials, API keys, or sensitive data",
+    "Tip: Use /help to see available commands and features"
+  ],
+  "model": "opus"
 }
