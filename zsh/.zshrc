@@ -289,3 +289,6 @@ fi
 
 # Add ~/.local/bin to PATH (for Claude Code)
 export PATH="$HOME/.local/bin:$PATH"
+
+# Sandbox environment
+export IS_SANDBOX=1
