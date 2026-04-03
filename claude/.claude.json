@@ -12,11 +12,12 @@
     "ANTHROPIC_API_KEY": "dummy",
     "ANTHROPIC_BASE_URL": "https://llm-api.amd.com/Anthropic",
     "ANTHROPIC_CUSTOM_HEADERS": "Ocp-Apim-Subscription-Key: __CLAUDE_SUB_KEY__",
-    "ANTHROPIC_MODEL": "Claude-Sonnet-4.5",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "Claude-Opus-4.5",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "Claude-Sonnet-4.5",
+    "ANTHROPIC_MODEL": "Claude-Opus-4.6",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "Claude-Opus-4.6",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "Claude-Sonnet-4.6",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "Claude-Haiku-4.5",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1"
   },
   "hasCompletedOnboarding": true,
   "skipWelcome": true,
