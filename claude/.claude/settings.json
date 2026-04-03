@@ -1,5 +1,4 @@
 {
-  "model": "opus",
   "env": {
     "CLAUDE_CODE_EFFORT_LEVEL": "max",
     "IS_SANDBOX": "1"
@@ -9,7 +8,6 @@
     "pr": ""
   },
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "allow": [
       "Bash(*)",
       "Read(*)",
@@ -21,6 +19,9 @@
       "Read(./.env)",
       "Read(./.env.*)",
       "Read(./secrets/**)"
-    ]
-  }
+    ],
+    "defaultMode": "bypassPermissions"
+  },
+  "model": "claude-opus-4-6",
+  "skipDangerousModePermissionPrompt": true
 }
