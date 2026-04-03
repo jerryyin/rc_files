@@ -1,5 +1,9 @@
 {
   "model": "opus",
+  "env": {
+    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "IS_SANDBOX": "1"
+  },
   "attribution": {
     "commit": "",
     "pr": ""
