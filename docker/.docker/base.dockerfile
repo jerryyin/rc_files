@@ -14,7 +14,11 @@ RUN printf 'Acquire::http::proxy "%s";\nAcquire::https::proxy "%s";\n' "${HTTP_P
 WORKDIR /root
 
 ARG SERVICE_NAME
-RUN apt-get update && apt-get -y install wget && \
-    wget -qO /tmp/setup-service.sh https://raw.githubusercontent.com/jerryyin/scripts/master/docker/setup-service.sh && \
-    bash /tmp/setup-service.sh "$SERVICE_NAME"
+# Clone scripts.git first so setup-service.sh can run from its canonical
+# location with no self-bootstrap dance. min.sh's own `if [ ! -d scripts ]`
+# check makes its clone block a no-op here.
+RUN apt-get update && apt-get -y install git ca-certificates && \
+    git clone --depth 1 https://github.com/jerryyin/scripts.git /root/scripts && \
+    git -C /root/scripts remote set-url origin git@github.com:jerryyin/scripts.git && \
+    bash /root/scripts/docker/setup-service.sh "$SERVICE_NAME"
 
