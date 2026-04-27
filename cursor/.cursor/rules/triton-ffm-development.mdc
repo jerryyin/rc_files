@@ -2,43 +2,37 @@
 globs: **/triton*/**
 alwaysApply: false
 ---
-# FFM Environment for Triton Development
+# AM/FFM Environment for Triton Development
 
-When working on Triton with FFM (Functional Model) for gfx1250.
+When working on Triton with the AM/FFM functional simulator for gfx1250
+(MI450). The canonical wrapper is `~/scripts/tools/run_on_model.sh`.
 
-## Automatic Setup
+## Defaults
 
-The FFM environment is **automatically loaded** by `~/.zshrc` when `/ffm` exists.
-No manual setup is required in interactive shells.
+- **Package directory**: `/am-ffm`.
+- **Backend**: FFM (`ffmlite_env.sh`).
 
-## Environment Variables (Reference)
+## Interactive Shells
 
-These variables are set automatically by `load_ffm_env()` in `~/.zshrc`:
+`~/.zshrc` calls `load_ffm_env` at startup. It sources
+`/am-ffm/ffmlite_env.sh` (which sets `HSA_MODEL_LIB`, `HSA_MODEL_TOPOLOGY`,
+`HSA_KMT_MODEL_GPUVM_BASE`, and adds `/am-ffm/rocm` to `LD_LIBRARY_PATH`),
+then prepends `/opt/rocm/lib` so the system `libamd_smi` / `libroctx64`
+shadow the bundled copies. Idempotent via `$_TRITON_MODEL_PKG`.
+
+## One-off Commands
+
+For scripts, CI reproductions, or non-interactive shells, prefer the wrapper:
 
 ```bash
-# FFM HSA model configuration
-export TEST_SUIT_DIR="/ffm"
-export HSA_MODEL_LIB="/ffm/lib/libhsakmtmodel.so"
-export HSA_MODEL_TOPOLOGY="/ffm/topology/mi450"
-export HSA_ENABLE_SDMA=0
-export HSA_ENABLE_INTERRUPT=0
-export HSA_KMT_MODEL_GPUVM_BASE=0x4000
-
-# LD_LIBRARY_PATH: ROCm libs must come FIRST to avoid libamd_smi.so conflicts
-export LD_LIBRARY_PATH="/opt/rocm/lib:/ffm:/ffm/lib:$LD_LIBRARY_PATH"
+~/scripts/tools/run_on_model.sh -- python3 kernel.py
+~/scripts/tools/run_on_model.sh --backend am -- python3 kernel.py
+~/scripts/tools/run_on_model.sh --capture -- ./hip_tdm_1d 3
 ```
 
-## Manual Setup (Non-Interactive Shells Only)
-
-If running in a non-interactive shell or script where `~/.zshrc` isn't sourced:
+## Manual Setup
 
 ```bash
-source ~/.zshrc  # Loads load_ffm_env() automatically
-```
-
-Or directly source the FFM environment:
-
-```bash
-cd /ffm && source ./ffmlite_env.sh && cd -
+source /am-ffm/ffmlite_env.sh
 export LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH
 ```
