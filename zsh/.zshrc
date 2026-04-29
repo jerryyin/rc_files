@@ -188,6 +188,12 @@ function load_ffm_env() {
   fi
 
   export _TRITON_MODEL_PKG=/am-ffm
+
+  # Auto-inject ffm_teardown pytest plugin to avoid FFM simulator hang on exit.
+  # FFM's 192 simulator threads don't shut down during Py_Finalize; the plugin
+  # calls hipDeviceReset + os._exit after pytest finishes.
+  export PYTHONPATH="${HOME}/scripts/tools${PYTHONPATH:+:$PYTHONPATH}"
+  export PYTEST_PLUGINS=ffm_teardown
 }
 load_ffm_env
 
