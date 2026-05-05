@@ -43,3 +43,12 @@ The compiler maps tile operations to warps. Don't confuse with iteration space.
 1. **Register spills:** Look for `scratch_load`/`scratch_store` in assembly
 2. **Layout conversions in loops:** Check TTGIR for `convert_layout` in hot paths
 3. **Memory coalescing:** Adjacent threads should access adjacent memory
+
+## Useful Scripts (`~/scripts/triton/`)
+
+- `tdm/triton/dump_asm.py` — dump AMDGCN assembly for TDM load/store kernels
+- `lds/lds_bank_conflict_analyzer.py` — analyze LDS bank conflicts
+- `lds/lds_access_pattern_analysis.py` — visualize LDS access patterns
+- `lds/gemm_am_case_study/` — AM-specific GEMM LDS analysis with descriptor loads
+- `spills/run_spill_benchmark.sh` — benchmark register spill impact
+- `ds_load_tr/analyze_ds_load_tr.py` — analyze ds_load transpose patterns

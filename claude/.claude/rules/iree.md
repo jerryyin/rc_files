@@ -31,3 +31,12 @@ This is the IREE compiler project - a retargetable MLIR-based machine learning c
    ```bash
    cd <build-dir> && ctest -R <test-pattern> --output-on-failure
    ```
+
+### Useful Scripts (`~/scripts/iree/`)
+
+- `gen_matmul.py` — generate MLIR for matmul/batch-matmul with arbitrary transpose and dtype
+- `iree_bench.py` — compile MLIR to VMFB and benchmark with `iree-benchmark-module`
+- `inspect_isa.py` — parse and summarize stats from compiled `.rocmasm` assembly files
+- `gen_conv.sh` — generate and test convolution MLIR
+- `test.sh` — Generic test configurations
+- `bisect_boo_gemm.sh` — bisect GEMM performance regressions against BOO thresholds
