@@ -1,7 +1,8 @@
 ---
-globs: **/triton*/**
-alwaysApply: false
+globs: "**/triton*/**"
+description: AM/FFM functional simulator environment for Triton gfx1250 (MI450)
 ---
+
 # AM/FFM Environment for Triton Development
 
 When working on Triton with the AM/FFM functional simulator for gfx1250

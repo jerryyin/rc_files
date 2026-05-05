@@ -1,7 +1,5 @@
 ---
 description: How to discuss and review Triton GPU compiler internals — layouts, pass pipelines, MLIR lowerings, and hardware mapping.
-globs:
-alwaysApply: true
 ---
 
 # Triton Compiler Discussion & Review
@@ -10,13 +8,13 @@ alwaysApply: true
 
 1. **Concrete before abstract.** When explaining a layout, encoding, or
    distribution, always start with a concrete element-to-thread mapping table
-   or example (e.g. "warp 0, lane 5 holds elements {…}") before giving the
+   or example (e.g. "warp 0, lane 5 holds elements {...}") before giving the
    general formula.
 
 2. **Show real IR, not hand-wavy descriptions.** When the user asks what a
    pass produces, run `triton-opt` with the relevant flags and show the actual
    output. Don't paraphrase MLIR — dump it. Use the pass pipeline from
-   `third_party/amd/backend/compiler.py` (`make_ttir` → `make_ttgir` →
+   `third_party/amd/backend/compiler.py` (`make_ttir` -> `make_ttgir` ->
    `make_llir`) to determine correct pass ordering and flags.
 
 3. **Answer "why" before "what".** The user's first instinct is "why is this
@@ -39,14 +37,14 @@ alwaysApply: true
 7. **Be critical from the start.** Flag issues, question design decisions, and
    compare against the NVIDIA reference implementation unprompted.
 
-# Layout analysis checklist
+## Layout analysis checklist
 
 When asked about a `BlockedEncodingAttr` on a specific tensor:
 
 1. Per-CTA tile size: `sizePerThread * threadsPerWarp * warpsPerCTA` per dim
 2. Number of tiles: `tensorShape / tileSize` per dim
-3. Warp → rows/cols mapping (per `warpsPerCTA`)
-4. Lane → rows/cols mapping (per `threadsPerWarp`)
+3. Warp -> rows/cols mapping (per `warpsPerCTA`)
+4. Lane -> rows/cols mapping (per `threadsPerWarp`)
 5. Registers per thread: `product(tensorShape) / (numWarps * threadsPerWarp)`
 6. Free dimensions: if tile covers entire tensor along a dim, extra warps/lanes
    along that dim are broadcast (redundant)

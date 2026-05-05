@@ -1,5 +1,6 @@
 ---
-globs: **/iree-turbine/**
+globs: "**/iree-turbine/**"
+description: IREE-Turbine ML frontend — BOO driver, convolution testing, ROCm setup
 ---
 
 ## IREE-Turbine Integration
@@ -28,18 +29,3 @@ python driver.py convbfp16 -n 1 -c 896 -H 59 -W 91 -k 896 -y 3 -x 3 \
 If GPU tests fail with "no ROCm-capable device" despite `rocminfo` showing devices:
 1. Check device permissions: `/dev/kfd` and `/dev/dri/renderD*` need `render` group access
 2. Quick fix: `chmod 666 /dev/kfd /dev/dri/renderD*`
-
-### gfx950 (MI325X) with PyTorch
-PyTorch ROCm 6.4 doesn't natively support gfx950. Use:
-```bash
-export HSA_OVERRIDE_GFX_VERSION=9.4.2
-```
-
-### Verify GPU Access
-```bash
-# Check HSA topology
-rocminfo | head -50
-
-# Test PyTorch GPU access
-python3 -c "import torch; print('Device count:', torch.cuda.device_count())"
-```
