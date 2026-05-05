@@ -21,3 +21,8 @@
 - Multiple build configurations are often maintained simultaneously.
 - Check `compile_commands.json` symlink to find the right build directory.
 - Run specific tests after changes, not the full test suite.
+
+## Design Documentation
+
+- Always include an "Alternatives Considered" section in design docs.
+- Focus on major architectural alternatives, not nit-picky differences.

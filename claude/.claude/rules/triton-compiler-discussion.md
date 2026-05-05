@@ -1,4 +1,5 @@
 ---
+globs: "**/triton*/**"
 description: How to discuss and review Triton GPU compiler internals — layouts, pass pipelines, MLIR lowerings, and hardware mapping.
 ---
 
