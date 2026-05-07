@@ -50,6 +50,7 @@ require("lazy").setup({
       require("bufferline").setup({
         options = {
           mode = "buffers",
+          numbers = "buffer_id",
           sort_by = "recently_used",
           show_buffer_icons = false,
           show_close_icon = false,
@@ -65,13 +66,20 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter",
-    cond = vim.fn.has("nvim-0.10") == 1,
+    cond = vim.fn.has("nvim-0.12") == 1,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
-        highlight = { enable = true },
-        indent = { enable = true },
-        auto_install = false,
+      local parsers = { "c", "cpp", "cuda", "lua", "python", "vim", "vimdoc" }
+      require("nvim-treesitter").setup({
+        install_dir = vim.fn.stdpath("data") .. "/site",
+      })
+      require("nvim-treesitter").install(parsers)
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("NvimTreeSitterHighlight", { clear = true }),
+        pattern = { "c", "cpp", "cuda", "lua", "python", "vim" },
+        callback = function(args)
+          pcall(vim.treesitter.start, args.buf)
+        end,
       })
     end,
   },

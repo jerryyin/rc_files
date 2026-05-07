@@ -9,7 +9,31 @@ local function client_capabilities()
   return capabilities
 end
 
-local function on_attach(_, bufnr)
+local function enable_inlay_hints(client, bufnr)
+  if not (client.server_capabilities and client.server_capabilities.inlayHintProvider) then
+    return
+  end
+  if not (vim.lsp.inlay_hint and vim.lsp.inlay_hint.enable) then
+    return
+  end
+
+  local ok = pcall(vim.lsp.inlay_hint.enable, true, { bufnr = bufnr })
+  if not ok then
+    pcall(vim.lsp.inlay_hint.enable, bufnr, true)
+  end
+end
+
+local function schedule_inlay_hint_refresh(client, bufnr)
+  for _, delay in ipairs({ 1000, 5000, 15000 }) do
+    vim.defer_fn(function()
+      if vim.api.nvim_buf_is_valid(bufnr) then
+        enable_inlay_hints(client, bufnr)
+      end
+    end, delay)
+  end
+end
+
+local function on_attach(client, bufnr)
   local function nmap(lhs, rhs)
     vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true })
   end
@@ -23,6 +47,40 @@ local function on_attach(_, bufnr)
   nmap("K", vim.lsp.buf.hover)
   nmap("<leader>cr", vim.lsp.buf.rename)
   nmap("<leader>cf", vim.lsp.buf.code_action)
+  nmap("<leader>ch", function()
+    vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
+  end)
+
+  enable_inlay_hints(client, bufnr)
+  schedule_inlay_hint_refresh(client, bufnr)
+end
+
+local function apply_semantic_highlight_links()
+  local links = {
+    ["@lsp.type.property.cpp"] = "@property",
+    ["@lsp.type.parameter.cpp"] = "Identifier",
+    ["@lsp.type.variable.cpp"] = "Identifier",
+    ["@lsp.typemod.variable.classScope.cpp"] = "@property",
+    ["@lsp.typemod.variable.functionScope.cpp"] = "Identifier",
+    ["@lsp.typemod.variable.fileScope.cpp"] = "Constant",
+    ["@lsp.typemod.variable.globalScope.cpp"] = "Constant",
+    ["@lsp.typemod.variable.static.cpp"] = "Constant",
+    ["@lsp.typemod.variable.readonly.cpp"] = "Constant",
+    LspInlayHint = "Comment",
+    InlayHints = "Comment",
+  }
+
+  for group, target in pairs(links) do
+    pcall(vim.api.nvim_set_hl, 0, group, { link = target })
+  end
+end
+
+local function setup_semantic_highlights()
+  apply_semantic_highlight_links()
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("NvimLspSemanticHighlights", { clear = true }),
+    callback = apply_semantic_highlight_links,
+  })
 end
 
 local function has_marker(dir, marker)
@@ -109,6 +167,18 @@ local function setup_servers()
           "--pch-storage=memory",
         },
         root_markers = { ".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git" },
+        settings = {
+          clangd = {
+            InlayHints = {
+              Enabled = true,
+              ParameterNames = true,
+              DeducedTypes = true,
+              Designators = true,
+              DefaultArguments = true,
+              TypeNameLimit = 0,
+            },
+          },
+        },
       })
     end,
   })
@@ -161,6 +231,7 @@ function M.setup()
     signs = true,
   })
 
+  setup_semantic_highlights()
   setup_cmp()
   setup_servers()
 end

@@ -81,11 +81,4 @@ else
     exit 1
 fi
 
-# Configure Neovim (share vim plugins via site symlink)
-# Note: ~/.config/nvim/init.vim is managed by stow and sources ~/.vimrc
-# TODO: Uncomment when neovim setup is fully working
-# echo "Configuring Neovim..."
-# mkdir -p "$HOME/.local/share/nvim"
-# ln -sf "$HOME/.vim" "$HOME/.local/share/nvim/site"
-
 echo "Setup completed successfully!"
