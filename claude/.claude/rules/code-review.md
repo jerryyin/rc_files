@@ -19,12 +19,17 @@ or `--request-changes` as appropriate.
 
 - Separate observations from hypotheses. State what is known, what is inferred,
   and what remains unknown.
-- Do not explain a failure from a passing local run alone. Passing locally is a
-  clue, not a root cause.
 - For compiler bugs, first prove whether the failing test exercises the changed
   code path. Use IR, logs, or targeted counters rather than intent.
 - When the user challenges an assumption, re-check the evidence and update the
   hypothesis instead of elaborating the original explanation.
+
+## Reviewable Diffs
+
+- Prefer narrow patches. Preserve existing names, comments, logging, function
+  order, and test style unless the change requires touching them.
+- Treat review-quality diffs as part of correctness. Avoid incidental churn that
+  makes reviewers re-read unchanged behavior.
 
 ## Irene — Architectural Coherence & Code Quality
 

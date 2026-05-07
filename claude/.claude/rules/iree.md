@@ -32,6 +32,13 @@ This is the IREE compiler project - a retargetable MLIR-based machine learning c
    cd <build-dir> && ctest -R <test-pattern> --output-on-failure
    ```
 
+### Experiment Discipline
+
+Before comparing compiler performance or correctness results, freeze the
+experiment: branch/SHA, build directory, input, flags, baseline, variant,
+metric, and sanity checks. If any dimension changes, do not compare the numbers
+as the same run.
+
 ### Useful Scripts (`~/scripts/iree/`)
 
 - `gen_matmul.py` — generate MLIR for matmul/batch-matmul with arbitrary transpose and dtype
