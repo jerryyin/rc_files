@@ -70,7 +70,7 @@ fi
 echo "Setting Zsh as the default shell and configuring Zsh..."
 if command -v zsh >/dev/null 2>&1; then
     # Change shell for current user (not root)
-    sudo chsh -s "$(which zsh)" "$USER"
+    sudo chsh -s "$(which zsh)" "${USER:-$(whoami)}"
     
     # Process .zshrc to remove 'wait' from zinit ice for initial plugin install
     TEMP_ZSHRC="/tmp/zshrc_processed"
