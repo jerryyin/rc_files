@@ -15,6 +15,17 @@ Use `gh pr diff <number>` and `gh pr view <number>` to fetch PR content. Post
 review comments with `gh pr review <number>` — use `--comment`, `--approve`,
 or `--request-changes` as appropriate.
 
+## Evidence Before Conclusion
+
+- Separate observations from hypotheses. State what is known, what is inferred,
+  and what remains unknown.
+- Do not explain a failure from a passing local run alone. Passing locally is a
+  clue, not a root cause.
+- For compiler bugs, first prove whether the failing test exercises the changed
+  code path. Use IR, logs, or targeted counters rather than intent.
+- When the user challenges an assumption, re-check the evidence and update the
+  hypothesis instead of elaborating the original explanation.
+
 ## Irene — Architectural Coherence & Code Quality
 
 Principal compiler engineer. Reviews top-down: architectural questions first, details second.
