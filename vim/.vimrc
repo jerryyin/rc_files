@@ -206,27 +206,17 @@ let g:gruvbox_material_enable_italic = 1
 let g:gruvbox_material_diagnostic_text_highlight = 1
 " highlight error/warning/info hint lines
 let g:gruvbox_material_diagnostic_virtual_text = 'colored'
-let g:gruvbox_material_diagnostic_text_highlight = 1
 " For better performance
 let g:gruvbox_material_better_performance = 1
-" Override Difftext as it becomes invisible when overlapping with cursorline
 function! s:gruvbox_material_custom() abort
-  " Initialize the color palette.
-  " The first parameter is a valid value for `g:gruvbox_material_background`,
-  " the second parameter is a valid value for `g:gruvbox_material_foreground`,
-  " and the third parameter is a valid value for `g:gruvbox_material_colors_override`.
-  let l:palette = gruvbox_material#get_palette('hard', 'material', {})
-  " Define a highlight group.
-  " The first parameter is the name of a highlight group,
-  " the second parameter is the foreground color,
-  " the third parameter is the background color,
-  " the fourth parameter is for UI highlighting which is optional,
-  " and the last parameter is for `guisp` which is also optional.
-  " See `autoload/gruvbox_material.vim` for the format of `l:palette`.
-  call gruvbox_material#highlight('DiffText', l:palette.red, l:palette.yellow, 'bold')
+  let l:config = gruvbox_material#get_configuration()
+  let l:palette = gruvbox_material#get_palette(l:config.background, l:config.foreground, l:config.colors_override)
+
+  " Keep intraline diff changes visible without replacing syntax colors.
+  call gruvbox_material#highlight('DiffText', l:palette.none, l:palette.bg_visual_yellow)
   call gruvbox_material#highlight('String', l:palette.purple, l:palette.none)
   " CocCommand semanticTokens.inspect
-  call gruvbox_material#highlight('CocSemTypeProperty', l:palette.aqua, l:palette.none,'underline')
+  call gruvbox_material#highlight('CocSemTypeProperty', l:palette.aqua, l:palette.none, 'underline')
   call gruvbox_material#highlight('debugPC', l:palette.none, l:palette.grey0)
 endfunction
 
