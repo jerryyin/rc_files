@@ -14,5 +14,7 @@ require("config.filetypes")
 require("config.keymaps")
 require("config.project")
 require("config.tools")
-require("config.lsp").setup()
+if vim.env.NVIM_USE_NATIVE_LSP == "1" then
+  require("config.lsp").setup()
+end
 require("config.lazy")

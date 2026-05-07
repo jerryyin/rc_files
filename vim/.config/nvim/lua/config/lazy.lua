@@ -66,7 +66,7 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter",
-    cond = vim.fn.has("nvim-0.12") == 1,
+    cond = vim.fn.has("nvim-0.12") == 1 and vim.env.NVIM_USE_TREESITTER == "1",
     build = ":TSUpdate",
     config = function()
       local parsers = { "c", "cpp", "cuda", "lua", "python", "vim", "vimdoc" }
@@ -85,7 +85,7 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter-context",
-    cond = vim.fn.has("nvim-0.10") == 1,
+    cond = vim.fn.has("nvim-0.10") == 1 and vim.env.NVIM_USE_TREESITTER == "1",
     config = true,
   },
   {
@@ -99,6 +99,7 @@ require("lazy").setup({
   },
   {
     "hrsh7th/nvim-cmp",
+    cond = vim.env.NVIM_USE_NATIVE_LSP == "1",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
@@ -137,6 +138,18 @@ require("lazy").setup({
   { "windwp/nvim-autopairs", config = true },
   { "numToStr/Comment.nvim", config = true },
   { "chentoast/marks.nvim", config = true },
+  {
+    dir = vim.fn.expand("~/.vim/plugged/coc.nvim"),
+    name = "coc.nvim",
+    lazy = false,
+    cond = function()
+      return vim.env.NVIM_USE_NATIVE_LSP ~= "1"
+        and vim.fn.isdirectory(vim.fn.expand("~/.vim/plugged/coc.nvim")) == 1
+    end,
+    init = function()
+      require("config.coc").setup()
+    end,
+  },
   {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",

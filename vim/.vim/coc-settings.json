@@ -3,6 +3,10 @@
   "suggest.maxCompleteItemCount": 50,
   "suggest.labelMaxLength": 50,
   "semanticTokens.enable": true,
+  "inlayHint.enable": true,
+  "inlayHint.display": true,
+  "inlayHint.enableParameter": true,
+  "inlayHint.position": "inline",
   "diagnostic.virtualText": true,
   "diagnostic.errorSign": "",
   "python.analysis.typeCheckingMode": "off",
@@ -14,11 +18,24 @@
       "args": [
         "--background-index",
         "--clang-tidy",
+        "--enable-config",
         "--all-scopes-completion",
         "--completion-style=detailed",
         "--header-insertion=iwyu",
         "--pch-storage=memory"
       ],
+      "settings": {
+        "clangd": {
+          "InlayHints": {
+            "Enabled": true,
+            "ParameterNames": true,
+            "DeducedTypes": true,
+            "Designators": true,
+            "DefaultArguments": true,
+            "TypeNameLimit": 0
+          }
+        }
+      },
     },
     "mlir": {
       "command": "mlir-lsp",
