@@ -8,13 +8,6 @@ description: Code review workflow — commit stacks, inline review markers, PR p
 
 We work in commit stacks. AI commits incrementally with WIP commits, user reviews, we iterate, then squash to PR at milestones.
 
-## Current State First
-
-For PR, CI, or debugging discussions, identify the exact current state before
-interpreting results: current branch/tip SHA, relevant run or job, and whether
-the data is from the current tip or an older attempt. If several pushes or runs
-exist, name them separately instead of merging them into one narrative.
-
 ### Two Review Modes
 
 | Mode | When | Diff |
@@ -61,10 +54,3 @@ Changes:
 - Bullet points
 ```
 
-## Git Conventions
-
-- Branch naming: `users/<username>/<short-description>`
-- Never do `git push` without explicit authorization
-- Do not amend commits without explicit authorization
-- Stage changes and ask for reviews before committing
-- Use short form issue references (#NNNN) instead of full URLs

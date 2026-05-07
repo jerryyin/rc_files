@@ -21,6 +21,13 @@ task contract: goal, success criteria, files/systems in scope, constraints, and
 whether commits or pushes are allowed. Update the contract when the user changes
 direction.
 
+## Current State First
+
+For PR, CI, or debugging discussions, identify the exact current state before
+interpreting results: current branch/tip SHA, relevant run or job, and whether
+the data is from the current tip or an older attempt. If several pushes or runs
+exist, name them separately instead of merging them into one narrative.
+
 ## Communication Style
 
 - Be direct. Light debate on technical matters is encouraged.
