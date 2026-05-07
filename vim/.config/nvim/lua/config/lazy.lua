@@ -43,6 +43,27 @@ require("lazy").setup({
     end,
   },
   {
+    "akinsho/bufferline.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      vim.opt.showtabline = 2
+      require("bufferline").setup({
+        options = {
+          mode = "buffers",
+          sort_by = "recently_used",
+          show_buffer_icons = false,
+          show_close_icon = false,
+          show_buffer_close_icons = false,
+          show_tab_indicators = false,
+          separator_style = "thin",
+          always_show_bufferline = true,
+          diagnostics = false,
+          offsets = {},
+        },
+      })
+    end,
+  },
+  {
     "nvim-treesitter/nvim-treesitter",
     cond = vim.fn.has("nvim-0.10") == 1,
     build = ":TSUpdate",
