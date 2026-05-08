@@ -28,50 +28,6 @@ function M.setup()
     callback = apply_highlights,
   })
 
-  local inlay_filetypes = {
-    c = true,
-    cc = true,
-    cpp = true,
-    cuda = true,
-    mlir = true,
-  }
-
-  local function enable_inlay_hints(bufnr)
-    if not vim.g.coc_service_initialized or not vim.api.nvim_buf_is_loaded(bufnr) then
-      return
-    end
-    if not inlay_filetypes[vim.bo[bufnr].filetype] or vim.bo[bufnr].buftype ~= "" then
-      return
-    end
-    vim.defer_fn(function()
-      if vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_get_current_buf() == bufnr then
-        pcall(vim.cmd, "CocCommand document.enableInlayHint")
-      end
-    end, 500)
-  end
-
-  local inlay_group = vim.api.nvim_create_augroup("NvimCocInlayHints", { clear = true })
-  vim.api.nvim_create_autocmd("FileType", {
-    group = inlay_group,
-    pattern = { "c", "cc", "cpp", "cuda", "mlir" },
-    callback = function(args)
-      enable_inlay_hints(args.buf)
-    end,
-  })
-  vim.api.nvim_create_autocmd("BufEnter", {
-    group = inlay_group,
-    callback = function(args)
-      enable_inlay_hints(args.buf)
-    end,
-  })
-  vim.api.nvim_create_autocmd("User", {
-    group = inlay_group,
-    pattern = "CocNvimInit",
-    callback = function()
-      enable_inlay_hints(vim.api.nvim_get_current_buf())
-    end,
-  })
-
   local map = vim.keymap.set
   map("i", "<C-t>", "coc#refresh()", { expr = true, silent = true })
   map("i", "<CR>", [[coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"]], {

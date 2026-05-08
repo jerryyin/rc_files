@@ -69,6 +69,7 @@ g.cpp_class_scope_highlight = 1
 g.cpp_member_variable_highlight = 1
 g.cpp_class_decl_highlight = 1
 g.dispatch_no_maps = 1
+g.dispatch_no_job_make = 1
 
 g.winresizer_start_key = "<C-t>"
 g.winresizer_finish_with_escape = 1

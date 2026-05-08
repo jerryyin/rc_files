@@ -145,6 +145,11 @@ nnoremap <leader>sd :execute 'SDelete! ' . GetDefaultSession()<CR>
 " Dispatch, disallow tmux pane capture trick
 set shellpipe=2>&1\|tee
 let g:dispatch_no_maps = 1
+" Skip the job strategy for :Make so dispatch keeps preferring the tmux
+" strategy when $TMUX is set (visible split below) and falls through to
+" terminal otherwise. Without this, recent dispatch versions silently let
+" the job handler intercept :Make and route everything to quickfix only.
+let g:dispatch_no_job_make = 1
 nnoremap <leader>qo :Copen<CR>:10wincmd_<CR>
 nnoremap <leader>qc :cclose<CR>
 
