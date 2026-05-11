@@ -17,19 +17,54 @@ if [ ! -d "$REPO_DIR" ]; then
     git -C "$REPO_DIR" remote set-url origin git@github.com:jerryyin/rc_files.git
 fi
 
-# Remove existing dotfiles symlinks in $HOME
-echo "Cleaning up existing dotfiles symlinks..."
-for dotpath in $(find "$REPO_DIR" -name ".*" -not -path "$REPO_DIR/.git*"); do
-    target="$HOME/$(basename -- "$dotpath")"
-    if [ -L "$target" ]; then
-        rm "$target"
+BACKUP_DIR="${BACKUP_DIR:-$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)}"
+REPO_REALPATH="$(realpath -m "$REPO_DIR")"
+
+# Remove stale links from older package layouts, but only if they point into this repo.
+echo "Cleaning up existing rc_files symlinks..."
+while IFS= read -r -d '' link; do
+    link_target="$(readlink "$link")"
+    if [[ "$link_target" != /* ]]; then
+        link_target="$(dirname "$link")/$link_target"
     fi
+    link_target="$(realpath -m "$link_target")"
+
+    if [[ "$link_target" = "$REPO_REALPATH" || "$link_target" = "$REPO_REALPATH"/* ]]; then
+        echo "Removing stale symlink: $link -> $(readlink "$link")"
+        rm "$link"
+    fi
+done < <(
+    find "$HOME" -xdev -maxdepth "${STOW_CLEAN_MAX_DEPTH:-5}" \
+        \( -path "$REPO_DIR" -o -path "$HOME/.cache" -o -path "$HOME/.local/share" -o -path "$HOME/.npm" -o -path "$HOME/.cargo" \) -prune \
+        -o -type l -print0
+)
+
+# Back up real files that would block stow. Symlinks were handled above, and
+# directories can be folded by stow.
+echo "Backing up existing file conflicts..."
+for package_dir in "$REPO_DIR"/*/; do
+    package="$(basename "$package_dir")"
+
+    while IFS= read -r -d '' tracked_path; do
+        target="$HOME/${tracked_path#"$package"/}"
+        if [ -e "$target" ] && [ ! -L "$target" ] && [ ! -d "$target" ]; then
+            backup="$BACKUP_DIR/${target#"$HOME"/}"
+            if [ -e "$backup" ] || [ -L "$backup" ]; then
+                backup="$backup.$(date +%s)"
+            fi
+
+            echo "Backing up existing file: $target -> $backup"
+            mkdir -p "$(dirname "$backup")"
+            mv "$target" "$backup"
+        fi
+    done < <(git -C "$REPO_DIR" ls-files -z -- "$package")
 done
 
-# Use stow to manage dotfiles
+# Use stow to manage dotfiles.
 echo "Setting up dotfiles with stow..."
-for dir in $(ls -d "$REPO_DIR"/*/ | awk -F "/" '{print $(NF-1)}'); do
-    stow -d "$REPO_DIR" "$dir" -v -R -t "$HOME"
+for package_dir in "$REPO_DIR"/*/; do
+    package="$(basename "$package_dir")"
+    stow -d "$REPO_DIR" "$package" -v -R -t "$HOME"
 done
 
 # Initialize vim-plug and install plugins
