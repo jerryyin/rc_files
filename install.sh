@@ -80,7 +80,16 @@ if command -v npm >/dev/null 2>&1; then
     if [ ! -f "$COC_EXT_DIR/package.json" ]; then
         echo '{"dependencies":{}}' > "$COC_EXT_DIR/package.json"
     fi
-    cd "$COC_EXT_DIR" && npm install --no-save coc-json coc-tsserver coc-pyright coc-snippets || true
+    # Some environments (corporate proxies, WSL) present a TLS chain npm cannot
+    # verify, causing UNABLE_TO_GET_ISSUER_CERT_LOCALLY. Prefer a configured CA
+    # bundle; otherwise fall back to disabling strict-ssl for this install.
+    NPM_TLS_FLAGS=()
+    if [ -n "${NODE_EXTRA_CA_CERTS:-}" ] && [ -f "${NODE_EXTRA_CA_CERTS}" ]; then
+        NPM_TLS_FLAGS+=(--cafile "${NODE_EXTRA_CA_CERTS}")
+    else
+        NPM_TLS_FLAGS+=(--strict-ssl=false)
+    fi
+    cd "$COC_EXT_DIR" && npm install --no-save "${NPM_TLS_FLAGS[@]}" coc-json coc-tsserver coc-pyright coc-snippets || true
 else
     echo "Note: npm not found. Install CoC extensions manually in vim with :CocInstall coc-json coc-tsserver coc-pyright coc-snippets"
 fi
@@ -104,8 +113,23 @@ fi
 # Make Zsh the default shell and configure Zsh
 echo "Setting Zsh as the default shell and configuring Zsh..."
 if command -v zsh >/dev/null 2>&1; then
-    # Change shell for current user (not root)
-    sudo chsh -s "$(which zsh)" "${USER:-$(whoami)}"
+    ZSH_PATH="$(command -v zsh)"
+    CURRENT_USER="${USER:-$(whoami)}"
+    CURRENT_SHELL="$(getent passwd "$CURRENT_USER" 2>/dev/null | cut -d: -f7)"
+
+    if [ "$CURRENT_SHELL" = "$ZSH_PATH" ]; then
+        echo "Zsh is already the default shell; skipping chsh."
+    # Changing your OWN login shell does not require sudo; chsh prompts for your
+    # password when a terminal is available. Try non-interactively first (-n),
+    # then fall back to an interactive chsh, then to clear manual instructions.
+    elif sudo -n chsh -s "$ZSH_PATH" "$CURRENT_USER" 2>/dev/null; then
+        echo "Default shell changed to zsh (passwordless sudo)."
+    elif [ -t 0 ] && chsh -s "$ZSH_PATH"; then
+        echo "Default shell changed to zsh."
+    else
+        echo "WARNING: Could not change default shell automatically (no terminal/password available)."
+        echo "         Run this manually later:  chsh -s \"$ZSH_PATH\""
+    fi
     
     # Process .zshrc to remove 'wait' from zinit ice for initial plugin install
     TEMP_ZSHRC="/tmp/zshrc_processed"
