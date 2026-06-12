@@ -3,11 +3,13 @@
 set -e  # Exit immediately if a command exits with a non-zero status
 set -u  # Treat unset variables as an error
 
-# Check if `stow` is installed
-if ! command -v stow >/dev/null 2>&1; then
-    echo "Error: GNU Stow is not installed. Please install it and try again."
-    exit 1
-fi
+# Check required dependencies up front.
+for dep in stow git; do
+    if ! command -v "$dep" >/dev/null 2>&1; then
+        echo "Error: '$dep' is not installed. Please install it and try again."
+        exit 1
+    fi
+done
 
 # Clone rc_files if not already cloned
 REPO_DIR="$HOME/rc_files"
@@ -68,8 +70,12 @@ for package_dir in "$REPO_DIR"/*/; do
 done
 
 # Initialize vim-plug and install plugins
-echo "Initializing vim-plug and installing Vim plugins..."
-vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall || true
+if command -v vim >/dev/null 2>&1; then
+    echo "Initializing vim-plug and installing Vim plugins..."
+    vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall || true
+else
+    echo "Note: vim not found. Skipping vim-plug plugin installation."
+fi
 
 # Install CoC extensions via npm (more reliable than vim's :CocInstall in non-interactive mode)
 if command -v npm >/dev/null 2>&1; then
@@ -89,7 +95,7 @@ if command -v npm >/dev/null 2>&1; then
     else
         NPM_TLS_FLAGS+=(--strict-ssl=false)
     fi
-    cd "$COC_EXT_DIR" && npm install --no-save "${NPM_TLS_FLAGS[@]}" coc-json coc-tsserver coc-pyright coc-snippets || true
+    ( cd "$COC_EXT_DIR" && npm install --no-save "${NPM_TLS_FLAGS[@]}" coc-json coc-tsserver coc-pyright coc-snippets ) || true
 else
     echo "Note: npm not found. Install CoC extensions manually in vim with :CocInstall coc-json coc-tsserver coc-pyright coc-snippets"
 fi
@@ -98,12 +104,13 @@ fi
 TMUX_PLUGIN_DIR="$HOME/.tmux/plugins/tpm"
 if [ ! -d "$TMUX_PLUGIN_DIR" ]; then
     echo "Installing tmux plugin manager..."
-    git clone https://github.com/tmux-plugins/tpm "$TMUX_PLUGIN_DIR"
+    git clone https://github.com/tmux-plugins/tpm "$TMUX_PLUGIN_DIR" \
+        || echo "WARNING: Failed to clone tpm; skipping tmux plugin setup."
 fi
 
 # Install tmux plugins
 # Start a detached tmux session to source tmux.conf and initialize TPM, then install plugins
-if [ -d "$TMUX_PLUGIN_DIR" ] && [ -f "$HOME/.tmux.conf" ]; then
+if command -v tmux >/dev/null 2>&1 && [ -d "$TMUX_PLUGIN_DIR" ] && [ -f "$HOME/.tmux.conf" ]; then
     echo "Installing tmux plugins..."
     tmux new-session -d -s _tpm_install "sleep 2" 2>/dev/null && sleep 0.5
     "$TMUX_PLUGIN_DIR/bin/install_plugins" || true
@@ -131,8 +138,10 @@ if command -v zsh >/dev/null 2>&1; then
         echo "         Run this manually later:  chsh -s \"$ZSH_PATH\""
     fi
     
-    # Process .zshrc to remove 'wait' from zinit ice for initial plugin install
-    TEMP_ZSHRC="/tmp/zshrc_processed"
+    # Process .zshrc to remove 'wait' from zinit ice for initial plugin install.
+    # Use a private temp file (not a predictable /tmp path) and clean it up.
+    TEMP_ZSHRC="$(mktemp "${TMPDIR:-/tmp}/zshrc_processed.XXXXXX")"
+    trap 'rm -f "$TEMP_ZSHRC"' EXIT
     sed "/zinit ice/s/wait'[^']*'//g" "$HOME/.zshrc" > "$TEMP_ZSHRC"
     zsh -c "source $TEMP_ZSHRC; exit" || true
 else
