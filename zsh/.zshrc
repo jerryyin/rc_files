@@ -201,6 +201,30 @@ alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/de
 
 alias ssh='autossh -M 0'
 
+# ssh with auto port-forwarding to a free local port.
+# Usage: sshf <host> [remote_port] [extra ssh args...]
+#   sshf helios          -> forwards localhost:<free> -> remote:1455
+#   sshf helios 8888     -> forwards localhost:<free> -> remote:8888
+# Prefers the same local port number as the remote; if it's taken, grabs the
+# next free one and prints which port it chose.
+function sshf() {
+  local host="$1"; shift
+  local remote_port=1455
+  if [[ "$1" == <-> ]]; then
+    remote_port="$1"; shift
+  fi
+
+  local local_port="$remote_port"
+  while { exec 3<>"/dev/tcp/127.0.0.1/${local_port}"; } 2>/dev/null; do
+    exec 3>&- 2>/dev/null
+    (( local_port++ ))
+  done
+  exec 3>&- 2>/dev/null
+
+  echo "→ forwarding localhost:${local_port} → ${host}:${remote_port}"
+  ssh -L "${local_port}:localhost:${remote_port}" "$host" "$@"
+}
+
 # Function to set the COMPOSE_PROJECT_NAME if not already set
 function set_compose_project_name() {
   local DATE=$(date "+%m%d")
