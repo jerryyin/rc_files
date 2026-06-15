@@ -129,6 +129,35 @@ services:
       - $HOME:/zyin
       - ${AM_FFM_DIR:-$HOME/rocdtif-7.13-am+ffmlite-mi400-r4.05}:/am-ffm
 
+  # Real gfx1250 hardware (B0 / MI450 beta machine), NOT the simulator.
+  # Two-stage like mi450 -> triton-mi450:
+  #   b0        builds scripts/docker/triton-b0.dockerfile from ubuntu:24.04,
+  #             installing ROCm + PyTorch for gfx1250 from the genesis wheel
+  #             index (no AM+FFM model -- this is real silicon).
+  #   triton-b0 wraps jeryin/dev:b0 via base.dockerfile to add the dev env and
+  #             clone upstream triton (SERVICE_NAME=triton -> workspace/triton.sh).
+  #
+  # Rebuild via: dbuild b0 && dbuild triton-b0
+  b0:
+    build:
+      context: ..
+      dockerfile: scripts/docker/triton-b0.dockerfile
+      args:
+        BASE_IMAGE: ubuntu:24.04
+    image: "jeryin/dev:b0"
+    profiles: ["triton-b0"]
+
+  triton-b0:
+    <<: *base-service
+    build:
+      context: ..
+      dockerfile: .docker/base.dockerfile
+      args:
+        BASE_IMAGE: jeryin/dev:b0
+        SERVICE_NAME: triton
+    image: "jeryin/dev:triton-b0"
+    profiles: ["triton-b0"]
+
   iree:
     <<: *base-service
     build:
