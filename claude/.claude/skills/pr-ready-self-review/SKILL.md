@@ -4,7 +4,6 @@ description: >-
   Turn a working-but-rough change into a PR-ready diff in one pass via
   systematic self-review. Use after a solution works but before opening a PR, or
   when the user asks to finalize, clean up, polish, harden, or self-review a diff.
-disable-model-invocation: true
 ---
 
 # PR-Ready Self-Review
