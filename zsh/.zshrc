@@ -201,28 +201,19 @@ alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/de
 
 alias ssh='autossh -M 0'
 
-# ssh with auto port-forwarding to a free local port.
-# Usage: sshf <host> [remote_port] [extra ssh args...]
-#   sshf helios          -> forwards localhost:<free> -> remote:1455
-#   sshf helios 8888     -> forwards localhost:<free> -> remote:8888
-# Prefers the same local port number as the remote; if it's taken, grabs the
-# next free one and prints which port it chose.
+# ssh that forwards localhost:1455 -> <host>:1455 (for codex login etc.).
+# Fails explicitly if local 1455 is already taken. ss is used (not /dev/tcp,
+# which falsely reports bound ssh -L ports as free on WSL2).
+# Usage: sshf <host> [extra ssh args...]
 function sshf() {
-  local host="$1"; shift
-  local remote_port=1455
-  if [[ "$1" == <-> ]]; then
-    remote_port="$1"; shift
+  if ss -tlnH 'sport = :1455' 2>/dev/null | grep -q .; then
+    echo "✗ local port 1455 is already in use:" >&2
+    ss -tlnpH 'sport = :1455' 2>/dev/null >&2
+    echo "  free it first, then retry." >&2
+    return 1
   fi
-
-  local local_port="$remote_port"
-  while { exec 3<>"/dev/tcp/127.0.0.1/${local_port}"; } 2>/dev/null; do
-    exec 3>&- 2>/dev/null
-    (( local_port++ ))
-  done
-  exec 3>&- 2>/dev/null
-
-  echo "→ forwarding localhost:${local_port} → ${host}:${remote_port}"
-  ssh -L "${local_port}:localhost:${remote_port}" "$host" "$@"
+  echo "→ forwarding localhost:1455 → $1:1455"
+  ssh -o ExitOnForwardFailure=yes -L 1455:localhost:1455 "$@"
 }
 
 # Function to set the COMPOSE_PROJECT_NAME if not already set
