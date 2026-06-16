@@ -119,8 +119,6 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias vi='vim'
-# From OMZP::colorize
-alias cat='ccat'
 
 UP_ARROW=''
 DOWN_ARROW=''
