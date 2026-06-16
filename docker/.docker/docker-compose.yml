@@ -149,8 +149,10 @@ services:
       context: ..
       dockerfile: .docker/base.dockerfile
       args:
-        # ROCm 7.13 / PyTorch 2.10 / gfx1250 — pinned by digest to match
-        # kylewng_triton_dev_450_b0.
+        # ROCm 7.13 / PyTorch 2.10 / gfx1250 — pinned by digest.
+        # ROCm 7.14 (pytorch-2.11.0-rocm7.14.0a20260529-...-gfx1250) crashes
+        # all mxfp_gemm schedules at address (nil), even with correct env vars
+        # and shm — confirmed regression, not an env issue.
         BASE_IMAGE: registry-sc-harbor.amd.com/framework/therock-npi@sha256:cd92fa0917ea582581412936367815b17d2004059c131052e000704862dd9857
         SERVICE_NAME: triton
     image: "jeryin/dev:triton-b0"
