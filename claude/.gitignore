@@ -1,0 +1,3 @@
+# .claude.json is generated at runtime from .claude.json.template by
+# scripts/docker/env/claude.sh — it contains session metrics and secrets.
+.claude.json
