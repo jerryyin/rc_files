@@ -1,0 +1,22 @@
+# Managed template for local Codex defaults.
+#
+# This file is stowed to ~/.codex.config.toml.template. scripts/docker/env/codex.sh
+# copies it to ~/.codex/config.toml on first run, or when this template is newer.
+# The real ~/.codex/config.toml is local runtime state and should not be tracked.
+
+# Leave `model` unset so Codex follows the built-in recommended/latest local
+# model for the installed release. As of the current Codex manual, that model is
+# gpt-5.5. Uncomment to pin manually:
+# model = "gpt-5.5"
+model_provider = "openai"
+
+# Max reasoning effort for normal and plan-mode runs.
+model_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "xhigh"
+
+# Match Claude's bypassPermissions behavior for local Codex sessions.
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+
+[projects."/home/zhuoryin"]
+trust_level = "trusted"
