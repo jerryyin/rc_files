@@ -14,9 +14,9 @@ would actually submit: small, clear, and fully justified.
 Work the phases in order: 1–2 build understanding, 3–5 reshape the code, 6 fixes
 comments, 7 presents. Re-run build/tests after any code-changing phase.
 
-Throughout: **investigate, don't assert** (confirm every "this is for X" against
-the code, cite file:line); **prefer clarity over cleverness**; **the default for
-any line you added is to remove it unless it earns its place.**
+Throughout: apply `investigate-dont-assert` (ground every claim in the code);
+**prefer clarity over cleverness**; **the default for any line you added is to
+remove it unless it earns its place.**
 
 ## 1 — Intent & context
 Understand the original before touching it. State the one problem solved, how the
@@ -26,7 +26,7 @@ addresses. Most later decisions fall out of this.
 ## 2 — Examples
 Back every non-trivial decision with a concrete example from the real code: the
 input that triggers the new behavior, plus one case it accepts and one it
-rejects. If you can't produce a real example, the decision is suspect.
+rejects (see `investigate-dont-assert`).
 
 ## 3 — Minimize the diff
 - Fix the root cause; don't add cost (build/runtime/scope) to work around it.
