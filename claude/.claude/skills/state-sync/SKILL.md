@@ -56,6 +56,13 @@ tracked, then decide — and decide *every* file:
   self-contained and general *first*, then move it under the right repo/subdir for
   its domain. It then becomes a Sweep 1 commit.
 
+Before committing a *new* tool, check what already exists in the domain folder(s)
+and the generic tools path (e.g. `~/scripts/tools`). Prefer extending or
+parametrizing an existing tool — or merging overlapping ones into modes of a
+single tool — over landing a near-duplicate. A new script must be orthogonal to
+what's already tracked; if it overlaps, consolidate and update references rather
+than adding a parallel copy. Don't naively create new scripts.
+
 Leave nothing undecided: each loose file ends either deleted or tracked in the
 right place.
 
