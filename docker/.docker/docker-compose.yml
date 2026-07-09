@@ -89,36 +89,18 @@ services:
     image: "jeryin/dev:triton"
     profiles: ["triton"]
 
-  mi450:
-    build:
-      context: ..
-      dockerfile: scripts/docker/triton-mi450.dockerfile
-      args:
-        DOCKER_USERID: "32000"
-        DOCKER_GROUPID: "32000"
-        DOCKER_RENDERID: "107"  # render group GID so mirror user can access GPU nodes
-        USE_NPI_TORCH: "TRUE"   # NPI torch + rocm-sdk-devel from rocm.genesis.amd.com/whl/gfx1250/
-        # USE_ROCCAP: "TRUE"    # Uncomment to also build rocplaycap (requires NPI torch)
-    image: "jeryin/dev:mi450"
-    profiles: ["triton-mi450"]
-
   triton-mi450:
     <<: *base-service
     build:
       context: ..
       dockerfile: .docker/base.dockerfile
       args:
-        BASE_IMAGE: jeryin/dev:mi450
+        BASE_IMAGE: ${TRITON_MI450_BASE_IMAGE:-mkmhub.amd.com/sw-aiggfx1250-dev/ci/gfx1250-pytorch-env:1.4}
         SERVICE_NAME: triton
     image: "jeryin/dev:triton-mi450"
     profiles: ["triton-mi450"]
-    # mi450 is a BUILD-time dep only (BASE_IMAGE: jeryin/dev:mi450); not a
-    # runtime sidecar. Rebuild via: dbuild mi450 && dbuild triton-mi450.
-    #
-    # AM+FFM volume mount - the rocdtif-*-am+ffmlite-* package now serves
-    # both AM (architecture model) and FFM (functional fast model) workloads,
-    # so a single mount at /am-ffm is sufficient. (run_on_model.sh
-    # auto-detects /am-ffm.)
+    # Mirrors AMD-Triton/triton-mi450 CI: prebuilt gfx1250 PyTorch env plus the
+    # r6.06 AM+FFM package. Keep /am-ffm for local run_on_model.sh compatibility.
     #
     # Override the default version with AM_FFM_DIR, e.g.
     #   AM_FFM_DIR=~/rocdtif-7.13-am+ffmlite-mi400-rNEW drun triton-mi450
@@ -127,7 +109,9 @@ services:
     volumes:
       - /data:/data
       - $HOME:/zyin
-      - ${AM_FFM_DIR:-$HOME/rocdtif-7.13-am+ffmlite-mi400-r4.05}:/am-ffm
+      - ${AM_FFM_DIR:-$HOME/rocdtif-7.13-am+ffmlite-mi400-r6.06}:/am-ffm
+      - ${AM_FFM_DIR:-$HOME/rocdtif-7.13-am+ffmlite-mi400-r6.06}:/ffm-base
+      - ${AM_FFM_DIR:-$HOME/rocdtif-7.13-am+ffmlite-mi400-r6.06}:/ffm-update
 
   # Real gfx1250 hardware (B0 / MI450 beta machine), NOT the simulator.
   # Uses a prebuilt therock-npi image (ROCm 7.13 + PyTorch 2.10 for gfx1250).

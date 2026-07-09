@@ -2,8 +2,7 @@
 ARG BASE_IMAGE=ubuntu:24.04
 FROM ${BASE_IMAGE}
 
-# Reset ENTRYPOINT from any base image so docker-compose command works correctly
-# (e.g., triton-mi450.dockerfile uses shell-form ENTRYPOINT which ignores CMD)
+# Reset ENTRYPOINT from any base image so docker-compose command works correctly.
 ENTRYPOINT []
 
 USER root
@@ -21,4 +20,3 @@ RUN apt-get update && apt-get -y install git ca-certificates sudo wget curl gpg 
     git clone --depth 1 https://github.com/jerryyin/scripts.git /root/scripts && \
     git -C /root/scripts remote set-url origin git@github.com:jerryyin/scripts.git && \
     bash /root/scripts/docker/setup-service.sh "$SERVICE_NAME"
-
