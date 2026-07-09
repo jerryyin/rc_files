@@ -1,0 +1,7 @@
+{
+  "auths": {
+    "mkmhub.amd.com": {
+      "auth": "__DOCKER_KEY__"
+    }
+  }
+}
