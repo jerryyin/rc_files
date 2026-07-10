@@ -1,5 +1,5 @@
 ---
-description: Shared compiler investigation workflow for IREE, Triton, GPU codegen, CI failures, and performance analysis
+description: Compiler investigation and explanation for IREE, Triton, GPU codegen, CI failures, and performance — including walking through why a pass/transform fires or misfires across IR chains
 ---
 
 # Compiler Investigation
@@ -25,6 +25,27 @@ description: Shared compiler investigation workflow for IREE, Triton, GPU codege
   warp, lane, register, LDS, global memory, runtime, or driver.
 - Keep examples minimal. Strip boilerplate unless it changes the behavior under
   discussion.
+
+## Trace the Mechanism, Don't Paraphrase It
+
+- To explain why a transform fires or misfires, trace the data flow: follow the
+  actual SSA values by their dump names, def-to-use, through each op — not an
+  abstract description of the behavior.
+- Replay the pass over that real IR: at each hop name the op it sees, the branch
+  it takes, and why (which operand it follows, which predicate passes/fails). The
+  reader should be able to re-run the pass in their head.
+- Decompose the graph into the few chains that matter and name them (e.g. the
+  value's producer chain vs. an interfering write chain). Most confusion is two
+  chains conflated; separating them is usually the whole explanation.
+- Localize a surprise to the exact construct responsible — a specific op,
+  attribute, missing value, or interface result — never a vague "the pass is
+  conservative." State the mechanism's reasoning at that point.
+- Anchor which IR you're in (TTIR / TTGIR / LLVM / asm) and bridge levels when it
+  helps — show the same entity in IR and in asm so the transform connects to its
+  hardware effect.
+- Prefer framing a fix as recovering information the analysis lacked over
+  relaxing a check; say which invariant still holds.
+- Spend the detail on the one non-obvious hop, not a uniform tour.
 
 ## Experiment Discipline
 

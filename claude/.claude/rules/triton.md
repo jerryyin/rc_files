@@ -26,30 +26,49 @@ description: Triton project specifics — pass pipeline, environment, FFM, kerne
 | `DISABLE_LLVM_OPT=1` | Disable LLVM optimizations |
 | `MLIR_DISABLE_MULTITHREADING=1` | Disable MLIR multithreading |
 
-Cache files live under `~/.triton/cache/<hash>/`: `.ttir`, `.ttgir`,
-`.llir`, `.amdgcn`, `.hsaco`, and `.json`.
+Cache files live under `~/.triton/cache/<hash>/`: `.ttgir`, `.llir`, `.amdgcn`,
+`.hsaco`, `.json`, and `.source` (plus `.ttir` when emitted).
 
 ## Build
 
+LLVM is auto-resolved to the pinned prebuilt under `~/.triton/llvm/llvm-<hash>`.
+An already-configured build dir has that path baked into `CMakeCache.txt` /
+`build.ninja`, so `ninja` needs no env var. Set `LLVM_SYSPATH=/path/to/llvm` only
+to override with a custom LLVM (it's a cmake passthrough in `setup.py`, not
+`LLVM_BUILD_DIR`).
+
 ```bash
+# Iterate: find the configured build dir via the symlink, build one target.
+readlink -f compile_commands.json        # -> build/cmake.linux-x86_64-cpython-3.12
+ninja -C build/cmake.linux-x86_64-cpython-3.12 libtriton.so   # or triton-opt, etc.
+
+# Full (re)build / install:
 pip install -e . --no-build-isolation
 DEBUG=1 pip install -e . --no-build-isolation
-make all
-LLVM_BUILD_DIR=/path/to/llvm/build pip install -e .
 MAX_JOBS=8 pip install -e .
 ```
 
 ## AM/FFM
 
-- Canonical wrapper: `~/scripts/tools/run_on_model.sh`.
-- Defaults: package `/am-ffm`, backend FFM (`ffmlite_env.sh`).
-- `~/.zshrc` loads the FFM env for interactive shells and prepends
-  `/opt/rocm/lib` so system ROCm libraries shadow bundled copies.
+Interactive shells already have the FFM env loaded by `~/.zshrc` (`load_ffm_env`
+sources `/am-ffm/ffmlite_env.sh`, prepends `/opt/rocm/lib`, sets
+`PYTEST_PLUGINS=ffm_teardown`). So for FFM work in a normal shell, just run the
+command directly — no wrapper needed:
 
 ```bash
-~/scripts/tools/run_on_model.sh -- python3 kernel.py
+python3 kernel.py
+```
+
+Use `~/scripts/tools/run_on_model.sh` when the auto-load doesn't apply or isn't
+enough — it sets up the env from scratch and adds what `.zshrc` doesn't:
+- **AM backend** (`--backend am`; the auto-load is FFM-only),
+- **`--capture`** an AQL trace via roccap (forces FFM),
+- **non-interactive / `docker exec` / cron** contexts where `.zshrc` never ran,
+- a fuller ROCm overlay that shadows bundled libs and excludes `libamd_smi`.
+
+```bash
 ~/scripts/tools/run_on_model.sh --backend am -- python3 kernel.py
-~/scripts/tools/run_on_model.sh --capture -- ./hip_tdm_1d 3
+~/scripts/tools/run_on_model.sh --capture   -- ./hip_tdm_1d 3
 ```
 
 ## Kernel Rules
