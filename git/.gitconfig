@@ -9,8 +9,14 @@
   autoSetupRemote = true
 [url "git@github-e:AMD-Triton/"]
   insteadOf = git@github.com:AMD-Triton/
+  insteadOf = https://github.com/AMD-Triton/
 [url "ssh://git@github-e/AMD-Triton/"]
   insteadOf = ssh://git@github.com/AMD-Triton/
+# Force any other github.com HTTPS URL onto SSH so the personal (jerryyin) key
+# is used automatically -- bypasses the gh credential helper / active account.
+# Longest-prefix wins, so the AMD-Triton rules above still route to enterprise.
+[url "git@github.com:"]
+  insteadOf = https://github.com/
 [alias]
   cmt = commit --signoff
 [safe]
