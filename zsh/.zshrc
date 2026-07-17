@@ -30,13 +30,22 @@ if [[ -r "$HOME/.p10k-lean.zsh" ]]; then
 fi
 
 # Load Zinit
+# Guard on zinit.zsh itself, not the directory: a partial bootstrap (mkdir
+# succeeds but the clone fails/is interrupted) leaves an empty dir that a
+# directory-existence check would treat as installed forever. Safe to wipe+reclone:
+# this lives under ~/.cache (a disposable cache with no user data).
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 ZINIT_BIN_DIR="$CACHE_DIR/zinit/bin"
-if [[ ! -d $ZINIT_BIN_DIR ]]; then
+if [[ ! -f $ZINIT_BIN_DIR/zinit.zsh ]]; then
+    command rm -rf $ZINIT_BIN_DIR
     command mkdir -p $ZINIT_BIN_DIR
     command git clone https://github.com/zdharma-continuum/zinit $ZINIT_BIN_DIR --depth=1
 fi
-source "$ZINIT_BIN_DIR/zinit.zsh"
+if [[ -f $ZINIT_BIN_DIR/zinit.zsh ]]; then
+    source "$ZINIT_BIN_DIR/zinit.zsh"
+else
+    print -u2 "zinit: bootstrap failed (no $ZINIT_BIN_DIR/zinit.zsh); skipping plugin load"
+fi
 
 #----------------------------------------------
 # Plugin section
