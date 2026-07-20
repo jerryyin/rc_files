@@ -11,15 +11,15 @@ export PATH="$HOME/bin:$PATH"
 # Node/npm CA trust through corporate TLS-inspecting proxies (see lib/ for why).
 [[ -f "$HOME/rc_files/lib/node-ca-cert.sh" ]] && source "$HOME/rc_files/lib/node-ca-cert.sh"
 
-# TMUX
-# # If not running interactively, do not do anything
-# # This configuration allows multiple tmux sessions
-#[[ $- != *i* ]] && return
-#[[ -z "$TMUX" ]] && exec tmux -2u || :
-
-# This configuration allows attaching to one base session
+# TMUX: auto-attach one base session per user on interactive shells. On by
+# default so a freshly provisioned client host (a fresh rc_files checkout,
+# no extra setup) gets this for free. This is the same .zshrc on every
+# machine -- rather than commenting/uncommenting per host, opt out on a
+# specific machine (e.g. your own daily driver) by creating an empty,
+# untracked ~/.no-auto-tmux there once: `touch ~/.no-auto-tmux`. That file
+# lives outside rc_files, so `git pull`/re-stow never touches it.
 # https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
-if command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]]; then
+if [[ ! -f "$HOME/.no-auto-tmux" ]] && command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]]; then
   base_session=$(whoami)
   if ! tmux has-session -t "$base_session" 2>/dev/null; then
     tmux -2u new-session -d -s "$base_session"
