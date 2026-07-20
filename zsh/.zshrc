@@ -8,6 +8,9 @@ export LANG=en_US.UTF-8
 # Add ~/bin to PATH for user scripts
 export PATH="$HOME/bin:$PATH"
 
+# Node/npm CA trust through corporate TLS-inspecting proxies (see lib/ for why).
+[[ -f "$HOME/rc_files/lib/node-ca-cert.sh" ]] && source "$HOME/rc_files/lib/node-ca-cert.sh"
+
 # TMUX
 # # If not running interactively, do not do anything
 # # This configuration allows multiple tmux sessions
@@ -263,7 +266,6 @@ function dbuild() {
 }
 
 export CLICOLOR_FORCE=1
-export NODE_TLS_REJECT_UNAUTHORIZED=0
 
 # IREE environment
 export PATH=~/iree/build/model/tracy:$PATH

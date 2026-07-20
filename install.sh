@@ -87,13 +87,14 @@ if command -v npm >/dev/null 2>&1; then
         echo '{"dependencies":{}}' > "$COC_EXT_DIR/package.json"
     fi
     # Some environments (corporate proxies, WSL) present a TLS chain npm cannot
-    # verify, causing UNABLE_TO_GET_ISSUER_CERT_LOCALLY. Prefer a configured CA
-    # bundle; otherwise fall back to disabling strict-ssl for this install.
+    # verify, causing UNABLE_TO_GET_ISSUER_CERT_LOCALLY. Point npm at the OS's
+    # CA bundle rather than disabling verification; self-sufficient here
+    # (doesn't assume .zshrc/min.sh already set this) since install.sh can run
+    # standalone.
+    . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/node-ca-cert.sh"
     NPM_TLS_FLAGS=()
     if [ -n "${NODE_EXTRA_CA_CERTS:-}" ] && [ -f "${NODE_EXTRA_CA_CERTS}" ]; then
         NPM_TLS_FLAGS+=(--cafile "${NODE_EXTRA_CA_CERTS}")
-    else
-        NPM_TLS_FLAGS+=(--strict-ssl=false)
     fi
     ( cd "$COC_EXT_DIR" && npm install --no-save "${NPM_TLS_FLAGS[@]}" coc-json coc-tsserver coc-pyright coc-snippets ) || true
 else
