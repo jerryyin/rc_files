@@ -109,13 +109,38 @@ if [ ! -d "$TMUX_PLUGIN_DIR" ]; then
         || echo "WARNING: Failed to clone tpm; skipping tmux plugin setup."
 fi
 
+# tmux only reads ~/.tmux.conf when its *server* starts, not on later
+# `new-session` calls to an already-running one -- a no-op if no server is
+# running yet (new-session below will read it fresh in that case).
+reload_tmux_conf_if_server_running() {
+    tmux has-session 2>/dev/null && tmux source-file "$HOME/.tmux.conf" 2>/dev/null || true
+}
+
 # Install tmux plugins
 # Start a detached tmux session to source tmux.conf and initialize TPM, then install plugins
 if command -v tmux >/dev/null 2>&1 && [ -d "$TMUX_PLUGIN_DIR" ] && [ -f "$HOME/.tmux.conf" ]; then
     echo "Installing tmux plugins..."
+
+    # On a fresh pod, zsh's auto-attach starts a tmux server before
+    # rc_files/.tmux.conf even exists, so that server never ran TPM's init
+    # line and has no TMUX_PLUGIN_MANAGER_PATH -- install_plugins below then
+    # aborts fatally (silently, via `|| true`), and pane-control's
+    # split-navigation keys stay missing in that session until some later
+    # tmux server happens to start fresh. Make sure it actually has TPM
+    # configured before we rely on it; `run -b` in tmux.conf is
+    # asynchronous, so give it a moment.
+    reload_tmux_conf_if_server_running
+    sleep 0.5
+
     tmux new-session -d -s _tpm_install "sleep 2" 2>/dev/null && sleep 0.5
     "$TMUX_PLUGIN_DIR/bin/install_plugins" || true
     tmux kill-session -t _tpm_install 2>/dev/null || true
+
+    # Plugins were just cloned onto disk above; reload again so an
+    # already-running server activates their keybindings (e.g.
+    # tmux-pain-control's pane navigation) in the CURRENT session, instead
+    # of only taking effect the next time a tmux server starts fresh.
+    reload_tmux_conf_if_server_running
 fi
 
 # Make Zsh the default shell and configure Zsh
