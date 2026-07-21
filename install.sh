@@ -135,8 +135,26 @@ if command -v zsh >/dev/null 2>&1; then
     elif [ -t 0 ] && chsh -s "$ZSH_PATH"; then
         echo "Default shell changed to zsh."
     else
-        echo "WARNING: Could not change default shell automatically (no terminal/password available)."
-        echo "         Run this manually later:  chsh -s \"$ZSH_PATH\""
+        # chsh can fail structurally (not just for lack of a tty/password) when
+        # the account is managed by an external identity provider with no local
+        # /etc/passwd entry (e.g. an OS-Login-style setup) -- both attempts above
+        # error out immediately regardless of retries. Fall back to auto-exec'ing
+        # zsh from .bashrc so interactive bash logins still land in zsh, without
+        # needing to touch account metadata owned by that external system.
+        SHIM_MARKER="# >>> rc_files: auto-exec zsh (chsh unavailable) >>>"
+        if ! grep -qF "$SHIM_MARKER" "$HOME/.bashrc" 2>/dev/null; then
+            {
+                echo ""
+                echo "$SHIM_MARKER"
+                echo "if [ -t 1 ] && [ -z \"\${ZSH_VERSION:-}\" ] && [ -z \"\${BASH_EXECUTION_STRING:-}\" ] && [ -x \"$ZSH_PATH\" ]; then"
+                echo "    exec \"$ZSH_PATH\" -l"
+                echo "fi"
+                echo "# <<< rc_files: auto-exec zsh (chsh unavailable) <<<"
+            } >> "$HOME/.bashrc"
+            echo "chsh unavailable (no local /etc/passwd entry for $CURRENT_USER); added an auto-exec-zsh shim to ~/.bashrc instead."
+        else
+            echo "chsh unavailable; auto-exec-zsh shim already present in ~/.bashrc."
+        fi
     fi
     
     # Process .zshrc to remove 'wait' from zinit ice for initial plugin install.
