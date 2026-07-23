@@ -85,6 +85,9 @@ enough — it sets up the env from scratch and adds what `.zshrc` doesn't:
 - Register spills: look for `scratch_load` / `scratch_store` in assembly.
 - Layout conversions: check TTGIR for `convert_layout` in hot paths.
 - Memory coalescing: adjacent threads should access adjacent memory.
+- Report findings as `file:line` + snippet + why (before/after at the same anchor,
+  plus a contrast case) — see *Make the Evidence Navigable* in
+  `compiler-investigation.md`, not just summary counts.
 
 Useful scripts:
 - `~/scripts/triton/tdm/triton/dump_asm.py`
