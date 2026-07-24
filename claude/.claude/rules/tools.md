@@ -4,7 +4,11 @@ description: General-purpose scripts in ~/scripts/tools/ — binary comparison, 
 
 # Available Scripts (`~/scripts/tools/`)
 
-Before writing one-off scripts, check if one of these already does what you need.
+Before creating any script, rule, skill, or doc: check for an existing one and
+extend/parametrize it instead of adding a near-duplicate. Keep it generic — encode
+how to *find* a volatile value (path, version), not the literal; fix a mis-wired
+source (mount, config, script) rather than documenting the workaround. The scripts
+below are the concrete instance — check them before writing a one-off.
 
 | Script | Purpose |
 |--------|---------|

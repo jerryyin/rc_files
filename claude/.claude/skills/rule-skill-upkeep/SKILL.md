@@ -47,6 +47,10 @@ Often do both: capture the new lesson, then check nearby content for staleness.
   existing section first.
 - **Match the file's voice** — terse imperative bullets, same density and
   formatting as its neighbors. No narration of the obvious.
+- **Budget for attention, not length.** Lead with the imperative; cut anything that
+  doesn't change behavior; keep long form only where the idea genuinely needs it.
+  Optimize for parse-ability, not a line count — and when you edit an over-long
+  file, leave it net shorter.
 - **The `description` is the retrieval key.** Write it so the rule/skill is
   recalled in exactly the situations it should fire. If an existing rule should
   now cover a new situation, *widen its description* rather than adding a
