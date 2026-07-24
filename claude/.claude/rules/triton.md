@@ -50,26 +50,28 @@ MAX_JOBS=8 pip install -e .
 
 ## AM/FFM
 
-Interactive shells already have the FFM env loaded by `~/.zshrc` (`load_ffm_env`
-sources `/am-ffm/ffmlite_env.sh`, prepends `/opt/rocm/lib`, sets
-`PYTEST_PLUGINS=ffm_teardown`). So for FFM work in a normal shell, just run the
-command directly — no wrapper needed:
+FFM = functional model (correctness, **no timing**). AM = architectural model
+(cycle timing). Both run gfx1250 kernels off real hardware.
+
+The `triton-mi450` compose service (`~/.docker/docker-compose.yml`) bind-mounts the
+AM+FFM package to `/am-ffm`, and `.zshrc`'s `load_ffm_env` sources
+`/am-ffm/ffmlite_env.sh`. If `/am-ffm` is **empty**, the running container's mount is
+stale (created against an old package dir) — recreate the container from the compose,
+don't hardcode a path here. To find the env meanwhile:
+`find / -name ffmlite_env.sh 2>/dev/null`, then source it inline (non-interactive /
+subagent shells miss the `.zshrc` autoload):
 
 ```bash
-python3 kernel.py
+source <ffmlite_env.sh>; export LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH
+TRITON_ALWAYS_COMPILE=1 python3 <driver>    # GPU runs under: flock /data/lock/amd-gpu.lock
 ```
 
-Use `~/scripts/tools/run_on_model.sh` when the auto-load doesn't apply or isn't
-enough — it sets up the env from scratch and adds what `.zshrc` doesn't:
-- **AM backend** (`--backend am`; the auto-load is FFM-only),
-- **`--capture`** an AQL trace via roccap (forces FFM),
-- **non-interactive / `docker exec` / cron** contexts where `.zshrc` never ran,
-- a fuller ROCm overlay that shadows bundled libs and excludes `libamd_smi`.
-
-```bash
-~/scripts/tools/run_on_model.sh --backend am -- python3 kernel.py
-~/scripts/tools/run_on_model.sh --capture   -- ./hip_tdm_1d 3
-```
+Gotchas: an FFM run keeps sim threads alive and overruns a 2-min Bash timeout (a
+`timeout: … dumped core` after `1 passed` is benign — background + poll for the
+dump, or use the `ffm_teardown` pytest plugin); pytest needs
+`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`. `run_on_model.sh --backend am` / `--capture` set
+the env up from scratch (AM backend, AQL trace) when the `.zshrc` autoload doesn't
+apply.
 
 ## Kernel Rules
 
