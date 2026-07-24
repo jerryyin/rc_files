@@ -73,13 +73,9 @@ output element[0]) and diff each one run-to-run. This works *because* it needs n
 golden and tolerates relocation: **as long as the instrumented kernel still races
 (check: its final output is still distinct across runs), the race is present in the
 very binary you are measuring**, so "input X is bit-identical every run but value Y
-varies" is a valid localization. This is what actually cracks it — it walked a real
-attn kernel from "output races" → "only the 2nd-of-pair P@V MFMAs vary" → "the MFMA
-is faithful (same inputs ⇒ same output), the `v_pk` accumulator feeding it varies"
-→ "the `ds_read` feeding the `v_pk` is bit-deterministic, but the `v_pk` produced a
-different output from bit-identical inputs on N threads" = the victim, oracle-free.
-Software *can* pinpoint the victim instruction after all; it just cannot name the
-silicon signal.
+varies" is a valid localization. Software *can* pinpoint the victim instruction
+after all; it just cannot name the silicon signal. (See the Worked contrast for the
+full chain this cracked.)
 
 **4. "Correct inputs, wrong output" is the door to RTL.** The moment an instruction
 is wrong with provably-correct inputs, stop reasoning about codegen/memory-model —
@@ -103,12 +99,10 @@ read interface). Narrow first, then read RTL, then confirm with the bit.
 *reliably* gives: a reproduction (at high occupancy), **directional** evidence
 (unit/phase, data-error-vs-rounding, occupancy gating, bit-exact alternate lowering
 as control), and — via the cross-run determinism sweep (Principle 3) — the **exact
-victim instruction and the triggering condition** (e.g. "2nd-of-pair MFMA reusing
-srcA triggers; the co-executing `v_pk` is the victim; the `ds_read` is innocent").
-What software **cannot** do is name the **silicon signal** (which mis-wired RTL net,
-which cache-hit latch) — that needs the chicken bit / RTL. Deliver repro +
-directional evidence + victim + trigger; the owner names the net. Do not undersell
-this: a correct victim+trigger tells the RTL owner exactly which module to open.
+victim instruction and the triggering condition**. What software **cannot** do is
+name the **silicon signal** (which mis-wired RTL net, which cache-hit latch) — that
+needs the chicken bit / RTL. Deliver repro + directional evidence + victim + trigger;
+a correct victim+trigger tells the RTL owner exactly which module to open.
 
 **9. Don't trust asm A/B to prove a mechanism.** For a schedule-fragile race, any
 edit — even a same-data register rename or a dead `v_mov` — reshuffles the schedule
@@ -126,9 +120,9 @@ with the full operand+output capture. A guess-one-site-and-instrument approach,
 repeated on failure by guessing a different single site, looks like progress but
 is a linear search dressed up as insight; the sweep is the same cost as one guess
 and removes the guessing. Corollary: **do not declare "software can't do this" from
-a single failed probe.** Each false "impossible" in the worked contrast below came
-from generalizing one failed (repro, site) combination — re-run the sweep on the
-*robust* repro across *all* candidates before escalating to RTL/chicken-bit.
+a single failed probe** — that generalizes one failed (repro, site) combination into
+"impossible." Re-run the sweep on the *robust* repro across *all* candidates before
+escalating to RTL/chicken-bit.
 
 ## Procedure
 1. **Freeze a repro and find its occupancy threshold** (sweep grid; document it).

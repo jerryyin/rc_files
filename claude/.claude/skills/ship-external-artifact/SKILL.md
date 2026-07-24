@@ -15,12 +15,8 @@ description: >-
 The work that found the answer is not the artifact that conveys it. An outside
 reviewer shares none of your context, has little patience, and will dismiss the
 whole thing over one falsifiable claim or one confusing indirection. Reshape the
-output for *them*, in one deliberate pass — not by trimming over many rounds
-after they push back.
-
-Decide the destination shape **before** assembling. Most churn comes from
-committing the investigation's byproducts and then converging by subtraction;
-naming the audience and the minimal artifact first collapses that into one pass.
+output for *them* in one deliberate pass. Decide the destination shape **before**
+assembling: naming the audience and minimal artifact first collapses converge-by-subtraction into a single pass.
 
 Compose with siblings: `investigate-dont-assert` for grounding every claim;
 `pr-ready-self-review` for the code-level cleanup of any diff you include.
@@ -36,8 +32,7 @@ nothing else." This one decision is the target everything else is cut toward.
 Remove **investigation scaffolding** — the capture harness, the bisect log, the
 intermediate variant, the dump you read once. This is real work, not junk, but it
 is how you *found* it, not what the audience *needs*. A finding that mattered to
-you becomes one sentence, not a file. (Sharper than hygiene: scaffolding is
-correct and yours, and still must go.)
+you becomes one sentence, not a file — scaffolding is correct and yours, and still must go.
 
 ## 3 — Remove indirection
 Fewest files, fewest hops to understand any one of them. Prefer embedded data over

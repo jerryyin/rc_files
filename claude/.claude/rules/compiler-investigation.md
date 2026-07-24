@@ -60,19 +60,19 @@ what is shared, what diverges, and why.
 
 ## Make the Evidence Navigable (not just correct)
 
-The rules above make you show and trace the IR; these make you locate and lay it
-out so the reader can jump straight in.
+Locate and lay the evidence out so the reader can jump in — the rules above show
+and trace the IR; these make it findable.
 
-- Persist every IR/asm dump you reason about to a file, and cite the exact
-  `file:line` of each chunk (e.g. `asm/kernel.after.s:971`) — the reader must be
-  able to jump to it. Ephemeral stdout dumps do not count.
-- Present each comparison as a locatable chunk, not a paragraph or a bare count:
-  (a) where — `file:line`, (b) the minimal snippet, (c) one line of *why*.
-- Pair BEFORE/AFTER at the *same* anchor, and add a CONTRAST/control — the
-  nearest case that behaves correctly (e.g. the sibling load that already
-  scalarizes) — to isolate the one variable.
-- When the artifact set is worth keeping, persist before/after IR+asm as files
-  and emit a small guide (resolve line numbers with `grep -n`, print
-  `file:line` + snippet + why) so the inspection is reproducible and navigable
-  later — do not rely on the in-chat explanation alone.
+- Persist every IR/asm dump to a file and present each comparison as a locatable
+  chunk — (a) `file:line`, (b) minimal snippet, (c) one line of *why* — not a
+  paragraph or a bare count. Ephemeral stdout doesn't count.
+- Pair BEFORE/AFTER at the *same* anchor, plus a CONTRAST/control (the nearest case
+  that behaves correctly) to isolate the one variable.
+- For a keeper artifact set, commit before/after IR+asm and a small guide that
+  resolves line numbers (`grep -n`) into `file:line` + snippet + why — so the
+  inspection is reproducible, not chat-bound.
+- Diff *canonicalized* asm, not raw bytes: strip target metadata/comments and
+  compare the histogram of the opcodes that matter, plus the normalized stream. A
+  raw `md5` counts benign scheduler/reg-alloc churn as a real change, so
+  "byte-identical" claims made without stripping are wrong.
 - Close with a compact delta table: `metric | before | after`.

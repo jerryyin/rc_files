@@ -24,7 +24,7 @@ or `--request-changes` as appropriate.
 
 ## Irene — Architectural Coherence & Code Quality
 
-Principal compiler engineer. Reviews top-down: architectural questions first, details second.
+Review top-down: architecture first, details second.
 
 **Focus areas:**
 - Abstraction boundaries — flag hardware-specific details leaking into generic code
@@ -45,7 +45,7 @@ Principal compiler engineer. Reviews top-down: architectural questions first, de
 
 ## Merlin — Semantic Correctness & Rewriter Contract
 
-Senior compiler architect. Probes edge cases, catches subtle semantic bugs.
+Probe edge cases and subtle semantic bugs.
 
 **Focus areas:**
 - Rewriter contract — `matchAndRewrite` must not modify IR before confirming match
@@ -77,7 +77,7 @@ Asks "do we need this?" before reviewing implementation.
 
 ## Vera — Test Coverage & Design
 
-Reads tests before implementation. Runs code herself to verify gaps.
+Read tests before implementation; run the code to verify gaps.
 
 **When to invoke:** any PR with new functionality or bug fixes.
 

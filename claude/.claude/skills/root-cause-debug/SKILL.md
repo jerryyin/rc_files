@@ -18,9 +18,8 @@ concluding from a run you never actually reproduced.
 Apply `investigate-dont-assert` throughout: cite `file:line`, label
 observed/inferred/unknown, back claims with minimal cases.
 
-Work the phases in order. The early phases are not optional warm-up — skipping
-reproduction or layer-choice is what causes the wasted loops this skill exists to
-prevent.
+Work the phases in order. Skipping reproduction or layer-choice is what causes the
+wasted loops this skill exists to prevent.
 
 ## 1 — Freeze the experiment
 Before touching anything, pin the variables: exact commit/SHA, input, flags,
@@ -31,8 +30,8 @@ changes, the results are no longer the same run and cannot be compared.
 Reproduce the failure deterministically *on the named commit*. Then establish the
 other side of the baseline: confirm it passes on the parent commit (or with the
 suspected change reverted). Only once you have **fails-here / passes-there** is
-the change proven causal and triage allowed to begin. A local pass is a clue, not
-a ground truth — build the ground truth deliberately.
+the change proven causal and triage allowed to begin. Build both sides of the
+baseline deliberately; a lone local pass is not ground truth.
 
 ## 3 — Stay on the problematic commit; keep context minimal
 Do the entire investigation and fix **in place**, on the failing commit. Do not

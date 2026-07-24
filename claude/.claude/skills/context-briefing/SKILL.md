@@ -12,14 +12,12 @@ description: >-
 # Context Briefing
 
 Given one spot the user points at, produce the explanation you wish you'd had on
-day one: starts from nothing assumed, leads with concrete examples, and layers
-from the plain-language essence down to the exact line and its edge cases — all
-in one pass.
+day one: nothing assumed, concrete examples first, layered from plain-language
+essence down to the exact line and its edge cases — all in one pass.
 
 Optimize for **completeness over brevity**. The reader skips what they already
-know; they cannot conjure what you left out. Investigate thoroughly and populate
-the whole picture in one go rather than handing back a thin answer they must
-keep probing.
+know; they cannot conjure what you left out. Populate the whole picture in one
+go rather than handing back a thin answer they must keep probing.
 
 Apply `investigate-dont-assert`: every claim grounded in the code at `file:line`,
 every non-trivial point carried by a real example, observed vs inferred labeled.

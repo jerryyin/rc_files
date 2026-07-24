@@ -12,8 +12,8 @@ description: >-
 
 When the environment is ephemeral, anything not committed to a tracked repo or
 saved to persistent storage is gone at teardown — and anything junk that *is*
-committed is permanent noise. This skill reconciles both directions in one pass:
-nothing worth keeping is lost, nothing throwaway is kept.
+committed is permanent noise. Reconcile both directions: nothing worth keeping is
+lost, nothing throwaway is kept.
 
 Apply `investigate-dont-assert`: identify what produced each change/file and
 whether it is already tracked before deciding its fate. Cite the evidence.
@@ -73,19 +73,12 @@ right place.
 - Persistent host state outside the repos — out of scope unless asked.
 - Files the user has explicitly said to keep as-is.
 
-## Anti-patterns
-- **Auto-fixing wrong state.** Reverting/committing an anomaly before explaining its cause.
-- **Bundled commits.** One commit mixing unrelated concerns instead of logical splits.
-- **Committing junk.** Adding debug artifacts or generated/secret files to a repo.
-- **Deleting a keeper.** Purging a file that was actually worth refactoring into the scripts repo.
-- **Undecided files.** Leaving loose files unclassified so they silently vanish at teardown.
-- **Committing without approval.** Pushing or deleting before the user has seen the plan.
-
 ## Checklist
 - [ ] Every tracked repo: `git status` reviewed and unpushed commits checked.
 - [ ] Keepers committed in logical splits and pushed (after approval).
 - [ ] Wrong state diagnosed to its source and fixed only with permission.
 - [ ] Ownership boundaries intact: secrets vs non-secret config in the right home.
+- [ ] No junk committed: debug artifacts, build output, or generated/secret files kept out of repos.
 - [ ] Every loose file classified: deleted, or refactored-and-placed.
 - [ ] Intentionally-untracked / active / user-pinned files left alone.
 - [ ] Plan presented before any push or deletion.

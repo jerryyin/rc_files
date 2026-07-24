@@ -88,9 +88,6 @@ Goal: get a go/no-go on migrating off the legacy queue this quarter
 3. Cost of waiting one more quarter — who absorbs the next outage?
 ```
 
-Everything else from the analysis (the numbers, the history, the scoring) is
-left out — it lives in the source and gets pulled in only if someone asks.
-
 ## Anti-patterns
 
 - **Not a summary/abstract.** Don't try to be complete; capture only what you'll
@@ -101,4 +98,3 @@ left out — it lives in the source and gets pulled in only if someone asks.
   value; a gist without forks is just a flat list.
 - **Don't exceed ~5 anchors / one screen.** Past that it stops being glanceable.
 - **Don't paste the reasoning.** Keep a pointer to the source analysis for depth.
-```

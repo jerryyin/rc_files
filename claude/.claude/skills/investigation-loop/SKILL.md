@@ -52,7 +52,10 @@ written at the end of every iteration. Never keep state only in your head.
 3. **Prefer ground truth over re-implementation.** When reproducing someone's
    result, use *their* exact artifact (patch, commit, IR, binary) before deciding a
    discrepancy is real. A re-implementation that "should be equivalent" is a
-   hypothesis, not a control.
+   hypothesis, not a control — and so is **extrapolating from a sibling** (a
+   different kernel, phase, or problem shape): "it behaves like the one I dumped"
+   must be dumped/run for the *actual* case (extrapolating decode from prefill on
+   #1885 gave a wrong verdict).
 4. **Run it.** Verify, don't assert — every number reproduced now, not remembered.
 5. **Adversarially refute** (investigate-dont-assert / ship-external-artifact):
    you do NOT need to have predicted the failure mode. Walk the **Refutation
@@ -62,22 +65,41 @@ written at the end of every iteration. Never keep state only in your head.
 6. **Update the ledger.** Mark hypotheses supported/refuted; append facts with how
    verified; record dead ends; set the next decisive experiment.
 7. **Breadth gate before concluding:** enumerate the axes the claim ranges over
-   (phase, kernel, dtype, size, target) and confirm it on *all* of them, not the
-   one you happened to test. If an axis is untested, that's the next experiment.
-   For genuinely independent hypotheses, fan out (background Agents / Workflow)
-   rather than serializing.
-8. **Terminate or continue — inline by default.** If every done-claim is
-   `survived`, stop and write the result (hand to ship-external-artifact).
-   Otherwise **loop back to step 1 in the same turn** and run the next iteration
-   now. Iterations usually depend on the previous result (often a build), so
-   **block and wait** rather than yield: run each experiment synchronously —
-   foreground `Bash` if it fits the timeout, else `run_in_background` + a blocking
-   `TaskOutput` — then continue. Do **not** background-and-yield or schedule a
-   timer between dependent rounds; that only fragments the investigation. End on
-   done, or when the ledger shows no runnable decisive experiment left (report the
-   blocker + what artifact/access would unblock it — do not invent a conclusion).
-   Only spill across turns when a turn genuinely can't hold the run (context/cost)
-   or you're polling external state the harness can't track — see Pacing.
+   — **including your intervention's own knobs** (which args/flags/metadata you
+   toggled), not just phase/kernel/dtype/size/target — and confirm it on *all* of
+   them, not the one you happened to test. **Ablate maximal-first:** apply the
+   intervention in its broadest *sound* form, confirm an effect exists at all,
+   *then* bisect to the minimal cause. A null result from a *minimal* intervention
+   is not a null result for the hypothesis (annotating only the index vs all
+   uniform-read-only args on #1885 was exactly this false negative). If an axis is
+   untested, that's the next experiment. For genuinely independent hypotheses, fan
+   out (background Agents / Workflow) rather than serializing — see below.
+8. **Terminate or continue.** If every done-claim is `survived`, stop and write the
+   result (→ ship-external-artifact). Otherwise loop to step 1 **in the same turn**.
+   If no runnable decisive experiment remains, stop and report the blocker + what
+   would unblock it — don't invent a conclusion. Run each round synchronously
+   (block, don't background-and-yield between dependent rounds) — see Pacing.
+
+## Fanning out (parallel cells)
+
+When breadth justifies parallel cells (Workflow / background Agents), keep the
+single-ledger discipline from fragmenting into isolated per-cell notes:
+
+- **Probe capability before scheduling dependents.** A preflight cell checks the
+  environment a track needs (can the sim init? can the device run the kernel? does
+  the toolchain build?); gate dependent cells on it — don't schedule cells that can
+  only bail (#1885 ran a whole runtime track that produced no data because the
+  sim/torch ABI was never probed first).
+- **Share the growing facts.** Per-cell ledgers must still read+append one shared
+  "Established facts / Dead ends / harness invocations" surface, so a discovery
+  (the real env path, a working command) propagates instead of each cell
+  re-deriving it. A confirmed working incantation belongs in the durable rule
+  (rule-skill-upkeep), not just one cell's ledger.
+- **Avoid the write race.** Concurrent cells write only their own ledger plus
+  machine-readable STATUS/CONCLUSION lines; a single-threaded pass merges them into
+  the index. Never let N cells edit one shared file at once.
+- **Fresh context, no leaks.** Each cell gets only its task + the shared facts;
+  never thread one cell's raw result into a sibling's prompt.
 
 ## Refutation schemas (the loop generates the test; you don't predict it)
 
@@ -128,6 +150,11 @@ it isn't a conclusion yet.
 - **Test-one-generalize-all.** Verifying on one case and claiming the class.
 - **Flip-flopping.** Successive contradictory conclusions across rounds = the loop
   is skipping step 5; the ledger's refutation tests prevent it.
+- **Minimal-only ablation.** Concluding "no effect" from the smallest intervention
+  when a broader-but-sound one was never tried. Ablate maximal-first, then bisect.
+- **Env-spelunking on a stale rule.** Re-deriving a documented harness/env by trial
+  because the rule's command failed — fix the rule (rule-skill-upkeep) and reuse
+  it, don't rediscover it per cell.
 
 ## Launch
 
