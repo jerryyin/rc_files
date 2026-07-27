@@ -206,24 +206,75 @@ let g:termdebug_config['evaluate_in_popup'] = v:true
 let g:termdebug_config['map_K'] = v:false
 
 " ============================================================================
-" Claude Code Integration (tmux-based)
+" Claude Code / Codex Integration (tmux-based)
 " ============================================================================
-" Prerequisite: Claude running in tmux split (manual: tmux split-window -h claude)
+" Prerequisite: Claude Code or Codex running in a tmux split.
 " Usage:
 "   - Visual mode: Select code, hit \c  -> sends selection with context
 "   - Normal mode: Hit \c               -> sends entire buffer with line numbers
+" The target pane is detected by what it runs (claude/codex in its process
+" tree), not by tmux focus history, so it works with >2 panes.
 " ============================================================================
 
 xnoremap <leader>cc :call SendToClaudeVisual()<CR>
 nnoremap <leader>cc :call SendToClaudeBuffer()<CR>
 
-" Helper: paste text into Claude tmux pane (no Enter, no screen flash)
+" Return 1 if any process in the tree rooted at a:pid runs claude or codex.
+function! s:PaneRunsAi(pid) abort
+    let frontier = [a:pid]
+    while !empty(frontier)
+        let next = []
+        for p in frontier
+            if empty(p) | continue | endif
+            let cmdline = system('cat /proc/' . p . '/cmdline 2>/dev/null | tr "\0" " "')
+            if cmdline =~? '\vclaude|codex'
+                return 1
+            endif
+            call extend(next, systemlist('pgrep -P ' . p))
+        endfor
+        let frontier = next
+    endwhile
+    return 0
+endfunction
+
+" Find the tmux pane running Claude Code or Codex. Returns a pane id or ''.
+function! s:FindAiPane() abort
+    let cur = $TMUX_PANE
+    let last = trim(system("tmux display-message -p -t '{last}' '#{pane_id}'"))
+    let curwin = trim(system("tmux display-message -p '#{window_id}'"))
+    let matches = []
+    let curwin_matches = []
+    for row in systemlist("tmux list-panes -a -F '#{pane_id} #{pane_pid} #{window_id}'")
+        let parts = split(row)
+        if len(parts) < 3 | continue | endif
+        let [pane, pid, win] = parts[0:2]
+        if pane ==# cur | continue | endif
+        if s:PaneRunsAi(pid)
+            call add(matches, pane)
+            if win ==# curwin | call add(curwin_matches, pane) | endif
+        endif
+    endfor
+    if empty(matches) | return '' | endif
+    " Prefer the last-focused pane when it is itself an AI pane, then a match in
+    " the current window, then any match.
+    if index(matches, last) >= 0 | return last | endif
+    if !empty(curwin_matches) | return curwin_matches[0] | endif
+    return matches[0]
+endfunction
+
+" Helper: paste text into the Claude/Codex tmux pane (no Enter, no screen flash)
 function! s:PasteToClaudeTmux(text)
+    let target = s:FindAiPane()
+    if empty(target)
+        echohl WarningMsg | echo "No Claude/Codex tmux pane found" | echohl None
+        return ''
+    endif
     let temp = tempname()
     call writefile(split(a:text, "\n", 1), temp)
     call system('tmux load-buffer ' . shellescape(temp))
-    call system('tmux paste-buffer -t {last}')
+    call system('tmux paste-buffer -t ' . shellescape(target))
     call delete(temp)
+    return target
 endfunction
 
 function! SendToClaudeVisual() range
@@ -242,8 +293,10 @@ function! SendToClaudeVisual() range
     let text = printf("File: %s (lines %d-%d)\n\n", filename, line_start, line_end)
     let text .= join(lines, "\n")
 
-    call s:PasteToClaudeTmux(text)
-    echo "Pasted to Claude: " . filename . " (lines " . line_start . "-" . line_end . ")"
+    let target = s:PasteToClaudeTmux(text)
+    if !empty(target)
+        echo "Pasted to " . target . ": " . filename . " (lines " . line_start . "-" . line_end . ")"
+    endif
 endfunction
 
 function! SendToClaudeBuffer()
@@ -257,6 +310,8 @@ function! SendToClaudeBuffer()
     let cursor_line = line('.')
     let text = filepath . ":" . cursor_line
 
-    call s:PasteToClaudeTmux(text)
-    echo "Pasted to Claude: " . text
+    let target = s:PasteToClaudeTmux(text)
+    if !empty(target)
+        echo "Pasted to " . target . ": " . text
+    endif
 endfunction

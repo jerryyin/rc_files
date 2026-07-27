@@ -122,12 +122,71 @@ map("n", "B", "<cmd>Break<CR>", { silent = true })
 map("n", "D", "<cmd>Clear<CR>", { silent = true })
 map("n", "C", "<cmd>Continue<CR>", { silent = true })
 
+-- Return true if any process in the tree rooted at pid runs claude or codex.
+local function pane_runs_ai(pid)
+  local frontier = { pid }
+  while #frontier > 0 do
+    local next_frontier = {}
+    for _, p in ipairs(frontier) do
+      if p ~= "" then
+        local cmdline = vim.fn.system('cat /proc/' .. p .. '/cmdline 2>/dev/null | tr "\\0" " "')
+        if cmdline:lower():match("claude") or cmdline:lower():match("codex") then
+          return true
+        end
+        for _, k in ipairs(vim.fn.systemlist("pgrep -P " .. p)) do
+          table.insert(next_frontier, k)
+        end
+      end
+    end
+    frontier = next_frontier
+  end
+  return false
+end
+
+-- Find the tmux pane running Claude Code or Codex. Returns a pane id or nil.
+local function find_ai_pane()
+  local cur = vim.env.TMUX_PANE or ""
+  local last = vim.fn.trim(vim.fn.system("tmux display-message -p -t '{last}' '#{pane_id}'"))
+  local curwin = vim.fn.trim(vim.fn.system("tmux display-message -p '#{window_id}'"))
+  local matches, curwin_matches = {}, {}
+  for _, row in ipairs(vim.fn.systemlist("tmux list-panes -a -F '#{pane_id} #{pane_pid} #{window_id}'")) do
+    local pane, pid, win = row:match("^(%S+)%s+(%S+)%s+(%S+)")
+    if pane and pane ~= cur and pane_runs_ai(pid) then
+      table.insert(matches, pane)
+      if win == curwin then
+        table.insert(curwin_matches, pane)
+      end
+    end
+  end
+  if #matches == 0 then
+    return nil
+  end
+  -- Prefer the last-focused pane when it is itself an AI pane, then a match in
+  -- the current window, then any match.
+  for _, m in ipairs(matches) do
+    if m == last then
+      return last
+    end
+  end
+  if #curwin_matches > 0 then
+    return curwin_matches[1]
+  end
+  return matches[1]
+end
+
+-- Returns the target pane id on success, nil if no AI pane was found.
 local function paste_to_claude_tmux(text)
+  local target = find_ai_pane()
+  if not target then
+    vim.notify("No Claude/Codex tmux pane found", vim.log.levels.ERROR)
+    return nil
+  end
   local temp = vim.fn.tempname()
   vim.fn.writefile(vim.split(text, "\n", { plain = true }), temp)
   vim.fn.system("tmux load-buffer " .. vim.fn.shellescape(temp))
-  vim.fn.system("tmux paste-buffer -t {last}")
+  vim.fn.system("tmux paste-buffer -t " .. vim.fn.shellescape(target))
   vim.fn.delete(temp)
+  return target
 end
 
 function _G.SendToClaudeVisual()
@@ -141,8 +200,10 @@ function _G.SendToClaudeVisual()
   local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
   local filename = vim.fn.expand("%:t")
   local text = ("File: %s (lines %d-%d)\n\n%s"):format(filename, start_line, end_line, table.concat(lines, "\n"))
-  paste_to_claude_tmux(text)
-  vim.notify(("Pasted to Claude: %s (lines %d-%d)"):format(filename, start_line, end_line))
+  local target = paste_to_claude_tmux(text)
+  if target then
+    vim.notify(("Pasted to %s: %s (lines %d-%d)"):format(target, filename, start_line, end_line))
+  end
 end
 
 function _G.SendToClaudeBuffer()
@@ -152,8 +213,10 @@ function _G.SendToClaudeBuffer()
   end
 
   local text = vim.fn.expand("%:p") .. ":" .. vim.fn.line(".")
-  paste_to_claude_tmux(text)
-  vim.notify("Pasted to Claude: " .. text)
+  local target = paste_to_claude_tmux(text)
+  if target then
+    vim.notify("Pasted to " .. target .. ": " .. text)
+  end
 end
 
 map("x", "<leader>cc", _G.SendToClaudeVisual, { silent = true })
