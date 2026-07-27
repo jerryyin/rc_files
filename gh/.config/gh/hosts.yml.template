@@ -1,0 +1,19 @@
+# gh CLI auth, templated by scripts/docker/env/vault.sh from ~/vault tokens.
+# Two accounts on one host; zhuoryin_amdmeng is the default active account (the
+# top-level user/oauth_token mirror the zhuoryin_amdmeng entry). Switch at
+# runtime with `gh auth switch -u jerryyin`. Placeholders are substituted in
+# place, so once patched this file is owned by gh and survives restarts (delete
+# it to re-seed from vault after rotating a token).
+#
+# NOTE: this only sets the active *gh CLI* account (for `gh pr`, `gh issue`,
+# etc.). It does NOT affect git commit authorship — that comes from
+# git user.name/user.email — nor which SSH key authorizes a push.
+github.com:
+    git_protocol: https
+    users:
+        jerryyin:
+            oauth_token: __GH_TOKEN_JERRYYIN__
+        zhuoryin_amdmeng:
+            oauth_token: __GH_TOKEN_AMDMENG__
+    user: zhuoryin_amdmeng
+    oauth_token: __GH_TOKEN_AMDMENG__
