@@ -42,6 +42,10 @@ exist, name them separately instead of merging them into one narrative.
 - Check `compile_commands.json` symlink to find the right build directory.
 - Run specific tests after changes, not the full test suite.
 
+## Contextual Rules
+
+Additional guidance lives in `~/.claude/rules/`. Before relevant work, read and follow only the files whose topic, `description`, or `globs` frontmatter matches the task or current path.
+
 ## Design Documentation
 
 - Always include an "Alternatives Considered" section in design docs.
