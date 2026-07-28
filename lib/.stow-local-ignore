@@ -1,0 +1,5 @@
+# install.sh stows every top-level directory, but lib/ holds shell helpers that
+# callers source from their repo path ($HOME/rc_files/lib/...), never from a
+# stowed one. Ignoring everything makes `stow lib` a no-op so it stops leaving a
+# stray ~/node-ca-cert.sh, without needing a special case in install.sh's loop.
+.*

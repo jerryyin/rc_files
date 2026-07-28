@@ -10,3 +10,7 @@ claude/.claude/*
 !claude/.claude/rules/**
 !claude/.claude/skills/
 !claude/.claude/skills/**
+
+# Same ".*" problem: stow's per-package ignore file must be tracked, or `stow lib`
+# reverts to dropping a stray ~/node-ca-cert.sh on every other machine.
+!lib/.stow-local-ignore
