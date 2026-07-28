@@ -4,7 +4,7 @@ set -e  # Exit immediately if a command exits with a non-zero status
 set -u  # Treat unset variables as an error
 
 # Check required dependencies up front.
-for dep in stow git; do
+for dep in stow git curl; do
     if ! command -v "$dep" >/dev/null 2>&1; then
         echo "Error: '$dep' is not installed. Please install it and try again."
         exit 1
@@ -72,7 +72,12 @@ done
 # Initialize vim-plug and install plugins
 if command -v vim >/dev/null 2>&1; then
     echo "Initializing vim-plug and installing Vim plugins..."
-    vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall || true
+    if ! GIT_CONFIG_GLOBAL=/dev/null vim -n -E -s -u "$HOME/.vimrc" \
+        "+PlugInstall --sync" \
+        "+if !empty(filter(values(g:plugs), '!isdirectory(v:val.dir)')) | cquit 1 | endif" \
+        "+qall!"; then
+        echo "WARNING: Vim plugin installation failed; continuing setup." >&2
+    fi
 else
     echo "Note: vim not found. Skipping vim-plug plugin installation."
 fi
@@ -96,7 +101,8 @@ if command -v npm >/dev/null 2>&1; then
     if [ -n "${NODE_EXTRA_CA_CERTS:-}" ] && [ -f "${NODE_EXTRA_CA_CERTS}" ]; then
         NPM_TLS_FLAGS+=(--cafile "${NODE_EXTRA_CA_CERTS}")
     fi
-    ( cd "$COC_EXT_DIR" && npm install --no-save "${NPM_TLS_FLAGS[@]}" coc-json coc-tsserver coc-pyright coc-snippets ) || true
+    ( cd "$COC_EXT_DIR" && npm install --no-save "${NPM_TLS_FLAGS[@]}" coc-json coc-tsserver coc-pyright coc-snippets ) \
+        || echo "WARNING: CoC extension installation failed; continuing setup." >&2
 else
     echo "Note: npm not found. Install CoC extensions manually in vim with :CocInstall coc-json coc-tsserver coc-pyright coc-snippets"
 fi
@@ -105,15 +111,18 @@ fi
 TMUX_PLUGIN_DIR="$HOME/.tmux/plugins/tpm"
 if [ ! -d "$TMUX_PLUGIN_DIR" ]; then
     echo "Installing tmux plugin manager..."
-    git clone https://github.com/tmux-plugins/tpm "$TMUX_PLUGIN_DIR" \
-        || echo "WARNING: Failed to clone tpm; skipping tmux plugin setup."
+    GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
+        git clone https://github.com/tmux-plugins/tpm "$TMUX_PLUGIN_DIR" \
+        || echo "WARNING: Failed to clone tmux plugin manager; continuing setup." >&2
 fi
 
 # tmux only reads ~/.tmux.conf when its *server* starts, not on later
-# `new-session` calls to an already-running one -- a no-op if no server is
-# running yet (new-session below will read it fresh in that case).
+# `new-session` calls to an already-running one.
 reload_tmux_conf_if_server_running() {
-    tmux has-session 2>/dev/null && tmux source-file "$HOME/.tmux.conf" 2>/dev/null || true
+    if tmux has-session 2>/dev/null; then
+        tmux source-file "$HOME/.tmux.conf" \
+            || echo "WARNING: Failed to reload ~/.tmux.conf; continuing setup." >&2
+    fi
 }
 
 # Install tmux plugins
@@ -121,25 +130,12 @@ reload_tmux_conf_if_server_running() {
 if command -v tmux >/dev/null 2>&1 && [ -d "$TMUX_PLUGIN_DIR" ] && [ -f "$HOME/.tmux.conf" ]; then
     echo "Installing tmux plugins..."
 
-    # On a fresh pod, zsh's auto-attach starts a tmux server before
-    # rc_files/.tmux.conf even exists, so that server never ran TPM's init
-    # line and has no TMUX_PLUGIN_MANAGER_PATH -- install_plugins below then
-    # aborts fatally (silently, via `|| true`), and pane-control's
-    # split-navigation keys stay missing in that session until some later
-    # tmux server happens to start fresh. Make sure it actually has TPM
-    # configured before we rely on it; `run -b` in tmux.conf is
-    # asynchronous, so give it a moment.
     reload_tmux_conf_if_server_running
-    sleep 0.5
-
     tmux new-session -d -s _tpm_install "sleep 2" 2>/dev/null && sleep 0.5
-    "$TMUX_PLUGIN_DIR/bin/install_plugins" || true
+    GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
+        "$TMUX_PLUGIN_DIR/bin/install_plugins" \
+        || echo "WARNING: tmux plugin installation failed; continuing setup." >&2
     tmux kill-session -t _tpm_install 2>/dev/null || true
-
-    # Plugins were just cloned onto disk above; reload again so an
-    # already-running server activates their keybindings (e.g.
-    # tmux-pain-control's pane navigation) in the CURRENT session, instead
-    # of only taking effect the next time a tmux server starts fresh.
     reload_tmux_conf_if_server_running
 fi
 
