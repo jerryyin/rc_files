@@ -49,7 +49,11 @@ augroup GruvboxMaterialCustom
   autocmd!
   autocmd ColorScheme gruvbox-material call s:gruvbox_material_custom()
 augroup END
-colorscheme gruvbox-material
+if !empty(globpath(&runtimepath, 'colors/gruvbox-material.vim'))
+  colorscheme gruvbox-material
+else
+  echohl WarningMsg | echom 'gruvbox-material is not installed; run :PlugInstall' | echohl None
+endif
 
 " lightline
 " Customize colorscheme, branch and tabline
