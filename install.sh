@@ -62,6 +62,27 @@ for package_dir in "$REPO_DIR"/*/; do
     done < <(git -C "$REPO_DIR" ls-files -z -- "$package")
 done
 
+# Create every directory the packages install into, before stowing them.
+#
+# Left to itself, stow "folds": when a directory in $HOME doesn't exist yet
+# and only one package supplies it, stow points a single symlink at the
+# package -- ~/.config becomes a link to rc_files/nvim/.config -- instead of
+# linking the files inside it. Everything any program then writes anywhere
+# under ~/.config lands in this repo. That is how 66MB of coc extensions and
+# tmux plugins, and a ~/.docker/config.json holding registry credentials,
+# came to live in the working tree, invisible only because the global
+# gitignore hides dot-prefixed paths. A directory that already exists is
+# nothing to fold, so stow links file by file and runtime writes stay in
+# $HOME where they belong.
+echo "Pre-creating target directories so stow can't fold them..."
+for package_dir in "$REPO_DIR"/*/; do
+    while IFS= read -r -d '' dir; do
+        mkdir -p "$HOME/${dir#"$package_dir"}"
+    done < <(find "$package_dir" -mindepth 1 -type d -print0)
+done
+# mkdir honours the umask, which would leave a freshly created ~/.ssh at 755.
+[ -d "$HOME/.ssh" ] && chmod 700 "$HOME/.ssh"
+
 # Use stow to manage dotfiles.
 echo "Setting up dotfiles with stow..."
 for package_dir in "$REPO_DIR"/*/; do
