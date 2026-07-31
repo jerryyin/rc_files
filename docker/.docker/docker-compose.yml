@@ -152,3 +152,4 @@ services:
         BASE_IMAGE: rocm/dev-ubuntu-24.04:latest
         SERVICE_NAME: iree
     image: "jeryin/dev:iree"
+    profiles: ["iree"]

@@ -148,20 +148,28 @@ if command -v zsh >/dev/null 2>&1; then
 
     if [ "$CURRENT_SHELL" = "$ZSH_PATH" ]; then
         echo "Zsh is already the default shell; skipping chsh."
-    # Changing your OWN login shell does not require sudo; chsh prompts for your
-    # password when a terminal is available. Try non-interactively first (-n),
-    # then fall back to an interactive chsh, then to clear manual instructions.
+    # Exactly one chsh attempt, and it never prompts. In a container this is
+    # the path that runs: root with passwordless sudo and a real local
+    # /etc/passwd entry, so the login shell genuinely changes.
+    #
+    # There is deliberately NO interactive `chsh` fallback. It used to be
+    # guarded by `[ -t 0 ]`, on the theory that a terminal implies someone
+    # is there to type a password -- but a terminal only means a tty is
+    # attached, not that a human is watching it. Any automated run over
+    # `ssh -tt` satisfies that test and then blocks forever on chsh's
+    # password prompt. Worse, on the hosts where that branch was actually
+    # reached it could never have succeeded anyway: they authenticate
+    # against an external directory, so `getent passwd` resolves the user
+    # while /etc/passwd has no entry at all for chsh to rewrite. It was a
+    # prompt that could only ever hang, never succeed.
     elif sudo -n chsh -s "$ZSH_PATH" "$CURRENT_USER" 2>/dev/null; then
         echo "Default shell changed to zsh (passwordless sudo)."
-    elif [ -t 0 ] && chsh -s "$ZSH_PATH"; then
-        echo "Default shell changed to zsh."
     else
-        # chsh can fail structurally (not just for lack of a tty/password) when
-        # the account is managed by an external identity provider with no local
-        # /etc/passwd entry (e.g. an OS-Login-style setup) -- both attempts above
-        # error out immediately regardless of retries. Fall back to auto-exec'ing
-        # zsh from .bashrc so interactive bash logins still land in zsh, without
-        # needing to touch account metadata owned by that external system.
+        # No local /etc/passwd entry to rewrite (externally-managed account),
+        # or no passwordless sudo. Either way the login shell can't be changed
+        # without prompting, so auto-exec zsh from .bashrc instead: interactive
+        # bash logins still land in zsh, and no account metadata owned by that
+        # external system gets touched.
         SHIM_MARKER="# >>> rc_files: auto-exec zsh (chsh unavailable) >>>"
         if ! grep -qF "$SHIM_MARKER" "$HOME/.bashrc" 2>/dev/null; then
             {
@@ -173,6 +181,7 @@ if command -v zsh >/dev/null 2>&1; then
                 echo "# <<< rc_files: auto-exec zsh (chsh unavailable) <<<"
             } >> "$HOME/.bashrc"
             echo "chsh unavailable (no local /etc/passwd entry for $CURRENT_USER); added an auto-exec-zsh shim to ~/.bashrc instead."
+            echo "  (if this account does have a local passwd entry, 'chsh -s $ZSH_PATH' by hand sets the login shell properly)"
         else
             echo "chsh unavailable; auto-exec-zsh shim already present in ~/.bashrc."
         fi
