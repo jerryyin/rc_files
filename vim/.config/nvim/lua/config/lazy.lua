@@ -189,7 +189,11 @@ require("lazy").setup({
   { "vim-pandoc/vim-pandoc-syntax" },
 }, {
   root = vim.fn.stdpath("data") .. "/lazy",
-  lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json",
+  -- lazy-lock.json is deliberately not tracked in this repo. Its commits are
+  -- what a fresh install checks out, so tracking it would put every new host
+  -- on plugin versions pinned whenever the file was last committed instead of
+  -- each plugin's branch head. lazy still writes one locally, at its default
+  -- path, so :Lazy restore works per machine.
   change_detection = {
     notify = false,
   },
