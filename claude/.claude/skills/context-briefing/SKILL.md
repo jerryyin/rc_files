@@ -1,108 +1,124 @@
 ---
 name: context-briefing
 description: >-
-  Produce a complete, ground-up explanation of one spot in a codebase — a
-  function, pass, line, error, or concept the user points at — in a single pass.
-  Use when the user wants to understand a specific place: "explain this", "what
-  is this doing", "I don't understand X", "give me the context around Y". Builds
-  from zero project knowledge up through the nuanced details, example-first, so a
-  newcomer reaches full understanding without a second round.
+  Produce a ground-up explanation or evidence-backed verdict for one codebase
+  spot, behavior, error, concept, or claim. Use when the user asks "explain
+  this", "what is this doing", "I don't understand X", or "give me the context
+  around Y"; also use when they challenge truth or causality with "is this
+  true", "confirm/refute", "prove this", "I'm not convinced", "what changed and
+  why", or "push this to assembly/runtime". Builds from source plus real
+  artifacts so the user gets the full picture in one pass.
 ---
 
 # Context Briefing
 
-Given one spot the user points at, produce the explanation you wish you'd had on
-day one: nothing assumed, concrete examples first, layered from plain-language
-essence down to the exact line and its edge cases — all in one pass.
+Explain one codebase spot, or confirm/refute one technical claim, in one pass.
 
-Optimize for **completeness over brevity**. The reader skips what they already
-know; they cannot conjure what you left out. Populate the whole picture in one
-go rather than handing back a thin answer they must keep probing.
+Apply `investigate-dont-assert`: ground non-trivial claims in source or observed
+artifacts, cite `file:line` for source claims, show concrete examples, and label
+observed / inferred / unknown.
 
-Apply `investigate-dont-assert`: every claim grounded in the code at `file:line`,
-every non-trivial point carried by a real example, observed vs inferred labeled.
+## Choose The Shape
 
-## The layering principle
+- **Explanation**: the user asks what/how/why. Teach from zero context with
+  progressive disclosure: essence -> surroundings -> mechanism -> exact lines ->
+  traps and nuance.
+- **Verdict**: the user asks whether a claim is true, asks to confirm/refute or
+  prove something, says they are not convinced, asks what changed, or asks to
+  push to a lower artifact. The first non-empty line must be `**Verdict**`.
 
-A newcomer cannot absorb the exact detail until they have a place to put it.
-Structure every briefing as **progressive disclosure** — each layer complete on
-its own, so the reader stops the moment they are satisfied:
+Mode only changes the answer shape. The investigation discipline is the same.
 
-1. **Essence** — one or two sentences: what this is and why it exists, in plain
-   language, no jargon undefined.
-2. **Mechanism** — how it actually works, the moving parts, walked through.
-3. **Exact spot** — the specific code/line, named precisely, tied to the mechanism.
-4. **Nuance** — edge cases, gotchas, the gated branch, the look-alike trap, the
-   "this is true except when…".
+## Workflow
 
-Lead with the essence. Detail before the big picture has nowhere to land.
+1. **Pin the object**: name the exact spot, behavior, or claim; define terms the
+   first time they appear.
+2. **Map the path**: identify who produces the input, who consumes the output,
+   and which neighboring code/state matters.
+3. **Choose the decisive artifact**: test at the layer where the claim can fail.
+   Source is not enough for claims about emitted code, runtime behavior,
+   hardware behavior, APIs, performance, wire format, persisted data, or UI.
+4. **Use the authoritative path**: prefer the real commit, command, input,
+   binary, trace, response, or file over a proxy. Treat reimplementations and
+   sibling cases as evidence only after checking fidelity.
+5. **Show A/not-A when causal**: compare patch vs ablation, old vs new, enabled
+   vs disabled, failing vs passing. If only one side is available, say so.
+6. **Show the smallest real example**: quote the minimal IR/log/assembly/output,
+   command, request/response, screenshot/DOM state, query result, or code excerpt
+   that carries the claim.
+7. **Explain the mechanism**: say what changed, what stayed invariant, and why
+   the observed artifact follows from the code or system rule.
+8. **Bound the result**: separate observed, inferred, and untested axes.
+9. **Surface traps**: call out look-alikes, abstraction-level mistakes, no-ops
+   with side effects, and other confusions likely to cause follow-up rounds.
 
-## Procedure
+## Output Shapes
 
-1. **Pin the spot and assume zero context.** Identify exactly what the user
-   pointed at. Define every term the first time it appears; do not assume project
-   experience, conventions, or acronyms are known.
-2. **Lead with the essence + a picture.** State the one-line what-and-why, then
-   show where this spot sits — the pipeline stage, call path, or lifecycle around
-   it. "Where am I and what touches this" is a newcomer's first question.
-3. **Map the actors.** Name what produces the input, what consumes the output,
-   and who else reads or writes the thing in question. Make the neighbors explicit.
-4. **Make examples the backbone, not decoration.** For each idea, show the
-   smallest real case: actual input/output, before/after state, the concrete value
-   that triggers the behavior. Prefer dumping the real artifact over describing
-   what you expect it to look like. If you can't produce an example, you don't yet
-   understand it well enough to explain it.
-5. **Layer down.** Walk essence → mechanism → exact spot → nuance, each section
-   self-contained.
-6. **Surface the look-alikes and traps.** Call out the near-identical things that
-   mislead newcomers — two similarly named entities, a no-op that looks like real
-   work, one abstraction level mistaken for another — and distinguish them
-   side by side. These are where understanding breaks.
-7. **Connect to the bigger why.** Tie the spot back to the issue or goal that
-   prompted the question, and to any sibling/reference that illuminates it by
-   contrast.
+For explanations:
 
-## Briefing shape
+```markdown
+**Essence.** <plain-language what + why>
+**Where it sits.** <pipeline/call path/lifecycle>
 
-```
-# <Spot> — what it is in one line
+**How it works**
+<mechanism, with a concrete example>
 
-**Essence.** <plain-language what + why, terms defined>
-**Where it sits.** <pipeline/call-path picture>
+**Exact spot**
+<file:line and the relevant before/after or input/output>
 
-## How it works
-<mechanism, walked through, with a concrete example at each step>
+**Look-alikes & traps**
+<nearby concepts that are easy to confuse>
 
-## The exact spot
-<the specific code/line at file:line, tied to the mechanism>
-<before -> after, or input -> output, shown literally>
-
-## Look-alikes & traps
-| this | vs that | how to tell them apart |
-...
-
-## Nuance & edge cases
-<gated branches, exceptions, "true except when…">
-
-## Why this matters here
-<connection to the issue/goal; reference contrast if any>
+**Nuance & why it matters**
+<edge cases and connection to the user's goal>
 ```
 
-## Anti-patterns
-- **Assumed knowledge.** Undefined jargon, acronyms, or conventions a newcomer won't have.
-- **Detail before picture.** Diving into the line before the reader knows what the thing is.
-- **Example-free assertion.** A mechanism described but never shown on a real case.
-- **Paraphrase over artifact.** Describing what the IR/output "would" be instead of dumping it.
-- **Flat dump.** All depth at once, or all surface — no layering for the reader to navigate.
-- **Stopping at the surface.** A thin answer that forces a second, third, fourth round of questions.
-- **Skipping the look-alikes.** Leaving the exact confusions that trip newcomers unaddressed.
+For verdicts:
+
+```markdown
+**Verdict**
+Confirmed / refuted / partially confirmed: <one-sentence answer with scope>.
+
+**Evidence**
+<test object, command/context, and pinned variables>
+A / with change:
+<minimal raw artifact>
+B / without change:
+<minimal raw artifact>
+Delta:
+<small table or bullet list>
+
+**Mechanism**
+<why the artifact follows from the code/dataflow; what changed and what stayed invariant>
+
+**Scope**
+Observed: ...
+Inferred: ...
+Unknown / not tested: ...
+```
+
+Use every verdict heading, even for short answers. If the claim is not causal,
+replace A/B with the smallest decisive observation and say why that observation
+is enough.
+
+## Anti-Patterns
+
+- Undefined jargon or assumed project knowledge.
+- Explaining before locating the spot in the system.
+- Paraphrasing what an artifact "would" show instead of showing it.
+- Stopping above the layer the user is challenging.
+- One-sided causal verdict with no limitation label.
+- Using `Essence` / explanation shape for a confirm/refute prompt.
+- Missing mechanism, scope, or look-alikes.
+- Dumping logs without identifying the few lines that prove the point.
 
 ## Checklist
-- [ ] Spot pinned; every term defined on first use; zero project knowledge assumed.
-- [ ] Essence and "where it sits" lead, before any detail.
-- [ ] Producers/consumers/neighbors named.
-- [ ] Every non-trivial point carried by a concrete, minimal, real example.
-- [ ] Layered essence → mechanism → exact spot → nuance, each self-contained.
-- [ ] Look-alikes and traps distinguished side by side.
-- [ ] Tied back to the prompting issue/goal; reference contrast if relevant.
-- [ ] Complete in one pass — reader can skip, but nothing essential is missing.
+
+- [ ] Shape chosen from user intent; verdicts start with `**Verdict**`.
+- [ ] Spot/claim pinned; terms defined on first use.
+- [ ] Source claims cite `file:line`; observed claims include commands/artifacts.
+- [ ] Decisive artifact is at the layer where the claim can fail.
+- [ ] Causal claims show A/not-A or label the missing side.
+- [ ] Mechanism names what changed and what stayed invariant.
+- [ ] Scope separates observed, inferred, and unknown.
+- [ ] Traps/look-alikes are called out when they are likely to confuse the user.
