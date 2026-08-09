@@ -58,6 +58,15 @@ For AMD-specific lowering or scheduling work, compare against the corresponding
 NVIDIA or upstream reference when it is relevant and readily available. Explain
 what is shared, what diverges, and why.
 
+To reset accumulated device state, power-cycle the board; idling does not. An idle
+interval varies only time-since-work, and nothing relevant has a long time constant:
+thermal relaxes in minutes, clock and power residency in seconds, while allocator,
+driver and queue state do not decay with wall-clock at all. A long wait is therefore
+redundant against the fast mechanisms and powerless against the cumulative ones. When
+a hypothesis needs a clean device, take the reboot and pay its bring-up cost. To test
+whether accumulated work is the cause, prefer a dose-response inside one boot —
+measure, inject a described dose of work, measure again — over waiting.
+
 ## Make the Evidence Navigable (not just correct)
 
 Locate and lay the evidence out so the reader can jump in — the rules above show
