@@ -1,58 +1,47 @@
 ---
 name: investigate-dont-assert
 description: >-
-  Cross-cutting evidence discipline for any technical claim: confirm against the
-  code, separate what is known from what is guessed, and back every non-trivial
-  statement with a concrete example. Use whenever you are about to assert how
-  something works, why a change is needed, or what a system does — especially
-  during debugging, code review, or self-review. Other skills lean on this one.
+  Ground technical claims in the artifact that owns the truth, distinguish
+  observation from inference, and show a concrete case. Use when explaining how
+  something works, researching documentation or source, judging why a change is
+  needed, debugging, reviewing, or validating a result. Other skills use this as
+  their shared evidence discipline.
 ---
 
 # Investigate, Don't Assert
 
-A claim you have not checked is a guess wearing a fact's clothes. Before you state
-how something works — or why a change is needed — ground it.
+An unchecked claim is a hypothesis. Match each claim to evidence at the layer where it could be false.
 
-This is a shared primitive. `root-cause-debug` and `pr-ready-self-review` both
-depend on it; apply it throughout either.
+## Ground claims at their source
 
-## The three rules
+- For local code, read the mechanism and cite `file:line`.
+- For external facts, follow the claim to the owning primary source: official source, specification, documentation, commit, or first-party issue discussion. Cite it next to the claim.
+- For runtime, performance, emitted-code, wire-format, persisted-data, or UI behavior, capture the real output. Source intent alone cannot prove an observed result.
+- Prefer the exact input, commit, binary, request, trace, or configuration over a reimplementation or sibling case. Treat proxies as hypotheses until fidelity is checked.
+- Redact secrets and sensitive payloads before showing commands or artifacts; keep credentials in their secure source or environment.
 
-### 1 — Confirm against the source
-Every "this is for X", "this handles Y", "this is safe because Z" must be checked
-against the actual code, and cited as `file:line`. If you cannot point to the
-line that makes it true, you do not yet know it is true. Prefer reading the
-mechanism over paraphrasing intent; prefer dumping the actual output over
-describing what you expect it to be.
+Use evidence proportionate to the claim. A local naming fact may need one source line; a causal or general claim needs a controlled comparison and coverage across the axes it names.
 
-### 2 — Separate observed, inferred, and unknown
-State which is which, explicitly. An observation is something you ran or read. An
-inference is a hypothesis built on observations. An unknown is a gap. Do not let
-an inference graduate into an observation because it sounds right or because a
-related run passed — a passing run nearby is a clue, not a proof.
+## Label epistemic state
 
-### 3 — Back it with a concrete example
-For any non-trivial claim, produce a real, minimal case: the input that triggers
-the behavior, one case it accepts, one it rejects. If you cannot construct an
-example — ideally the smallest one that still exhibits the behavior — treat the
-claim as suspect and keep digging.
+- **Observed:** directly read or run, with the source, command, or artifact named.
+- **Inferred:** a hypothesis that follows from observations but has not been directly tested.
+- **Unknown:** a gap that available evidence does not settle.
+
+Never promote an inference because it sounds plausible or a nearby run passed.
+
+## Show a decisive case
+
+Produce the smallest faithful example that carries the claim. For behavior, show an accepted and rejected case when useful. For causality, change one variable and show A/not-A. If a minimal case loses the phenomenon, keep the robust reproducer and explain why.
 
 ## When challenged
-Re-check the evidence; do not elaborate the original story. If the user questions
-an assumption, the correct first move is to go back to the code or rerun the
-experiment, not to add reasons defending what you already said. Update the
-hypothesis to fit the evidence, not the evidence to fit the hypothesis.
 
-## Anti-patterns
-- **Confident paraphrase of unread code.** "It probably does X" stated as "it does X".
-- **Borrowed certainty.** Concluding from a passing adjacent run instead of the path in question.
-- **Unlabeled inference.** Presenting a hypothesis with no marker that it is one.
-- **Example-free claim.** A general statement with no concrete case behind it.
-- **Doubling down.** Answering a challenge with more argument rather than more evidence.
+Return to the source or rerun the experiment before adding explanation. Update the hypothesis to fit the evidence. State plainly when access, cost, nondeterminism, or missing artifacts prevent confirmation.
 
-## Checklist
-- [ ] Every "this is for/does/handles X" cited to `file:line`.
-- [ ] Observed / inferred / unknown labeled, not blended.
-- [ ] Each non-trivial claim has a concrete, minimal example.
-- [ ] Conclusions trace to the actual path, not a nearby passing one.
-- [ ] On challenge, re-checked evidence before adding reasoning.
+## Completion check
+
+- [ ] Each non-trivial claim points to the owning source or decisive artifact.
+- [ ] Observed, inferred, and unknown are not blended.
+- [ ] The example is both small enough to inspect and faithful enough to prove the claim.
+- [ ] Causal comparisons hold other relevant variables fixed.
+- [ ] Sensitive values are absent from quoted evidence.

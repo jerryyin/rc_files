@@ -1,83 +1,72 @@
 ---
 name: rule-skill-upkeep
 description: >-
-  Curate the Claude rules and skills themselves. Two modes: (1) author/amend —
-  turn a lesson, correction, or preference from the user into a rule or skill,
-  choosing the right home and making its description a good recall trigger;
-  (2) audit — scan existing rules/skills and verify each claim against the live
-  session, flagging stale, wrong, or unverified content. Use on "add/update a
-  rule or skill", "capture this as a rule", "remember this in a rule", "are the
-  rules still accurate", or "audit/scan the rules". Commit to the tracked
-  dotfiles repo when done.
+  Curate the rules and skills themselves: capture a reusable lesson, amend or
+  audit existing guidance, or evaluate and fuse an external skill collection.
+  Use on requests to add/update a rule or skill, remember a correction, check
+  whether guidance is stale, consolidate duplicates, or import useful skills.
+  Chooses the right home, sharpens retrieval triggers, removes overlap, verifies
+  environment claims, and preserves only behavior-changing instructions.
 ---
 
-# Rule/Skill Upkeep
+# Rule / Skill Upkeep
 
-Rules and skills are code too: they should be terse, correct, and land where the
-model will actually find them. This skill maintains them. It leans on
-`investigate-dont-assert` for evidence and `state-sync` for committing tracked
-state.
+Rules and skills are executable context. Optimize for reliable retrieval, correct behavior, and low maintenance cost—not completeness.
 
-## Dispatch
+Apply `investigate-dont-assert` when auditing claims. Obey the current turn's Git and mutation authority. Before a Git write, summarize the intended action and affected files; editing never implies permission to commit or push.
 
-- **Author/amend** — the user gives a lesson, correction, or preference to
-  capture. Go to *Authoring*.
-- **Audit** — the user asks whether the rules/skills are still accurate, or you
-  finish a session that surfaced drift. Go to *Auditing*.
+## Choose the home
 
-Often do both: capture the new lesson, then check nearby content for staleness.
+- **Rule:** ambient behavior that must apply automatically whenever its matching context appears.
+- **Skill:** an on-demand, multi-step workflow or specialized reference that earns the cost of separate discovery.
+- **Existing file:** the default home. Widen its description or add the missing branch instead of creating a near-duplicate.
+- **Reference:** detailed, branch-specific material that a skill needs only sometimes. Link it directly from `SKILL.md` with the condition for reading it.
 
-## Rule vs skill, and where it goes
+Create a new skill only when it has a distinct trigger and procedure that cannot fit cleanly in an existing home.
 
-- **Rule** = ambient guidance loaded every session. Use it for behavior you want
-  to happen *by default*, without being asked.
-- **Skill** = a procedure invoked on demand. Use it for a heavyweight, multi-step
-  workflow triggered deliberately.
-- If the goal is "do X automatically when situation Y arises," it is a rule, not
-  a skill — a skill that must be invoked defeats "by default."
-- Prefer **amending the closest existing file/section** over creating a new one.
-  Create a new file only when the topic has no home.
+## Author or amend
 
-## Authoring (add/amend from input)
+1. Extract the generalizable lesson. Exclude the one-off incident unless it is the smallest useful example.
+2. Find the closest source of truth and read its surrounding guidance before editing.
+3. Write the retrieval pointer first. A description must say what the material does and encode one trigger for each genuinely different branch; collapse synonyms that describe the same branch.
+4. Write imperative steps in execution order. End each step with a checkable completion condition when “done” could otherwise be ambiguous.
+5. Keep one source of truth per meaning. Phrase the positive target behavior; reserve prohibitions for real guardrails.
+6. Treat code, configuration, layout, and `--help` output as authoritative. Document only conventions, reasoning, and costly-to-rediscover gotchas rather than caching easy lookups.
+7. Match the collection's schema, voice, density, naming, and product conventions. When creating a new skill, use the supported initializer and metadata generator rather than copying another harness's frontmatter.
+8. Validate the changed skill and forward-test complex behavior when safe and useful.
 
-- **Capture the generalizable lesson, not the instance.** Strip the specific
-  problem; keep the transferable principle. Gear it to the domain, not the one
-  bug. (What was non-obvious here that will recur?)
-- **Put it in the right home** — the file whose topic it matches, the closest
-  existing section first.
-- **Match the file's voice** — terse imperative bullets, same density and
-  formatting as its neighbors. No narration of the obvious.
-- **Budget for attention, not length.** Lead with the imperative; cut anything that
-  doesn't change behavior; keep long form only where the idea genuinely needs it.
-  Optimize for parse-ability, not a line count — and when you edit an over-long
-  file, leave it net shorter.
-- **The `description` is the retrieval key.** Write it so the rule/skill is
-  recalled in exactly the situations it should fire. If an existing rule should
-  now cover a new situation, *widen its description* rather than adding a
-  near-duplicate.
-- **Earn each line.** Reject one-off or project-narrow facts (they belong in
-  notes, not a general rule). Don't duplicate existing coverage. If unsure a fact
-  is broad enough, ask before adding it.
+## Fuse an external collection
 
-## Auditing (scan for accuracy)
+Inventory both collections before copying. Classify every upstream skill:
 
-Apply `investigate-dont-assert` for the evidence discipline — verify each claim
-by running the check (not from memory or the rule's own wording), and on
-challenge re-check rather than defend. What is specific to auditing docs:
+- **Merge:** same trigger or outcome as a local skill. Preserve only mechanisms that change behavior and integrate them into the local workflow.
+- **Add:** distinct, recurring need with a clear local use case. Adapt terminology, safety gates, tools, and completion criteria to the local environment.
+- **Omit:** thin wrapper, experimental material, ecosystem-specific setup, low-frequency preference, weaker duplicate, or behavior that conflicts with local policy.
 
-- **Rules go stale.** A claim that was true can quietly become false — a path
-  moved, a flag renamed, a default changed. Verify the wording against today's
-  environment, not against when it was written (paths, env vars, build flags,
-  file lists, script existence).
-- **Classify each claim:** accurate / stale / wrong / unverified; say plainly
-  what you did not check.
-- **Report tight, then fix.** What still holds, what drifted, a concrete diff per
-  fix. Apply objective corrections; get sign-off on judgment calls.
+Judge ideas independently of upstream packaging. A useful clause does not justify importing its entire workflow. Remove automatic commits, external writes, broad builds, destructive operations, or mandatory user questioning unless current local policy and task authority support them.
+
+Keep adapted files concise: delete duplicated explanations, anecdotes, and generic advice the model already follows. Preserve attribution or license notices when copied material requires them.
+
+## Audit
+
+Bound the audit to the files and claims relevant to the request. For each environment-dependent claim, verify it against the live path, command, flag, version, or tool behavior and classify it as accurate, stale, wrong, or unverified. Fix objective drift; surface judgment calls separately.
+
+Audit retrieval and structure too:
+
+- Does the description fire on every intended branch without synonym padding?
+- Is branch-specific detail progressively disclosed instead of obscuring the core workflow?
+- Does every line change behavior relative to the model's default?
+- Are duplicated meanings, stale caches, and obsolete product mechanics removed?
 
 ## Finish
 
-- Rules/skills live in a tracked dotfiles repo. After edits, commit and push per
-  the git action gate: state the intended action and affected files first, then
-  commit to the repo's branch/convention.
-- Confirm the active config path. If the live location is a copy rather than a
-  symlink of the source you edited, mirror it so the change takes effect.
+Run targeted validation, inspect the final diff, and confirm the live configuration resolves to the edited source. Summarize what was merged, added, omitted, and why. If the repository workflow calls for staging before review, state the exact files and stage only the task changes. Commit or push only when explicitly authorized in the current user turn.
+
+## Completion check
+
+- [ ] Every change has one clear home and retrieval trigger.
+- [ ] External duplicates were merged rather than installed in parallel.
+- [ ] New skills cover distinct, recurring workflows.
+- [ ] Environment-specific claims were verified or labeled unverified.
+- [ ] Changed skills validate and contain no template residue.
+- [ ] Git and external actions stayed within current-turn authority.

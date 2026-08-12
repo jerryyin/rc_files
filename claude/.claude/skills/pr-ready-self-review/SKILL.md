@@ -1,74 +1,83 @@
 ---
 name: pr-ready-self-review
 description: >-
-  Turn a working-but-rough change into a PR-ready diff in one pass via
-  systematic self-review. Use after a solution works but before opening a PR, or
-  when the user asks to finalize, clean up, polish, harden, or self-review a diff.
+  Turn a working change into a focused, reviewable diff by checking it
+  independently against intent/specification and repository standards. Use
+  after a solution works but before opening a PR, or when asked to finalize,
+  clean up, harden, polish, or self-review a branch or working-tree change.
+  Pins the exact tip and comparison base, minimizes scope, audits test quality,
+  and runs targeted verification without committing or pushing implicitly.
 ---
 
 # PR-Ready Self-Review
 
-A change that passes tests is not done. In one pass, reshape it into the diff you
-would actually submit: small, clear, and fully justified.
+A passing change is not finished until the diff is necessary, understandable, and faithful to its intent.
 
-Work the phases in order: 1–2 build understanding, 3–5 reshape the code, 6 fixes
-comments, 7 presents. Re-run build/tests after any code-changing phase.
+Apply `investigate-dont-assert`: ground findings in the actual diff, code, tests, and project guidance. Preserve unrelated user changes.
 
-Throughout: apply `investigate-dont-assert` (ground every claim in the code);
-**prefer clarity over cleverness**; **the default for any line you added is to
-remove it unless it earns its place.**
+Establish authority before proceeding. A request to review or report is read-only: inspect and report findings without editing. A request to clean up, finalize, harden, or polish authorizes in-scope edits, followed by another review pass.
 
-## 1 — Intent & context
-Understand the original before touching it. State the one problem solved, how the
-original behaved and why it "worked," and the exact corner case the change
-addresses. Most later decisions fall out of this.
+## 1. Pin the review object
 
-## 2 — Examples
-Back every non-trivial decision with a concrete example from the real code: the
-input that triggers the new behavior, plus one case it accepts and one it
-rejects (see `investigate-dont-assert`).
+Record the current branch, tip SHA, `git status --short`, and fixed comparison point. Resolve the base and inspect its merge-base diff (`<base>...HEAD`), staged and unstaged diffs, and the full contents of in-scope untracked files. Fail early on a bad ref or unexpectedly empty review object.
 
-## 3 — Minimize the diff
-- Fix the root cause; don't add cost (build/runtime/scope) to work around it.
-- Revert anything not required for the fix, including your own incidental edits.
-  If something can't cleanly adopt a change, leave it closest to the original.
-- Delete dead or contradictory code. A guard for a state that cannot occur isn't
-  "defensive" — it's noise (and is dangerous if it silently passes a bad input).
-  Confirm unreachability with Phase 1 evidence before removing.
+Identify the originating issue, spec, task contract, or conversation. Find repository standards in applicable `AGENTS.md`, `CLAUDE.md`, rules, contributing docs, and neighboring code. State when no written spec exists.
 
-## 4 — Consolidate (separation of concerns)
-- Audit duplication across all sibling call sites, not just the line you added.
-  When your code joins several near-identical sites, lift the *entire* shared
-  part into one helper — including pre-existing duplication — rather than stopping
-  at your new check. This is the one allowed exception to Phase 3.
-- A shared helper holds only what is common to every caller; caller-specific
-  decisions stay in the caller. A parameter meaningful to only one caller is a
-  smell — keep that special case with its owner.
-- Collapse a helper that has one caller and is self-explanatory.
+## 2. Review two independent axes
 
-## 5 — Tests
-- Cover at the cheapest layer that proves it (unit/IR over end-to-end). Drop a
-  costly test a cheaper one already covers, and reuse existing positive coverage.
-- Keep duplicated cases only when each exercises an independent code path.
-- Make negative coverage representative: hit the distinct branches with varied
-  cases, not one narrow case repeated.
+Keep findings separate until both passes are complete:
 
-## 6 — Comments
-Brief intent above a unit, in the file's style — what it is, not how it works. No
-narration of obvious code. Add a short "why" only where a corner case or
-non-obvious decision needs justifying.
+- **Intent:** missing or partial requirements, behavior that was not requested, and implementation that appears to satisfy the words but not the intended behavior.
+- **Standards:** correctness, project conventions, abstraction boundaries, maintainability, diagnostics, performance/compatibility/security risk when relevant, and test quality.
 
-## 7 — Present
-1. **Description** — problem, original behavior/bug, fix, any trade-off.
-2. **Walkthrough** — intent, original logic, corner cases, each with an example.
-3. **Diff** — final changes grouped logically, each non-obvious choice justified
-   in a line.
+Repository-specific standards override generic preferences. Treat style or design smells as judgment calls unless a documented rule makes them hard requirements. Do not let success on one axis hide a failure on the other.
 
-## Checklist
-- [ ] Every changed line necessary; incidental scope reverted.
-- [ ] Root cause fixed, not worked around.
-- [ ] No unreachable guards; claims backed by file:line.
-- [ ] Duplication lifted once; no single-caller flags; special cases with owner.
-- [ ] Tests: cheapest layer, no redundant layer, representative coverage.
-- [ ] Comments: brief intent + targeted why.
-- [ ] Build + tests pass.
+## 3. Understand before reshaping
+
+State the one problem solved, the original behavior, the exact corner case, and why the new mechanism addresses it. Back non-trivial decisions with a concrete case from the real path: the triggering input plus a representative accepted and rejected case where useful.
+
+## 4. Minimize the diff
+
+When cleanup edits are authorized:
+
+- Fix the root cause rather than adding cost or complexity around it.
+- Remove incidental edits, speculative options, redundant guards, and dead or contradictory code.
+- Preserve existing names, order, comments, logging, and style unless changing them is necessary.
+- Keep generated changes separate and explain why they are present.
+
+The default for each added line is removal until it earns its place.
+
+## 5. Consolidate at the right seam
+
+When cleanup edits are authorized, audit sibling call sites for the same logic. When duplication is real, move only the common policy behind one well-named interface; keep caller-specific decisions with their owners. Avoid parameters meaningful to one caller and helpers that merely forward a single call.
+
+For a new abstraction, apply the deletion test: if removing it only removes indirection, it is too shallow; if its policy would spill across callers, it earns its seam.
+
+## 6. Audit tests and comments
+
+- Cover behavior at the cheapest faithful seam; use a unit/pass/IR test instead of end-to-end coverage when it proves the same contract.
+- Verify the test would fail on the bug or missing behavior and that expected results come from an independent oracle.
+- Reuse existing positive coverage; add representative negative cases for distinct branches without duplicating layers.
+- Keep comments to brief intent and non-obvious rationale. Remove narration of visible code.
+
+## 7. Verify and present
+
+Run the narrow targeted checks after each code-changing cleanup. Run broader validation only in proportion to risk and user authorization; do not start a long build silently.
+
+Present:
+
+1. Current branch/tip, comparison base, and evidence freshness.
+2. Intent findings and standards findings, kept distinct and ordered by severity.
+3. Final problem/fix/trade-off summary and targeted test results.
+4. Remaining risks, untested axes, and any deliberately deferred work.
+
+## Completion check
+
+- [ ] Review base, tip, tracked and untracked scope, and originating intent are explicit.
+- [ ] Intent and standards were reviewed independently.
+- [ ] Review-only requests produced findings without file edits.
+- [ ] Every changed line is necessary; unrelated user work is untouched.
+- [ ] Abstractions reduce policy duplication rather than add forwarding layers.
+- [ ] Tests use faithful seams and independent expected results.
+- [ ] Targeted validation passes; broader checks are authorized and proportionate.
+- [ ] No commit or push occurred without current-turn authorization.

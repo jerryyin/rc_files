@@ -1,104 +1,93 @@
 ---
 name: root-cause-debug
 description: >-
-  Drive a reported failure from first sighting to a verified fix landed at the
-  right layer, in one disciplined pass. Use when triaging a bug, regression, or
-  crash — especially when a specific commit is suspected, or when the obvious fix
-  site may not be the right one. Covers reproduce, isolate, root-cause, and choose
-  the fix layer; hands off to pr-ready-self-review for finalization.
+  Drive a bug, functional or performance regression, crash, slowdown, or
+  incorrect result from exact current state
+  to a verified cause and, when authorized, a fix at the right layer. Use for
+  bounded debugging and triage, especially when a commit is suspected or the
+  visible failure may be downstream of its origin. Builds a faithful feedback
+  loop, isolates the cause, weighs fix layers, adds a real regression test, and
+  hands the finished diff to pr-ready-self-review.
 ---
 
 # Root-Cause Debug
 
-The failure you see is the end of a chain, not its start. This skill takes you
-from "it's broken" to "I have a verified fix at the correct layer" — without the
-backtracking that comes from fixing the symptom, fixing the wrong layer, or
-concluding from a run you never actually reproduced.
+The visible failure is the end of a chain. Trace it to where the bad state begins, then choose the safest layer that prevents recurrence.
 
-Apply `investigate-dont-assert` throughout: cite `file:line`, label
-observed/inferred/unknown, back claims with minimal cases.
+Apply `investigate-dont-assert`: cite source, preserve raw artifacts, label observed/inferred/unknown, and redact secrets before showing commands, logs, traces, or captured requests.
 
-Work the phases in order. Skipping reproduction or layer-choice is what causes the
-wasted loops this skill exists to prevent.
+## 1. Pin state, scope, and authority
 
-## 1 — Freeze the experiment
-Before touching anything, pin the variables: exact commit/SHA, input, flags,
-build directory, and the metric that defines "broken." If any of these later
-changes, the results are no longer the same run and cannot be compared.
+Record the branch and tip SHA, relevant run/job, build directory, exact input and flags, environment/toolchain, and the metric that defines failure. Distinguish evidence from the current tip from older attempts.
 
-## 2 — Reproduce on the exact failing commit, with a baseline
-Reproduce the failure deterministically *on the named commit*. Then establish the
-other side of the baseline: confirm it passes on the parent commit (or with the
-suspected change reverted). Only once you have **fails-here / passes-there** is
-the change proven causal and triage allowed to begin. Build both sides of the
-baseline deliberately; a lone local pass is not ground truth.
+Confirm whether the user asked for diagnosis only or also authorized implementation. Diagnosis does not imply permission to edit, commit, rebase, or perform other Git writes.
 
-## 3 — Stay on the problematic commit; keep context minimal
-Do the entire investigation and fix **in place**, on the failing commit. Do not
-switch to main, rebase, cherry-pick, or pull in unrelated updates mid-flight —
-each one changes the experiment and hides whether your fix is what mattered.
-Defer all history surgery (rebasing/cherry-picking onto a PR base) to the very
-end, after the fix is verified.
+## 2. Build a feedback loop that detects this bug
 
-## 4 — Separate symptom from cause
-The crash site is where the malformed state *blew up*, not where it was *created*.
-Trace backward from the manifestation to the origin. Name the level of every
-observation (which pass, which layer, which boundary) so you do not silently mix
-them. Capture the actual intermediate state rather than paraphrasing what you
-expect it to be.
+Create one runnable command that you have observed catch the user's exact symptom. Prefer an existing focused test; otherwise use the narrowest faithful CLI invocation, differential run, captured-input replay, property/fuzz loop, or small harness.
 
-## 5 — Prove the changed path is exercised
-Before blaming the suspected change, prove the failing case actually runs through
-it — with IR, logs, or a targeted counter, not intent. A plausible story that the
-evidence does not place on the hot path is still a guess.
+Make the loop:
 
-## 6 — Locate both the source and the site; enumerate fix layers
-Name where the bad state originates (the source) and where it surfaces (the site)
-as two distinct locations. List the candidate places a fix could go — at the
-source, at an intermediate boundary, or at the site — instead of fixing the first
-one you find.
+- **Red-capable:** asserts the reported symptom, not merely “did not crash.”
+- **Stable:** deterministic, or with a measured and high enough reproduction rate for a flaky failure.
+- **Tight:** as fast and isolated as the real system permits; cache setup and exclude unrelated work.
+- **Repeatable:** pins the variables another agent needs to run it unattended.
 
-## 7 — Compare against the reference
-If a sibling backend, an upstream path, or an analogous component does *not* hit
-this bug, find out exactly why. The mechanism that makes the other path immune
-usually names both the real gap and the most robust place to close it.
+If no faithful loop is possible, report what was tried and the concrete access, artifact, or instrumentation needed. Do not manufacture a cause from code reading alone.
 
-## 8 — Choose the fix layer deliberately
-"Closest to the root cause" is not automatically the right fix. Weigh each
-candidate on **blast radius, regression risk, and robustness**:
-- A deep source fix removes the cause but may be broad, generic, and risky —
-  verify it does not regress unrelated cases.
-- A boundary/defensive fix is narrower and more robust as a catch-all, even if it
-  treats a symptom — it can be the right thing to land first.
+## 3. Establish causality and shrink the case
 
-Land the fix that is safe and robust now; file the deeper one as a tracked
-follow-up if it is worth doing. Record why you chose this layer over the others.
+Run the loop on the exact failing state. For a suspected regression, establish the other side with the parent, known-good commit, or a controlled ablation when this is feasible and authorized. A lone pass or failure does not attribute causality.
 
-## 9 — Verify end to end
-Re-run the original reproduction from Phase 2 and confirm the failure is gone and
-the baseline still passes. Check the siblings the fix touched for regressions. A
-fix that is not re-validated against the exact starting repro is not done.
+Reduce input, configuration, callers, and steps one variable at a time, keeping only elements that carry the failure. For timing-sensitive or nondeterministic bugs, prioritize a robust high-rate reproducer over the smallest one; use the minimal case later for explanation or handoff.
 
-## 10 — Hand off
-With the fix verified at the right layer, now do the deferred history work
-(cherry-pick/rebase onto the PR base), then invoke `pr-ready-self-review` to turn
-it into a submittable diff.
+If only good and bad endpoints are known, offer to turn the feedback command into an automated range bisection. Start only with explicit Git-write authorization and confirmation for repeated long builds; isolate the run, record skipped commits, and leave bisect state only when the user wants it preserved.
 
-## Anti-patterns
-- **Triaging before reproducing.** Explaining a failure you have only seen in a report.
-- **Concluding from a passing run.** A nearby green result is not the failing path.
-- **Fixing the crash site.** Patching where it blew up, leaving the origin intact.
-- **"Most root-cause wins."** Reaching for the deepest fix without weighing blast radius — the trap that causes regressions and rework.
-- **Rebasing mid-investigation.** Changing the base while still diagnosing, so you can no longer tell what fixed it.
-- **No reference check.** Missing that a sibling path already shows the correct, robust fix.
+Stay on a fixed experimental state while diagnosing. Do not pull, rebase, cherry-pick, or switch baselines mid-investigation unless deliberately creating an isolated comparison.
 
-## Checklist
-- [ ] Experiment frozen: commit, input, flags, build, metric.
-- [ ] Reproduced on the failing commit *and* shown to pass on parent/revert.
-- [ ] Investigation done in place; no mid-flight rebase/cherry-pick/main-switch.
-- [ ] Symptom and cause located as distinct points; levels named.
-- [ ] Changed path proven exercised by IR/logs/counter.
-- [ ] Fix layers enumerated; reference path's immunity understood.
-- [ ] Fix layer chosen on blast radius/risk/robustness, with reason recorded.
-- [ ] Re-verified against the original repro and baseline; siblings checked.
-- [ ] History surgery deferred to the end; handed to pr-ready-self-review.
+## 4. Rank hypotheses and probe them
+
+For an ambiguous cause, write 3–5 ranked, falsifiable hypotheses before testing. Give each a prediction: “If X is causal, changing Y while holding the other variables fixed will change Z.”
+
+Run the highest-information probe first. Prove the suspected path is exercised using IR, logs, counters, traces, or another direct artifact. Use a debugger only when stopping execution cannot erase the behavior. Tag temporary instrumentation with a unique marker such as `[DEBUG-a4f2]` so cleanup is mechanically verifiable.
+
+## 5. Locate origin and manifestation
+
+Name separately:
+
+- **Source:** where the invalid state or behavior is created.
+- **Site:** where it becomes visible as a crash, diagnostic, wrong value, or slowdown.
+
+Trace the actual intermediate state between them. Compare a sibling backend, upstream path, or analogous component that is immune; determine the mechanism that makes it different rather than assuming equivalence.
+
+## 6. Choose the fix layer
+
+Enumerate plausible fixes at the source, an intermediate boundary, and the site. Compare blast radius, regression risk, ownership, and robustness. The deepest fix is not automatically the safest one; a narrow boundary guard may be the right immediate fix when a generic source change is risky. Record why the chosen layer wins and whether a deeper follow-up remains.
+
+If the request was diagnosis-only, stop with the verified cause, evidence, candidate fix layers, and the recommended next action.
+
+## 7. Fix and verify
+
+When implementation is authorized:
+
+1. Use `test-driven-change` to turn the reproducer into a failing test at a faithful seam, apply the minimal fix, and verify red-to-green with an independent oracle.
+2. Rerun the original unreduced reproducer and the nearest affected sibling paths.
+
+If `test-driven-change` finds no faithful test seam, carry that architectural finding into the handoff rather than adding false-confidence coverage.
+
+## 8. Clean up and hand off
+
+Remove all tagged instrumentation and throwaway harnesses unless the user wants a durable reproducer. Ask what condition allowed the bug—missing invariant, weak seam, absent validation, or misleading tool feedback—and record only a concrete preventive follow-up.
+
+Use `pr-ready-self-review` for an implemented diff or `ship-external-artifact` for an upstream report/reproducer. Defer history surgery until the fix is verified and explicitly authorized.
+
+## Completion check
+
+- [ ] Current state and evidence freshness are pinned.
+- [ ] One repeatable command detects the exact symptom.
+- [ ] Regression causality is controlled, or the missing baseline is explicit.
+- [ ] Source and manifestation are distinct and linked by evidence.
+- [ ] Hypotheses were tested with one-variable probes when ambiguity required them.
+- [ ] Fix layer was chosen deliberately; diagnosis-only scope was respected.
+- [ ] Regression test and original reproducer pass after an authorized fix.
+- [ ] Temporary instrumentation is gone and remaining risks are stated.
