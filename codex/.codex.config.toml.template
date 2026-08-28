@@ -5,14 +5,12 @@
 # The real ~/.codex/config.toml is local runtime state and should not be tracked.
 
 # Leave `model` unset so Codex follows the built-in recommended/latest local
-# model for the installed release. As of the current Codex manual, that model is
-# gpt-5.5. Uncomment to pin manually:
-# model = "gpt-5.5"
+# model for the installed release.
 model_provider = "openai"
 
 # Max reasoning effort for normal and plan-mode runs.
-model_reasoning_effort = "xhigh"
-plan_mode_reasoning_effort = "xhigh"
+model_reasoning_effort = "max"
+plan_mode_reasoning_effort = "max"
 
 # Match Claude's bypassPermissions behavior for local Codex sessions.
 approval_policy = "never"
