@@ -243,7 +243,9 @@ function set_compose_project_name() {
 # Function to set Docker Compose file and ensure COMPOSE_PROJECT_NAME is set
 function dcompose() {
   set_compose_project_name "$@[-1]"
-  docker compose -f ~/.docker/docker-compose.yml "$@"
+  local compose_file="$HOME/.docker/docker-compose.yml"
+  # Resolve Stow's per-file symlink so relative Dockerfile paths stay regular files.
+  docker compose -f "${compose_file:A}" "$@"
 }
 
 # Function to bring up Docker services in detached mode
