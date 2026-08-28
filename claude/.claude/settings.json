@@ -22,5 +22,8 @@
     ],
     "defaultMode": "bypassPermissions"
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "enabledPlugins": {
+    "clangd-lsp@claude-plugins-official": true
+  }
 }
