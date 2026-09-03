@@ -207,6 +207,16 @@ function load_ffm_env() {
 }
 load_ffm_env
 
+# The Triton MI450 branch downloads its pinned LLVM from a private GitHub
+# release. GitHub answers unauthenticated requests for private assets with 404,
+# not 403, so the build fails looking like a missing artifact. build_helpers.py
+# switches to the authenticated asset API only when a token is present.
+if [[ -r "$HOME/vault/gh_token_amdeng.txt" ]]; then
+  _gh_amdeng_token="$(<"$HOME/vault/gh_token_amdeng.txt")"
+  export TRITON_MI450_LLVM_DOWNLOAD_GITHUB_TOKEN="${_gh_amdeng_token//[[:space:]]/}"
+  unset _gh_amdeng_token
+fi
+
 alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 
 alias ssh='autossh -M 0'
