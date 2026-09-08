@@ -14,12 +14,6 @@
       "Write(*)",
       "Edit(*)"
     ],
-    "deny": [
-      "Read(~/.ssh/id_*)",
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./secrets/**)"
-    ],
     "defaultMode": "bypassPermissions"
   },
   "skipDangerousModePermissionPrompt": true,
