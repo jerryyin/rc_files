@@ -11,7 +11,7 @@ description: >-
 
 # Initiate Campaign — Startup
 
-**Scope: bringing a round into existence and getting the board working on it.** Everything afterwards — the sweep, its questions, decision authority, escalation — is `~/.claude/rules/unattended-campaign.md`, which governs every wake. This file hands over at step 9 and does not take control back until a round ends. Do not answer "how is the campaign doing" from here; read the rule.
+**Scope: bringing a round into existence and getting the board working on it.** Everything afterwards — the sweep, its questions, the wake prompt's own text, decision authority, escalation — is `~/.claude/rules/unattended-campaign.md`, which governs every wake. This file hands over at step 9 and does not take control back until a round ends. Do not answer "how is the campaign doing" from here; read the rule.
 
 Not duplicated here: `orchestration/docs/NIGHTLY-RUN.md` (watchdog arming, morning triage, signatures worth recognising), `orchestration/CHECKS.md` (which gates are proven versus never-fired), `handoff-work` (when state must cross sessions).
 
@@ -65,7 +65,9 @@ The agent reads its authoritative checkout, not your working tree — hash-verif
 
 **7. Start the watchdog, and prove the right one is running.** `systemctl --user restart`, then confirm a **new PID** carrying the unit's environment. A watchdog started before your config change keeps the old config and holds the singleton lock, so the restart silently stands down and the change appears to have taken effect. If it refuses with "watchdog already running", find what holds the lock file and check whether it is an orphan.
 
-**8. Arm the monitoring loop.** `CronCreate`, session-only unless asked otherwise, on **off-minutes** (`:11,:41`, not `:00,:30`). Mention that recurring jobs auto-expire after 7 days. Compose the prompt from [`monitor-turn.md`](monitor-turn.md) — self-contained, because the wake carries no conversation, and its first line loads the rule that governs from here on. It states the stable half (access, constraints, the fixed question set) and makes the wake *read* the volatile half, so an amendment landing between two fires cannot leave the loop asking about a dead ruling.
+**8. Arm the monitoring loop.** `CronCreate`, session-only unless asked otherwise, on **off-minutes** (`:11,:41`, not `:00,:30`). Mention that recurring jobs auto-expire after 7 days.
+
+You create the job; you do not author what it says. The prompt text is `~/.claude/rules/campaign-wake-prompt.md` — a monitoring artifact, owned by the rule, rendering the rule's question set. Fill its bracketed values from the *Discover, never hardcode* table above and paste the result. Do not compose a wake prompt from scratch here, and do not let its first line invoke this skill: a wake is not startup.
 
 **9. Prove the agent started, then hand over.** Arming is not delivery and delivery is not work. Watch for the heartbeat to name the round's first item; an agent that acked and then sat down is what this step exists to catch. Once it is working, this skill is done.
 

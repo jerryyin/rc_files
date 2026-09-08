@@ -7,7 +7,9 @@ description: Every wake of a long unattended campaign on a shared machine — de
 
 **This file governs every wake** — a loop fires, or someone asks how the campaign is doing.
 
-**Startup is not here.** Arming a round, delivering the ruling, starting the watchdog, arming the loop: that is the `initiate-campaign` skill. When arming ends, this file takes over and does not hand back.
+**Startup is not here.** Arming a round, delivering the ruling, starting the watchdog, creating the cron job: that is the `initiate-campaign` skill. When arming ends, this file takes over and does not hand back.
+
+**Monitoring is here in full, including the wake prompt itself.** The skill creates the cron job; what that job *says* is a monitoring artifact and belongs to this file. The fill-in-the-blanks text is [`campaign-wake-prompt.md`](campaign-wake-prompt.md), which renders the question set below — one list, in one place. Two question sets in two files drift apart, and the drift is invisible: both halves keep answering their own questions and both report nominal.
 
 The two failure modes look identical from the operator's chair: the agent is blocked, and the agent is idle because nobody gave it anything to do. The second is the expensive one and it is always the operator's fault. **A quiet board is the alarm, not a quiet night.**
 
@@ -19,16 +21,17 @@ The briefing is not a reference — it is the entire world that agent gets. It s
 
 ## Ask the same questions every wake
 
-A fixed set makes drift show up as an unanswerable question instead of a confident wrong answer. Answer each from artifacts, never from the last summary.
+A fixed set makes drift show up as an unanswerable question instead of a confident wrong answer. Answer each from artifacts, never from the last summary. Each item names both the question and the thing that answers it, because a question with no named artifact gets answered from memory.
 
-1. **Is the agent working, or merely alive?** Has the heartbeat changed, and does it name something in flight? A live process with a frozen heartbeat is parked.
-2. **If parked — what is it waiting for, and whose call is it?** The question the whole loop exists for. Route it through [Decision authority](#decision-authority).
-3. **Is the machinery up?** Watchdog running, one instance, right environment; container up; board reachable.
-4. **Has the boot id changed?** A new boot means a host failure or a reclaim. Rows from different boots are never poolable, and an unmatched launch record identifies the configuration that took the machine down.
-5. **Is anything unacked?** Every wake, without exception — see below.
-6. **Is the work on the rung the ruling names?**
-7. **Does the round still have unspent cells?** If not, arm the next one — see below.
+1. **Is the agent working, or merely alive?** The heartbeat: has it changed, and does it name something in flight? A live process with a frozen heartbeat is parked. **Flag any two status fields of different vintage** — a stale block surviving beside a refreshed one reads as current and is how a dead boot's state gets quoted back at you.
+2. **If parked — what is it waiting for, and whose call is it?** The blocked-on-operator file, quoting only what is new. This is the question the whole loop exists for. Route it through [Decision authority](#decision-authority).
+3. **Is anything unacked?** The delivery tool's own check, every wake, without exception — see below. An unknown result is not zero.
+4. **Is the machinery up?** Agent process, container, board; watchdog running, one instance, right environment.
+5. **Has the boot id changed?** A new boot means a host failure or a reclaim. Rows from different boots are never poolable, and an unmatched launch record identifies the configuration that took the machine down. Where a launcher pins the boot, quote the pin: re-pinning is authorized; deleting the check, downgrading it to a warning, or making it env-overridable is not.
+6. **Is the work on the rung the ruling names?** Item by item, in that ruling's own words. Any frozen file modified is an immediate escalation.
+7. **Is the record balanced?** The breadcrumb ledger's before / outcome / resolution counts, and any unmatched before-record — an attempt that started and never resolved.
 8. **Is work stranded on disk?** Uncommitted artifacts do not survive a host failure; unpushed commits never reach the container.
+9. **Does the round still have unspent cells?** If not, arm the next one — see below. **This one is yours and is never delegated**, because its answer authorizes new work; the sweep supplies the evidence, you draw the conclusion.
 
 Report in a few lines when nominal. Do not pad a quiet sweep into a status essay.
 
