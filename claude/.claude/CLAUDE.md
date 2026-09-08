@@ -35,6 +35,14 @@ exist, name them separately instead of merging them into one narrative.
 - Don't claim work is "production ready" without justification.
 - Don't initiate long build time activities without confirmation.
 
+## Shell Path Handling
+
+When reading files in another checkout or directory, pass literal absolute path
+operands to Bash file-reading commands. Prefer `rg PATTERN /absolute/path` and
+`git -C /absolute/repo ...` over `cd DIR` followed by relative file operands in
+the same Bash call. This keeps Claude Code's `Read(...)` deny-rule analysis
+statically resolvable and avoids its unresolved-path approval prompt.
+
 ## Build & Test
 
 - Builds typically happen in out-of-tree build directories.
