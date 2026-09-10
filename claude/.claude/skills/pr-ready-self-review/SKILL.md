@@ -32,6 +32,8 @@ Keep findings separate until both passes are complete:
 
 Repository-specific standards override generic preferences. Treat style or design smells as judgment calls unless a documented rule makes them hard requirements. Do not let success on one axis hide a failure on the other.
 
+Reading a conventions list and eyeballing the diff against it does not catch breaches; the list is abstract and the diff is concrete, so force a per-line join. For each import or dependency edge the diff introduces, grep the package for existing uses. Zero precedent means you are either the first of a new category or in breach of a convention — resolve which before shipping, and say which it was.
+
 ## 3. Understand before reshaping
 
 State the one problem solved, the original behavior, the exact corner case, and why the new mechanism addresses it. Back non-trivial decisions with a concrete case from the real path: the triggering input plus a representative accepted and rejected case where useful.
@@ -59,6 +61,8 @@ For a new abstraction, apply the deletion test: if removing it only removes indi
 - Verify the test would fail on the bug or missing behavior and that expected results come from an independent oracle.
 - Reuse existing positive coverage; add representative negative cases for distinct branches without duplicating layers.
 - Keep comments to brief intent and non-obvious rationale. Remove narration of visible code.
+- A comment must explain how the assertion detects what it claims, not merely restate the defect. If the reader cannot get from the asserted expression to the property being protected, the missing step belongs in the code or on the type — not in a comment about consequences.
+- Test the same abstraction level as the surrounding tests and the code under change; never a layer below. A case that exercises the diff's own test helper, fixture, or hand-built input reads as coverage while catching nothing shipped code could break. Ask which shipped component fails if this assertion is wrong — if only the helper does, drop the test and keep its guard inline.
 
 ## 7. Verify and present
 
@@ -78,6 +82,6 @@ Present:
 - [ ] Review-only requests produced findings without file edits.
 - [ ] Every changed line is necessary; unrelated user work is untouched.
 - [ ] Abstractions reduce policy duplication rather than add forwarding layers.
-- [ ] Tests use faithful seams and independent expected results.
+- [ ] Tests use faithful seams and independent expected results, at the abstraction level under change rather than a layer below.
 - [ ] Targeted validation passes; broader checks are authorized and proportionate.
 - [ ] No commit or push occurred without current-turn authorization.

@@ -35,6 +35,10 @@ exist, name them separately instead of merging them into one narrative.
 - Don't claim work is "production ready" without justification.
 - Don't initiate long build time activities without confirmation.
 
+## Comments
+
+- Match comment and docstring density to the surrounding file; when there is no precedent, err sparse.
+
 ## Build & Test
 
 - Builds typically happen in out-of-tree build directories.
