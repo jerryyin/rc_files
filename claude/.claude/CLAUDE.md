@@ -43,6 +43,7 @@ exist, name them separately instead of merging them into one narrative.
 ## Comments
 
 - Match comment and docstring density to the surrounding file; when there is no precedent, err sparse.
+- A docstring states the contract: what the caller passes, what comes back, and what is not obvious from the signature. Mechanism and motivation belong in the PR description or in a comment at the line where the behaviour happens.
 
 ## Build & Test
 
