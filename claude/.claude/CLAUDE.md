@@ -28,6 +28,11 @@ interpreting results: current branch/tip SHA, relevant run or job, and whether
 the data is from the current tip or an older attempt. If several pushes or runs
 exist, name them separately instead of merging them into one narrative.
 
+## Concrete First
+
+- Show the thing, don't describe it: print the actual value, walk the real data flow with real names and `file:line`, quote the real output. A rule the reader still has to apply themselves is not the same as the applied result — give the result. Abstractions and summaries come after the example, never instead of it.
+- Use the smallest instance where the point is visible; production-scale values usually hide it.
+
 ## Communication Style
 
 - Be direct. Light debate on technical matters is encouraged.
