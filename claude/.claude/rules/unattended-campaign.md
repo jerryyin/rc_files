@@ -5,6 +5,8 @@ description: Every wake of a long unattended campaign on a shared machine — de
 
 # Unattended Campaign Supervision
 
+**Scope: the shared remote board with an on-board agent** — rulings, an inbox, a watchdog, board recovery, a wake loop where *you* are the scheduler. A campaign driven by `orchestration/local-round-loop.py` on a local host is not this and needs none of it: a supervisor process publishes each next round from the previous manager's result, monitoring is `wait` and `status`, and the startup procedure is the `initiate-loop-campaign` skill. Check which arrangement you are in before reading further; the two invert who decides what, so this file applied to the wrong one is confidently wrong.
+
 **This file governs every wake** — a loop fires, or someone asks how the campaign is doing. Startup is not here: arming a round, delivering the ruling, starting the watchdog and creating the cron job belong to the `initiate-campaign` skill, which hands over when arming ends and does not take control back.
 
 Monitoring is here in full, **including the wake prompt's own text**. The skill creates the cron job, but what that job *says* is a monitoring artifact; [`campaign-wake-prompt.md`](campaign-wake-prompt.md) renders the question set below. One list, one place — two copies drift, and the drift is invisible because both halves keep answering their own questions and both report nominal.
@@ -65,7 +67,7 @@ That includes the awkward case where your own ruling contradicts itself or sets 
 
 **Act without asking** — waiting on these costs more than getting them slightly wrong:
 
-- **Push the campaign record.** Rulings, amendments, results, logs, breadcrumbs. Pushing is how the record exists at all, and an unpushed commit never reaches the container. A standing exception to the global "never push without authorization" rule, scoped to this campaign's repo and branch; rewriting history is not included.
+- **Push the campaign record.** Rulings, amendments, results, logs, breadcrumbs. Pushing is how the record exists at all, and an unpushed commit never reaches the container. A standing exception to the global "never push without authorization" rule, scoped to the shared-board campaign this file governs and its branch; rewriting history is not included. It does not extend to a local-loop campaign in the same repository, where `publish-round` delivers the orders and nothing is blocked on a commit — there, promoting a result is archival review work under the normal rule.
 - **Power cycle when the boot itself is the problem** — a wedged queue that ignores SIGKILL, a driver that will not reload. Not merely because the board is unreachable: this link fails intermittently, so retry first and get positive evidence the box is down. Cycle *before* spending rows, never after, so nothing measured is stranded on a boot you then discard. The board is shared and a cycle evicts every neighbour's work along with the fault.
 - **Spend the time.** Long builds, extra runs, another round of measurement. Slow is fine; idle is not.
 - **Follow a root cause out of scope.** Finding out *why* is almost always worth it — record the deviation and continue.

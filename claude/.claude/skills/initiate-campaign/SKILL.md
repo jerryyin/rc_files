@@ -1,12 +1,16 @@
 ---
 name: initiate-campaign
 description: >-
-  Start or restart an unattended on-board agent campaign — arm a round by
-  writing and delivering the ruling, retiring superseded ones, syncing git,
-  starting the watchdog, arming the monitoring loop, and confirming work
-  actually began. Startup only. Use on "arm the next round", "start the campaign
-  loop", "the round is finished, what's next". Ongoing wake-to-wake monitoring
-  is NOT here — that is ~/.claude/rules/unattended-campaign.md.
+  Start or restart an unattended campaign on a SHARED REMOTE BOARD driven by an
+  on-board agent — arm a round by writing and delivering the ruling, retiring
+  superseded ones, syncing git, starting the watchdog, arming the monitoring
+  loop, and confirming work actually began. Startup only. Use on "arm the next
+  round", "the round is finished, what's next", when the work involves a
+  container, a watchdog, an inbox acknowledgement or board recovery. NOT for a
+  campaign driven by orchestration/local-round-loop.py on a local host, where a
+  supervisor process schedules rounds and there is no ruling, container or wake
+  loop — that is `initiate-loop-campaign`. Ongoing wake-to-wake monitoring is NOT
+  here — that is ~/.claude/rules/unattended-campaign.md.
 ---
 
 # Initiate Campaign — Startup
