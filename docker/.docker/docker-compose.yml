@@ -138,7 +138,28 @@ services:
         # revert to the 7.13/PyTorch-2.10 digest pin
         # (sha256:cd92fa0917ea582581412936367815b17d2004059c131052e000704862dd9857)
         # if the crash persists.
-        BASE_IMAGE: registry-sc-harbor.amd.com/framework/therock-npi:pytorch-2.11.0-rocm7.14.0a20260623-7.14.0a20260623-nightly-ubuntu24.04-gfx1250
+        #
+        # --- 2026-08-11: moved to the newest gfx1250 nightly that exists ----------
+        # ROCm 7.15.0a20260728 / PyTorch 2.11.0 / gfx1250
+        # digest sha256:a1ed16e05d6e4b5be697a93c21fae6ab041c68ad945de92bdc12257cac8af0d8
+        # pushed 2026-07-28.
+        #
+        # THIS IS THE CEILING, NOT A FREE CHOICE. 20260728 is the LAST gfx1250 build
+        # in therock-npi. Nightlies after it exist only for gfx90a and gfx1260 and
+        # have moved to a 10.1.0a version line; gfx1250 is absent from that matrix.
+        # Checked on 2026-08-11: no gfx1250 tag exists in compute-rocm-npi-mi450
+        # (empty), therock-main (511 tags) or therock-release (259 tags) either.
+        # So do not go looking for an August gfx1250 image; there is not one yet.
+        #
+        # The image this replaces is preserved on the host as
+        #   jeryin/dev:triton-b0-rocm7.14.0a20260623
+        # because container zhuoryin-triton-b0-0731-1724 was still running the
+        # a8w4-decode-performance campaign on it when this was swapped, and
+        # rebuilding moves the jeryin/dev:triton-b0 tag off that image.
+        #
+        # Previous pin, kept verbatim for revert:
+        # BASE_IMAGE: registry-sc-harbor.amd.com/framework/therock-npi:pytorch-2.11.0-rocm7.14.0a20260623-7.14.0a20260623-nightly-ubuntu24.04-gfx1250
+        BASE_IMAGE: registry-sc-harbor.amd.com/framework/therock-npi:pytorch-2.11.0-rocm7.15.0a20260728-7.15.0a20260728-nightly-ubuntu24.04-gfx1250
         SERVICE_NAME: triton
     image: "jeryin/dev:triton-b0"
     profiles: ["triton-b0"]
