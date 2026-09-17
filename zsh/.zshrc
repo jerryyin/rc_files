@@ -5,6 +5,13 @@ export TERM=xterm-256color
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
+# Display times in my local zone without touching the system zone. Datacenter
+# hosts run Etc/UTC and are shared -- `timedatectl set-timezone` would move every
+# other tenant's log timestamps to fix one user's shell. TZ is per-process, so
+# this affects only my shells. Records that must be UTC are written with an
+# explicit `date -u` (e.g. orchestration/preflight.sh) and are unaffected.
+export TZ=America/New_York
+
 # Add ~/bin to PATH for user scripts
 export PATH="$HOME/bin:$PATH"
 
