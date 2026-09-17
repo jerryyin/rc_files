@@ -35,7 +35,7 @@ Ordered because the dependencies are real.
 
 **1. Establish current state before writing anything.** The live ruling's sha256, the agent's HEAD, what the last round actually closed with, whether cells went unspent. Read the ledger's words, not your memory of them. If the previous round is finished, say so in the new file rather than leaving the agent to infer it.
 
-**2. Write the round.** Rulings **supersede rather than accumulate** — one authorization in force at a time. House structure:
+**2. Write the round.** Rulings **supersede rather than accumulate** — one authorization in force at a time. Before writing a word, read *Say what counts as done, not how to get there* in `~/.claude/rules/unattended-campaign.md`: it governs how much to specify, and it is deliberately not restated here, because two copies of that instruction would drift apart and both would keep reading as authoritative. In short — state what makes a result admissible, never how to produce it, and keep out any sentence a machine event could falsify. House structure:
 
 - Header naming the round and its question, plus the **predecessor sha256**
 - A section stating what stands and, explicitly, **what does not** — including claims never actually measured, so the agent cannot inherit an assumption
