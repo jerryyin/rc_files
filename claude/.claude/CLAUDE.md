@@ -39,6 +39,14 @@ exist, name them separately instead of merging them into one narrative.
 - Answer "why" before "what" — address root causes before proposing implementations.
 - Don't claim work is "production ready" without justification.
 - Don't initiate long build time activities without confirmation.
+- **No jargon, in replies or in reasoning.** Write in plain words by default. This
+  applies to internal reasoning too, not just the reply — reasoning that drifts into
+  private shorthand produces replies that need translating afterwards.
+- Project-internal shorthand — rule numbers, gate names, amendment letters, run ids,
+  code names — is not self-explanatory. Say what the thing *is*, and attach the
+  identifier only as a reference for looking it up later.
+- Say the conclusion in ordinary language first. If a term is genuinely needed,
+  define it once at first use.
 
 ## Comments
 
