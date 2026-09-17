@@ -19,5 +19,7 @@
   "enabledPlugins": {
     "clangd-lsp@claude-plugins-official": true
   },
+  "autoCompactWindow": 1000000,
+  "tui": "default",
   "skipDangerousModePermissionPrompt": true
 }
