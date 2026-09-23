@@ -12,9 +12,6 @@ export LANG=en_US.UTF-8
 # explicit `date -u` (e.g. orchestration/preflight.sh) and are unaffected.
 export TZ=America/New_York
 
-# Add ~/bin to PATH for user scripts
-export PATH="$HOME/bin:$PATH"
-
 # Node/npm CA trust through corporate TLS-inspecting proxies (see lib/ for why).
 [[ -f "$HOME/rc_files/lib/node-ca-cert.sh" ]] && source "$HOME/rc_files/lib/node-ca-cert.sh"
 
