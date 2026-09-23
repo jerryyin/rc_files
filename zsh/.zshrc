@@ -26,7 +26,10 @@ export PATH="$HOME/bin:$PATH"
 # untracked ~/.no-auto-tmux there once: `touch ~/.no-auto-tmux`. That file
 # lives outside rc_files, so `git pull`/re-stow never touches it.
 # https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
-if [[ ! -f "$HOME/.no-auto-tmux" ]] && command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]]; then
+# `su -` wipes $TMUX, so also check whether this tty is already a tmux pane;
+# otherwise the session attaches to itself and recurses.
+if [[ ! -f "$HOME/.no-auto-tmux" ]] && command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]] \
+    && ! tmux list-panes -a -F '#{pane_tty}' 2>/dev/null | grep -qxF "$(tty)"; then
   base_session=$(whoami)
   if ! tmux has-session -t "$base_session" 2>/dev/null; then
     tmux -2u new-session -d -s "$base_session"
