@@ -22,7 +22,8 @@ let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
 let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_WindowHeight = 0.30
-let g:Lf_CacheDirectory = $HOME
+let g:Lf_CacheDirectory = empty($XDG_CACHE_HOME) ? expand('~/.cache') : $XDG_CACHE_HOME
+silent! call mkdir(g:Lf_CacheDirectory, 'p')
 let g:Lf_ShowRelativePath = 0
 let g:Lf_ShowDevIcons = 0
 let g:Lf_HideHelp = 1
