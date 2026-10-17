@@ -159,7 +159,7 @@ function! ProjectBuildRelease()
 endfunction
 
 nnoremap <leader>bd :call ProjectBuildDebug()<CR>
-nnoremap <leader>bm :call ProjectBuildRelease()<CR>
+nnoremap <leader>br :call ProjectBuildRelease()<CR>
 
 " Note used cdna3 for simplicity. Needs to change label on different gpus
 nnoremap <leader>tg :CMakeTest all --output-on-failure --label-regex '^requires-gpu-cdna3$\|^driver=hip$'<CR>

@@ -28,12 +28,30 @@ interpreting results: current branch/tip SHA, relevant run or job, and whether
 the data is from the current tip or an older attempt. If several pushes or runs
 exist, name them separately instead of merging them into one narrative.
 
+## Concrete First
+
+- Show the thing, don't describe it: print the actual value, walk the real data flow with real names and `file:line`, quote the real output. A rule the reader still has to apply themselves is not the same as the applied result — give the result. Abstractions and summaries come after the example, never instead of it.
+- Use the smallest instance where the point is visible; production-scale values usually hide it.
+
 ## Communication Style
 
 - Be direct. Light debate on technical matters is encouraged.
 - Answer "why" before "what" — address root causes before proposing implementations.
 - Don't claim work is "production ready" without justification.
 - Don't initiate long build time activities without confirmation.
+- **No jargon, in replies or in reasoning.** Write in plain words by default. This
+  applies to internal reasoning too, not just the reply — reasoning that drifts into
+  private shorthand produces replies that need translating afterwards.
+- Project-internal shorthand — rule numbers, gate names, amendment letters, run ids,
+  code names — is not self-explanatory. Say what the thing *is*, and attach the
+  identifier only as a reference for looking it up later.
+- Say the conclusion in ordinary language first. If a term is genuinely needed,
+  define it once at first use.
+
+## Comments
+
+- Match comment and docstring density to the surrounding file; when there is no precedent, err sparse.
+- A docstring states the contract: what the caller passes, what comes back, and what is not obvious from the signature. Mechanism and motivation belong in the PR description or in a comment at the line where the behaviour happens.
 
 ## Build & Test
 

@@ -5,8 +5,12 @@ export TERM=xterm-256color
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-# Add ~/bin to PATH for user scripts
-export PATH="$HOME/bin:$PATH"
+# Display times in my local zone without touching the system zone. Datacenter
+# hosts run Etc/UTC and are shared -- `timedatectl set-timezone` would move every
+# other tenant's log timestamps to fix one user's shell. TZ is per-process, so
+# this affects only my shells. Records that must be UTC are written with an
+# explicit `date -u` (e.g. orchestration/preflight.sh) and are unaffected.
+export TZ=America/New_York
 
 # Node/npm CA trust through corporate TLS-inspecting proxies (see lib/ for why).
 [[ -f "$HOME/rc_files/lib/node-ca-cert.sh" ]] && source "$HOME/rc_files/lib/node-ca-cert.sh"
@@ -19,7 +23,10 @@ export PATH="$HOME/bin:$PATH"
 # untracked ~/.no-auto-tmux there once: `touch ~/.no-auto-tmux`. That file
 # lives outside rc_files, so `git pull`/re-stow never touches it.
 # https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
-if [[ ! -f "$HOME/.no-auto-tmux" ]] && command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]]; then
+# `su -` wipes $TMUX, so also check whether this tty is already a tmux pane;
+# otherwise the session attaches to itself and recurses.
+if [[ ! -f "$HOME/.no-auto-tmux" ]] && command -v tmux &>/dev/null && [ -z "$TMUX" ] && [[ $- == *i* ]] \
+    && ! tmux list-panes -a -F '#{pane_tty}' 2>/dev/null | grep -qxF "$(tty)"; then
   base_session=$(whoami)
   if ! tmux has-session -t "$base_session" 2>/dev/null; then
     tmux -2u new-session -d -s "$base_session"
@@ -206,6 +213,16 @@ function load_ffm_env() {
   export PYTEST_PLUGINS=ffm_teardown
 }
 load_ffm_env
+
+# The Triton MI450 branch downloads its pinned LLVM from a private GitHub
+# release. GitHub answers unauthenticated requests for private assets with 404,
+# not 403, so the build fails looking like a missing artifact. build_helpers.py
+# switches to the authenticated asset API only when a token is present.
+if [[ -r "$HOME/vault/gh_token_amdeng.txt" ]]; then
+  _gh_amdeng_token="$(<"$HOME/vault/gh_token_amdeng.txt")"
+  export TRITON_MI450_LLVM_DOWNLOAD_GITHUB_TOKEN="${_gh_amdeng_token//[[:space:]]/}"
+  unset _gh_amdeng_token
+fi
 
 alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 

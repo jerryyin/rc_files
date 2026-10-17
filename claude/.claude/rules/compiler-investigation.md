@@ -54,6 +54,13 @@ experiment: branch/SHA, build directory, input, flags, baseline, variant,
 metric, and sanity checks. If any dimension changes, do not compare the numbers
 as the same run.
 
+On a shared machine, queue for the device lock — never poll it. Give the launcher
+a blocking wait (`flock -w`, or whatever flag it exposes) and let it take its turn.
+Retrying a refusal in a loop loses every race to whoever is already waiting, and it
+reports a neighbour's normal turn as contention. Check the launcher's default before
+assuming it queues: a non-blocking default is common, and a busy lock then reads as
+a hard failure when it is only a wait. A held lock is not a fault to escalate.
+
 For AMD-specific lowering or scheduling work, compare against the corresponding
 NVIDIA or upstream reference when it is relevant and readily available. Explain
 what is shared, what diverges, and why.

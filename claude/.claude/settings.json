@@ -14,16 +14,12 @@
       "Write(*)",
       "Edit(*)"
     ],
-    "deny": [
-      "Read(~/.ssh/id_*)",
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./secrets/**)"
-    ],
     "defaultMode": "bypassPermissions"
   },
-  "skipDangerousModePermissionPrompt": true,
   "enabledPlugins": {
     "clangd-lsp@claude-plugins-official": true
-  }
+  },
+  "autoCompactWindow": 1000000,
+  "tui": "default",
+  "skipDangerousModePermissionPrompt": true
 }
