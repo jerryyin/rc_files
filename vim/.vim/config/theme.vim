@@ -1,8 +1,8 @@
 " Theme and color-related settings.
 
 set background=dark
-if has("termguicolors") && $TERM =~ "256color" &&
-  \ ($COLORTERM =~ "truecolor" || !empty($TMUX))
+if has("termguicolors") && (has('win32') || ($TERM =~ "256color" &&
+  \ ($COLORTERM =~ "truecolor" || !empty($TMUX))))
     " Terminal supports True Color
     set termguicolors
 else

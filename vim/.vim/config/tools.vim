@@ -40,7 +40,8 @@ let g:Lf_ExternalCommand = 'cd %s && (git ls-files --recurse-submodules 2>/dev/n
 
 " Grepper
 let g:grepper = {}
-let g:grepper.tools = ['ag', 'git', 'grep']
+let s:grep_tool = has('win32') ? 'rg' : 'ag'
+let g:grepper.tools = [s:grep_tool, 'git', 'grep']
 let g:grepper.repo = ['.git', '.hg', '.svn']
 let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
@@ -53,13 +54,18 @@ let g:grepper.ag = {
     \ 'grepformat': '%f:%l:%c:%m,%f:%l:%m,%f',
     \ 'escape':     '\^$.*+?()[]{}|' }
 
-nnoremap <leader>ss :Grepper -tool ag<cr>
+let g:grepper.rg = {
+    \ 'grepprg': 'rg --vimgrep --glob !build/**',
+    \ 'grepformat': '%f:%l:%c:%m' }
+
+execute 'nnoremap <leader>ss :Grepper -tool ' . s:grep_tool . '<CR>'
 nnoremap <leader>sg :Grepper -tool git -cword -noprompt<cr>
-nnoremap <leader>sa :Grepper -tool ag -cword -noprompt<cr>
+execute 'nnoremap <leader>sa :Grepper -tool ' . s:grep_tool . ' -cword -noprompt<CR>'
 
 " Copy to tmux clipboard and paste from tmux clipboard
-vnoremap <leader>ty y<cr>:call system("tmux load-buffer -", @0)<cr>gv
-nnoremap <leader>tp :let @0 = system("tmux save-buffer -")<cr>"0p<cr>g;"
+let s:mux = has('win32') ? 'psmux' : 'tmux'
+execute 'vnoremap <leader>ty y<CR>:call system(' . string(s:mux . ' load-buffer -') . ', @0)<CR>gv'
+execute 'nnoremap <leader>tp :let @0 = system(' . string(s:mux . ' save-buffer -') . ')<CR>"0p<CR>g;"'
 
 " Fugitive
 augroup fuDeleteBuffer
@@ -104,7 +110,6 @@ vmap <leader>y <Plug>OSCYankVisual
 
 " Coc settings
 " Extensions
-let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright', 'coc-snippets']
 let g:coc_disable_startup_warning = 1
 " Work around Node 25 localStorage requirement: provide a storage file for coc's node runtime
 silent! call mkdir(expand('~/.cache'), 'p')

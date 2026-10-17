@@ -101,7 +101,7 @@ let g:winresizer_finish_with_escape = 1
 
 let g:vista#renderer#enable_icon = 1
 let g:vista#executives = ['coc', 'ctags']
-let g:vista_default_executive = 'ctags'
+let g:vista_default_executive = has('win32') ? 'coc' : 'ctags'
 let g:vista_executive_for = {'cc': 'coc', 'c': 'coc', 'cpp': 'coc'}
 nnoremap <leader>vv :Vista!!<CR>
 function! NearestMethodOrFunction() abort

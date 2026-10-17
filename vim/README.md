@@ -1,0 +1,34 @@
+# Shared Vim configuration
+
+`.vimrc` is the entry point on Linux and Windows. It resolves this checkout
+through symlinks and sources `.vim/config` directly. Theme, mappings, plugin
+choices and CoC extension choices are shared. Linux keeps its current commands
+and plugins; native Windows selects its dependencies with `has('win32')`.
+
+## Windows
+
+The PowerShell bootstrap in `scripts/devenv/windows` installs native tools and
+writes a small `%USERPROFILE%\_vimrc` that supplies the Git Bash and Python
+locations, then sources this vimrc. `config/windows.vim` contains OS settings.
+Python's DLL is discovered by the bootstrap rather than hardcoded in Vim.
+
+Windows uses native `clangd` with the existing generic CoC language-server
+configuration and semantic tokens. Do not add `coc-clangd` on top of that
+configuration: doing so would launch a second clangd. Project include paths and
+compile commands must match the operating system where clangd runs.
+
+`config/plugins.vim` is used both by Vim and the Windows plugin installer.
+Windows uses built-in syntax rather than Polyglot, whose unnamed-buffer handler
+currently fails there. LeaderF runs in Python mode without the Unix build hook.
+Native search/multiplexer commands are `rg` and `psmux`, selected in the same
+mapping definitions used for `ag` and `tmux` on Linux. Ctags is not installed by
+the Windows bootstrap; Windows outlines use CoC.
+
+Pull this repository and restart Vim to load new settings; no configuration
+copy or separate platform vimrc needs refreshing. Plugin updates remain under
+vim-plug (`:PlugUpdate`) and CoC (`:CocUpdate`).
+
+Keep the existing Git ignore policy. Intentionally authored files under `.vim`
+are added explicitly with `git add -f`; there are no broad ignore exceptions.
+The Windows loader, plugin downloads, CoC extension installs, caches and session
+files are generated in the Windows user profile, outside this checkout.
