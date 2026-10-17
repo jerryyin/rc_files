@@ -4,14 +4,11 @@ let g:coc_data_home = expand('~/.config/coc')
 let g:startify_session_dir = expand('~/.vim/session')
 let g:Lf_PythonVersion = 3
 
+" Windows plugins launch cmd.exe directly and need the same quoting as Vim.
+let &shell = empty($COMSPEC) ? 'cmd.exe' : $COMSPEC
+set shellcmdflag=/c shellquote= shellxquote=\" noshellslash
+let &shellpipe = '>%s 2>&1'
 " Bootstrap supplies machine-specific executable locations in the _vimrc loader.
-if !empty(get(g:, 'personal_git_bash', ''))
-  let &shell = '"' . g:personal_git_bash . '"'
-  set shellcmdflag=-c
-  set shellquote=
-  set shellxquote=\"
-  set shellslash
-endif
 if !empty(get(g:, 'personal_python_dll', ''))
   let $PATH = g:personal_python_root . ';' . $PATH
   let &pythonthreedll = g:personal_python_dll

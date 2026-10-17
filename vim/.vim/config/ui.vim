@@ -143,7 +143,9 @@ nnoremap <leader>sv :execute 'SSave! ' . GetDefaultSession()<CR>
 nnoremap <leader>sd :execute 'SDelete! ' . GetDefaultSession()<CR>
 
 " Dispatch, disallow tmux pane capture trick
-set shellpipe=2>&1\|tee
+if !has('win32')
+  set shellpipe=2>&1\|tee
+endif
 let g:dispatch_no_maps = 1
 " Skip the job strategy for :Make so dispatch keeps preferring the tmux
 " strategy when $TMUX is set (visible split below) and falls through to

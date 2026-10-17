@@ -1,4 +1,5 @@
 " Generic tool and integration configuration.
+let s:config_dir = expand('<sfile>:p:h')
 
 " gutentags settings
 let g:gutentags_generate_on_new = 1
@@ -38,6 +39,9 @@ let g:Lf_PopupWidth = 0.3
 " - Triton: Include third_party/amd, proton; exclude f2reduce, nvidia
 " - Other: Include all files
 let g:Lf_ExternalCommand = 'cd %s && (git ls-files --recurse-submodules 2>/dev/null; find build -name "*.inc" 2>/dev/null) | if [ -d "iree" ]; then grep -E "^(third_party/llvm-project/mlir/|[^t])"; elif [ -d "python/triton" ]; then grep -v -E "^third_party/(f2reduce|nvidia)/"; else cat; fi'
+if has('win32')
+  let g:Lf_ExternalCommand = '"' . g:personal_git_bash . '" "' . expand('<sfile>:p:h') . '/leaderf-files.sh" %s'
+endif
 
 " Grepper
 let g:grepper = {}
@@ -66,7 +70,7 @@ execute 'nnoremap <leader>sa :Grepper -tool ' . s:grep_tool . ' -cword -noprompt
 " Copy to tmux clipboard and paste from tmux clipboard
 let s:mux = has('win32') ? 'psmux' : 'tmux'
 execute 'vnoremap <leader>ty y<CR>:call system(' . string(s:mux . ' load-buffer -') . ', @0)<CR>gv'
-execute 'nnoremap <leader>tp :let @0 = system(' . string(s:mux . ' save-buffer -') . ')<CR>"0p<CR>g;"'
+execute 'nnoremap <leader>tp :let @0 = system(' . string(s:mux . ' save-buffer -') . ')<CR>"0p<CR>g;'
 
 " Fugitive
 augroup fuDeleteBuffer
@@ -227,6 +231,9 @@ nnoremap <leader>cc :call SendToClaudeBuffer()<CR>
 
 " Return 1 if any process in the tree rooted at a:pid runs claude or codex.
 function! s:PaneRunsAi(pid) abort
+    if has('win32')
+        return index(get(s:, 'native_ai_pids', []), a:pid) >= 0
+    endif
     let frontier = [a:pid]
     while !empty(frontier)
         let next = []
@@ -246,11 +253,15 @@ endfunction
 " Find the tmux pane running Claude Code or Codex. Returns a pane id or ''.
 function! s:FindAiPane() abort
     let cur = $TMUX_PANE
-    let last = trim(system("tmux display-message -p -t '{last}' '#{pane_id}'"))
-    let curwin = trim(system("tmux display-message -p '#{window_id}'"))
+    if has('win32')
+        let s:native_ai_pids = map(systemlist('powershell.exe -NoProfile -File ' . shellescape(s:config_dir . '/ai-processes.ps1')), 'trim(v:val)')
+    endif
+    let last = trim(system(s:mux . ' display-message -p -t ' . shellescape('{last}') . ' ' . shellescape('#{pane_id}')))
+    let curwin = trim(system(s:mux . ' display-message -p ' . shellescape('#{window_id}')))
     let matches = []
     let curwin_matches = []
-    for row in systemlist("tmux list-panes -a -F '#{pane_id} #{pane_pid} #{window_id}'")
+    let scope = has('win32') ? '-s' : '-a'
+    for row in systemlist(s:mux . ' list-panes ' . scope . ' -F ' . shellescape('#{pane_id} #{pane_pid} #{window_id}'))
         let parts = split(row)
         if len(parts) < 3 | continue | endif
         let [pane, pid, win] = parts[0:2]
@@ -277,14 +288,14 @@ function! s:PasteToClaudeTmux(text)
     endif
     let temp = tempname()
     call writefile(split(a:text, "\n", 1), temp)
-    call system('tmux load-buffer ' . shellescape(temp))
-    call system('tmux paste-buffer -t ' . shellescape(target))
+    call system(s:mux . ' load-buffer ' . shellescape(temp))
+    call system(s:mux . ' paste-buffer -t ' . shellescape(target))
     call delete(temp)
     return target
 endfunction
 
 function! SendToClaudeVisual() range
-    if empty($TMUX)
+    if empty($TMUX) && !(has('win32') && !empty($PSMUX_SESSION))
         echo "Error: Not in tmux"
         return
     endif
@@ -306,7 +317,7 @@ function! SendToClaudeVisual() range
 endfunction
 
 function! SendToClaudeBuffer()
-    if empty($TMUX)
+    if empty($TMUX) && !(has('win32') && !empty($PSMUX_SESSION))
         echo "Error: Not in tmux"
         return
     endif
