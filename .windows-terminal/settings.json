@@ -1,4 +1,5 @@
 {
+  "defaultProfile": "{66fce70d-f58a-45d6-a538-11c34abff4a8}",
   "copyOnSelect": true,
   "copyFormatting": "none",
   "actions": [
@@ -117,6 +118,20 @@
     }
   ],
   "profiles": {
+    "list": [
+      {
+        "guid": "{66fce70d-f58a-45d6-a538-11c34abff4a8}",
+        "name": "PowerShell",
+        "startingDirectory": "%USERPROFILE%",
+        "hidden": false,
+        "font": { "face": "MonacoLigaturized Nerd Font", "size": 10 },
+        "colorScheme": "GruvboxMaterialHardDark",
+        "cursorShape": "emptyBox",
+        "bellStyle": "taskbar",
+        "opacity": 95,
+        "padding": "5"
+      }
+    ],
     "defaults": {
       "colorScheme": "GruvboxMaterialHardDark",
       "font": {

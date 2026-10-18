@@ -8,7 +8,7 @@ let g:Lf_PythonVersion = 3
 let &shell = empty($COMSPEC) ? 'cmd.exe' : $COMSPEC
 set shellcmdflag=/c shellquote= shellxquote=\" noshellslash
 let &shellpipe = '>%s 2>&1'
-" Bootstrap supplies machine-specific executable locations in the _vimrc loader.
+" The tracked _vimrc reads discovered executable locations from machine-paths.json.
 if !empty(get(g:, 'personal_python_dll', ''))
   let $PATH = g:personal_python_root . ';' . $PATH
   let &pythonthreedll = g:personal_python_dll
