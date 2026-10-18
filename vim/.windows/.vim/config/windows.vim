@@ -1,4 +1,5 @@
 " Native Windows settings. Loaded only by the shared vimrc on Windows.
+let g:personal_windows_vim_config = expand('<sfile>:p:h')
 execute 'set runtimepath^=' . fnameescape(expand('~/.vim'))
 let g:coc_data_home = expand('~/.config/coc')
 let g:startify_session_dir = expand('~/.vim/session')

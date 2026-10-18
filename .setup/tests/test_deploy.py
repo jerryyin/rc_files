@@ -72,8 +72,8 @@ class DeploymentTests(unittest.TestCase):
     def test_untracked_runtime_and_metadata_are_excluded(self):
         self.write("editor/.editorrc")
         (self.repo / "editor/runtime.cache").write_text("runtime")
-        self.write(".deploy/README.md", "documentation")
-        self.write(".install/helper.sh")
+        self.write(".setup/README.md", "documentation")
+        self.write(".setup/linux/helper.sh")
         self.write("README.md")
         self.assertEqual([link.target for link in self.plan()], [self.home / ".editorrc"])
 

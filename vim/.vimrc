@@ -4,7 +4,7 @@ set nocompatible                " Vim defaults rather than vi ones. Keep at top.
 let s:vim_root = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 if has('win32')
   let g:coc_config_home = s:vim_root . '/.vim'
-  execute 'source ' . fnameescape(s:vim_root . '/.vim/config/windows.vim')
+  execute 'source ' . fnameescape(s:vim_root . '/.windows/.vim/config/windows.vim')
 endif
 set history=10000
 filetype indent on

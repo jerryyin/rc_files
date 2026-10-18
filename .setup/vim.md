@@ -9,7 +9,9 @@ and plugins; native Windows selects its dependencies with `has('win32')`.
 
 The PowerShell bootstrap in `scripts/devenv/windows` installs native tools and
 links `%USERPROFILE%\_vimrc` to `vim/.windows/_vimrc`, which reads the discovered
-Git Bash and Python locations and sources this vimrc. `config/windows.vim` contains OS settings.
+Git Bash and Python locations and sources this vimrc. Windows helpers live under
+`vim/.windows/.vim/config`, including the Git Bash file discovery helper.
+Their installed locations remain under `~/.vim/config`.
 Python's DLL is discovered by the bootstrap rather than hardcoded in Vim.
 
 Windows uses native `clangd` with the existing generic CoC language-server
@@ -19,7 +21,7 @@ compile commands must match the operating system where clangd runs.
 
 ## Linux
 
-`.install/vim.sh` prepares vim-plug and CoC after the configuration has been
+`.setup/linux/vim.sh` prepares vim-plug and CoC after the configuration has been
 deployed. Gutentags remains enabled when its tools are available. The root
 `.notags` marker suppresses tags inside this checkout; `gtags/.notags` supplies
 the installed home marker. These files belong to Gutentags, not the deployer.
