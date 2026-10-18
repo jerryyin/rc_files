@@ -186,6 +186,16 @@ def owned_broken_link(path: Path, repo: Path | None) -> bool:
     return target.resolve().is_relative_to(repo.resolve())
 
 
+def owned_source_alias(link: Link, repo: Path | None) -> bool:
+    if repo is None or not source_owned(link.target, repo):
+        return False
+    original = Path(os.readlink(link.target).removeprefix("\\\\?\\"))
+    if not original.is_absolute():
+        original = link.target.parent / original
+    original = absolute(original)
+    return original.is_relative_to(repo) and resolve_source(original, repo, tracked_files(repo)) == link.source
+
+
 def problem(link: Link, replace: bool = False, backup: Path | None = None,
             repo: Path | None = None) -> str | None:
     if not link.source.exists():
@@ -198,7 +208,8 @@ def problem(link: Link, replace: bool = False, backup: Path | None = None,
         if parent.exists() and not parent.is_dir():
             return f"Destination parent is a file: {parent}"
     if os.path.lexists(link.target):
-        if not replace and not owned_broken_link(link.target, repo) and (is_link(link.target) or not identical(link.source, link.target)):
+        if (not replace and not owned_broken_link(link.target, repo) and not owned_source_alias(link, repo)
+                and (is_link(link.target) or not identical(link.source, link.target))):
             return f"Configuration conflict: {link.target} differs from {link.source}; nothing replaced"
         if link.target.is_dir() and not is_link(link.target) and not backup:
             return f"A backup directory is required to replace {link.target}"

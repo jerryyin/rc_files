@@ -50,10 +50,11 @@ class InstallerTests(unittest.TestCase):
         self.assertFalse(backup.exists())
         self.assertFalse((self.home / '.setup').exists())
 
-    def test_alternate_home_requires_configuration_only(self) -> None:
-        result = self.setup_rc()
-        self.assertEqual(result.returncode, 1)
-        self.assertIn('Use --config-only for another home', result.stderr)
+    def test_foreign_platform_cannot_run_application_installers(self) -> None:
+        foreign = 'linux' if os.name == 'nt' else 'windows'
+        result = self.setup_rc('--platform', foreign)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Application setup must run on its target platform', result.stderr)
         self.assertFalse((self.home / '.editorrc').exists())
 
     def test_conflicting_local_configuration_stops_setup(self) -> None:

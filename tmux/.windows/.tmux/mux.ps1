@@ -1,9 +1,9 @@
 [CmdletBinding()]
 param([Parameter(Mandatory=$true)][ValidateSet('CopyLine','CopyDirectory')][string]$Action)
 $ErrorActionPreference = 'Stop'
-$state = Get-Content -LiteralPath (Join-Path $env:LOCALAPPDATA 'PersonalDevenv/state.json') -Raw | ConvertFrom-Json
+$psmux = (Get-Command psmux.exe -ErrorAction Stop).Source
 function Invoke-Mux([string[]]$Words, [switch]$Capture) {
-    $output = & $state.psmuxExe @Words
+    $output = & $psmux @Words
     if ($LASTEXITCODE -ne 0) { throw "psmux failed (exit $LASTEXITCODE)" }
     if ($Capture) { return (($output -join [Environment]::NewLine).Trim()) }
 }

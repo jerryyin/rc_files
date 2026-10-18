@@ -16,8 +16,8 @@ or separate installation and deployment commands.
 Full setup links configuration and prepares Vim, tmux/psmux and (on Linux) Zsh.
 Install those applications and npm first; system prerequisites belong to the
 separate `scripts` repository. `--config-only` needs only Git and Python.
-Use it with `--home` when preparing another home, since full setup can change
-account settings such as the login shell. `BACKUP_DIR` remains supported.
+Both full setup and configuration-only deployment can target another `--home`.
+Setup does not change account settings. `BACKUP_DIR` remains supported.
 
 ## Responsibilities
 
@@ -26,16 +26,17 @@ account settings such as the login shell. `BACKUP_DIR` remains supported.
 * `links.py`: generic placement rules, links, conflicts and source migration.
 * `vim.py`: the same vim-plug and CoC installation on both platforms. Plugin
   choices remain in `vim/.vim/config/plugins.vim` and `coc-extensions.json`.
-* `mux.py`: tmux/psmux plugin setup and native configuration rendering from the
-  shared tmux preferences.
-* `shell.py`: Linux account setup and initial Zsh plugin loading.
-* `context.py`: application paths, process environment and runtime file writes.
+* `mux.py`: bootstrap TPM/PPM and invoke their native plugin installers in an
+  isolated server. Plugin choices live in the native rc files.
+* `context.py`: application paths and the explicit setup process environment.
 * `tests/`: setup, placement and application tests.
 
 Vimscript still calls vim-plug, Zsh still loads Zinit, and upstream plugin
 managers retain their own languages. Native PowerShell runtime hooks stay
 with their application configuration. Windows package installation, fonts,
-Developer Mode, WSL and credentials stay in `scripts`.
+Developer Mode, WSL, credentials and Linux login-shell selection stay in `scripts`.
+Zsh loads its own Zinit plugins eagerly when `RC_SETUP=1`; Python sources the
+installed `.zshrc` directly without transforming it.
 
 For individual operations:
 
@@ -48,12 +49,19 @@ python3 .setup mux
 python3 .setup shell
 ```
 
-`vim` and `mux` can target an isolated `--home`; they do not change account
-settings. `vim --configure-only` only prepares Windows machine paths, and
-`mux --render-only` only writes the native translation. `--update` also
-refreshes existing Vim and mux plugins. CoC always checks the latest versions
-of every extension in its package.json, preserving local additions and other
-package fields. Unchanged configuration and installed plugins are skipped.
+`--update` refreshes existing Vim and mux plugins. vim-plug bootstraps itself
+from `plugins.vim` during explicit setup; ordinary Vim startup does not download.
+Vim discovers registered Python and Git for Windows without a machine-path file.
+For CoC, Python passes shared choices and existing package dependencies to npm
+at `latest`; npm owns the runtime package data, retaining local additions and
+other fields. CoC's synchronous commands swallow install failures and skip
+locked or disabled extensions, so they cannot enforce this setup policy.
+Unchanged configuration and installed plugins are skipped.
+
+Both tmux and psmux source `~/.config/tmux/common.conf` directly. The Linux
+`.tmux.conf` and Windows `.psmux.conf` own terminal, clipboard and native plugin
+differences. There is no translation or generated configuration to refresh.
+Edits through the installed links reach Git and take effect on native reload.
 
 ## Placement conventions
 
@@ -104,6 +112,8 @@ For a reviewed, explicit migration, `--replace-existing --backup PATH` preserves
 displaced destinations before relinking. Directory copies require a backup.
 Normal installation never copies configuration as a fallback. Deployment after
 a source move repairs dangling links that point into this repository.
+Existing links through a tracked Git alias are redirected to its real source,
+including aliases checked out as text files by Git for Windows.
 
 `migrate --backup PATH` also unfolds old directory links owned by this checkout.
 Tracked files remain linked to their sources; untracked runtime data moves out
@@ -140,8 +150,8 @@ python3 -B -m unittest discover -s .setup/tests
 Tests live with the setup code and use temporary Git repositories and homes.
 They cover source edits, repeated deployment, conflicts, platform overrides,
 repository aliases and migration of old directory links.
-Application checks cover shared Vim installation, retained CoC choices, native
-mux rendering, prerequisite failures, failure propagation and unchanged reruns.
+Application checks cover shared Vim installation, retained CoC choices, direct
+native rc loading, prerequisite failures, failure propagation and unchanged reruns.
 
 ## Alternatives Considered
 
@@ -156,6 +166,9 @@ mux rendering, prerequisite failures, failure propagation and unchanged reruns.
 * Separate shell and PowerShell app installers duplicate decisions such as
   plugin selection and update policy. Python owns that orchestration; native
   application languages remain where their APIs require them.
+* A tmux renderer and discovered Vim path files duplicate native configuration
+  handling and discard valid preferences. Direct source files and Vim's own
+  runtime discovery keep that behavior with the application.
 
 The repository-local Python deployer provides one implementation and a small
 placement convention without introducing another configuration manager.

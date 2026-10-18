@@ -65,15 +65,6 @@ set number relativenumber
 " polyglot: disable its indent engine as it kill performance
 let g:polyglot_disabled = ['autoindent', 'sensible']
 
-" Auto install vim-plug if it does not exist
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent execute "!curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-  augroup vimPlug
-    autocmd!
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-  augroup END
-endif
-
 " vim-plug plugin manager
 execute 'source ' . fnameescape(s:vim_root . '/.vim/config/plugins.vim')
 

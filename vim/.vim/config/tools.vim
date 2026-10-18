@@ -40,7 +40,8 @@ let g:Lf_PopupWidth = 0.3
 " - Other: Include all files
 let g:Lf_ExternalCommand = 'cd %s && (git ls-files --recurse-submodules 2>/dev/null; find build -name "*.inc" 2>/dev/null) | if [ -d "iree" ]; then grep -E "^(third_party/llvm-project/mlir/|[^t])"; elif [ -d "python/triton" ]; then grep -v -E "^third_party/(f2reduce|nvidia)/"; else cat; fi'
 if has('win32')
-  let g:Lf_ExternalCommand = '"' . g:personal_git_bash . '" "' . s:config_dir . '/leaderf-files.sh" %s'
+  let s:git_bash = fnamemodify(resolve(exepath('git.exe')), ':h:h') . '/bin/bash.exe'
+  let g:Lf_ExternalCommand = '"' . s:git_bash . '" "' . s:config_dir . '/leaderf-files.sh" %s'
 endif
 
 " Grepper

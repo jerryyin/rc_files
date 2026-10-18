@@ -1,3 +1,17 @@
+" Bootstrap only during explicit setup; ordinary startup never downloads.
+let s:plug = expand('~/.vim/autoload/plug.vim')
+if $RC_SETUP ==# '1' && (!filereadable(s:plug) || $RC_SETUP_UPDATE ==# '1')
+  call mkdir(fnamemodify(s:plug, ':h'), 'p')
+  call system('curl -fLo ' . shellescape(s:plug) . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim')
+  if v:shell_error || !filereadable(s:plug)
+    throw 'vim-plug download failed'
+  endif
+endif
+if !filereadable(s:plug)
+  throw 'Run python .setup vim to install Vim plugins'
+endif
+execute 'source ' . fnameescape(s:plug)
+
 call plug#begin('~/.vim/plugged')
 " gruvbox color scheme
 Plug 'sainnhe/gruvbox-material'

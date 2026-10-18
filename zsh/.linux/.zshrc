@@ -54,7 +54,14 @@ fi
 if [[ -f $ZINIT_BIN_DIR/zinit.zsh ]]; then
     source "$ZINIT_BIN_DIR/zinit.zsh"
 else
-    print -u2 "zinit: bootstrap failed (no $ZINIT_BIN_DIR/zinit.zsh); skipping plugin load"
+    print -u2 "zinit: bootstrap failed (no $ZINIT_BIN_DIR/zinit.zsh)"
+    return 1
+fi
+
+# Explicit setup loads delayed plugins eagerly through Zinit itself.
+typeset -a rc_wait_0=() rc_wait_1=() rc_wait_2=()
+if [[ ${RC_SETUP:-0} != 1 ]]; then
+  rc_wait_0=(wait'0') rc_wait_1=(wait'1') rc_wait_2=(wait'2')
 fi
 
 #----------------------------------------------
@@ -63,56 +70,57 @@ fi
 # Load essential plugins immediately
 
 zinit ice depth=1
-zinit light romkatv/powerlevel10k
+zinit light romkatv/powerlevel10k || return 1
 
-zinit light zdharma-continuum/fast-syntax-highlighting
+zinit light zdharma-continuum/fast-syntax-highlighting || return 1
 
 zinit ice depth=1 lucid
-zinit light jeffreytse/zsh-vi-mode
+zinit light jeffreytse/zsh-vi-mode || return 1
 
 # Critical plugins required for core functionality
 
-zinit ice wait'0' depth=1 lucid
-zinit light zsh-users/zsh-autosuggestions
+zinit ice "${rc_wait_0[@]}" depth=1 lucid
+zinit light zsh-users/zsh-autosuggestions || return 1
 
-zinit ice wait'0' depth=1 lucid
-zinit light zsh-users/zsh-history-substring-search
+zinit ice "${rc_wait_0[@]}" depth=1 lucid
+zinit light zsh-users/zsh-history-substring-search || return 1
 typeset -g HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 # Important but not immediate
 
-zinit ice wait'1' depth=1 lucid
-zinit light zsh-users/zsh-completions
+zinit ice "${rc_wait_1[@]}" depth=1 lucid
+zinit light zsh-users/zsh-completions || return 1
 
-zinit ice wait'1' as"completion" lucid
-zinit snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker
+zinit ice "${rc_wait_1[@]}" as"completion" lucid
+zinit snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker || return 1
 
 # Optional Plugins
-zinit ice wait'2' depth=1 lucid
-zinit light amyreese/zsh-titles
+zinit ice "${rc_wait_2[@]}" depth=1 lucid
+zinit light amyreese/zsh-titles || return 1
 
-zinit ice wait'2' depth=1 lucid
-zinit light hlissner/zsh-autopair
+zinit ice "${rc_wait_2[@]}" depth=1 lucid
+zinit light hlissner/zsh-autopair || return 1
 
 # Color
-zinit ice wait'2' depth=1 lucid
-zinit snippet OMZP::colorize
+zinit ice "${rc_wait_2[@]}" depth=1 lucid
+zinit snippet OMZP::colorize || return 1
 
-zinit ice wait'2' depth=1 lucid
-zinit snippet OMZP::colored-man-pages
+zinit ice "${rc_wait_2[@]}" depth=1 lucid
+zinit snippet OMZP::colored-man-pages || return 1
 
 # Utility
-zinit ice wait'2' depth=1 lucid
-zinit snippet OMZP::command-not-found
+zinit ice "${rc_wait_2[@]}" depth=1 lucid
+zinit snippet OMZP::command-not-found || return 1
 
 # marks, mark/unmark + <markname>, jump + <markname>
-zinit ice wait'2' depth=1 lucid
-zinit snippet OMZP::jump
+zinit ice "${rc_wait_2[@]}" depth=1 lucid
+zinit snippet OMZP::jump || return 1
 
 # extract + <archive>
 # Since this is the last plugin, do compoinit for auto completion
-zinit ice wait'2' depth=1 lucid atinit="zicompinit; zicdreplay"
-zinit snippet OMZP::extract
+zinit ice "${rc_wait_2[@]}" depth=1 lucid atinit="zicompinit; zicdreplay"
+zinit snippet OMZP::extract || return 1
+unset rc_wait_0 rc_wait_1 rc_wait_2
 
 #----------------------------------------------
 # Configuration and Alias
@@ -234,12 +242,12 @@ alias ssh='autossh -M 0'
 # Usage: sshf <host> [extra ssh args...]
 function sshf() {
   if ss -tlnH 'sport = :1455' 2>/dev/null | grep -q .; then
-    echo "✗ local port 1455 is already in use:" >&2
+    echo "âœ— local port 1455 is already in use:" >&2
     ss -tlnpH 'sport = :1455' 2>/dev/null >&2
     echo "  free it first, then retry." >&2
     return 1
   fi
-  echo "→ forwarding localhost:1455 → $1:1455"
+  echo "â†’ forwarding localhost:1455 â†’ $1:1455"
   ssh -o ExitOnForwardFailure=yes -L 1455:localhost:1455 "$@"
 }
 

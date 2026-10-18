@@ -1,7 +1,1 @@
-" Native entry point; only discovered paths are machine-specific.
-let s:paths = json_decode(join(readfile(expand('~/.vim/machine-paths.json')), "\n"))
-let g:personal_git_bash = s:paths.gitBash
-let g:personal_python_root = s:paths.pythonRoot
-let g:personal_python_dll = s:paths.pythonDll
-execute 'source ' . fnameescape(s:paths.vimrc)
-unlet s:paths
+../.vimrc

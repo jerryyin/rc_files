@@ -69,6 +69,25 @@ class DeploymentTests(unittest.TestCase):
         self.apply(self.plan())
         self.assertEqual((self.home / ".config/editor/new-setting").resolve(), added)
 
+    def test_existing_link_through_a_git_alias_becomes_a_direct_source_link(self):
+        source = self.write('editor/.editorrc')
+        alias = self.alias('editor/.windows/_editorrc', source)
+        alias.unlink()
+        alias.write_text('../.editorrc')
+        target = self.home / '_editorrc'
+        target.symlink_to(alias)
+        link = next(link for link in self.plan('windows') if link.target == target)
+        self.assertIsNone(deployment.problem(link, repo=self.repo))
+        backup = self.root / 'backup'
+        deployment.install(link, backup)
+        self.assertEqual(Path(os.readlink(target).removeprefix('\\\\?\\')), source)
+        target.write_text('saved through direct link')
+        self.assertEqual(source.read_text(), 'saved through direct link')
+        self.assertTrue(any(path.is_symlink() for path in backup.iterdir()))
+        before = target.lstat().st_mtime_ns
+        deployment.install(link, backup)
+        self.assertEqual(target.lstat().st_mtime_ns, before)
+
     def test_untracked_runtime_and_metadata_are_excluded(self):
         self.write("editor/.editorrc")
         (self.repo / "editor/runtime.cache").write_text("runtime")
