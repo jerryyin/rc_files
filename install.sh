@@ -3,92 +3,17 @@
 set -e  # Exit immediately if a command exits with a non-zero status
 set -u  # Treat unset variables as an error
 
-# Check required dependencies up front.
-for dep in stow git curl; do
+# The repository and Python are sufficient for configuration deployment.
+for dep in python3 git curl; do
     if ! command -v "$dep" >/dev/null 2>&1; then
         echo "Error: '$dep' is not installed. Please install it and try again."
         exit 1
     fi
 done
-
-# Clone rc_files if not already cloned
-REPO_DIR="$HOME/rc_files"
-if [ ! -d "$REPO_DIR" ]; then
-    echo "Cloning rc_files repository..."
-    git clone https://github.com/jerryyin/rc_files.git "$REPO_DIR"
-    git -C "$REPO_DIR" remote set-url origin git@github.com:jerryyin/rc_files.git
-fi
-
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)}"
-REPO_REALPATH="$(realpath -m "$REPO_DIR")"
-
-# Remove stale links from older package layouts, but only if they point into this repo.
-echo "Cleaning up existing rc_files symlinks..."
-while IFS= read -r -d '' link; do
-    link_target="$(readlink "$link")"
-    if [[ "$link_target" != /* ]]; then
-        link_target="$(dirname "$link")/$link_target"
-    fi
-    link_target="$(realpath -m "$link_target")"
-
-    if [[ "$link_target" = "$REPO_REALPATH" || "$link_target" = "$REPO_REALPATH"/* ]]; then
-        echo "Removing stale symlink: $link -> $(readlink "$link")"
-        rm "$link"
-    fi
-done < <(
-    find "$HOME" -xdev -maxdepth "${STOW_CLEAN_MAX_DEPTH:-5}" \
-        \( -path "$REPO_DIR" -o -path "$HOME/.cache" -o -path "$HOME/.local/share" -o -path "$HOME/.npm" -o -path "$HOME/.cargo" \) -prune \
-        -o -type l -print0
-)
-
-# Back up real files that would block stow. Symlinks were handled above, and
-# directories can be folded by stow.
-echo "Backing up existing file conflicts..."
-for package_dir in "$REPO_DIR"/*/; do
-    package="$(basename "$package_dir")"
-
-    while IFS= read -r -d '' tracked_path; do
-        target="$HOME/${tracked_path#"$package"/}"
-        if [ -e "$target" ] && [ ! -L "$target" ] && [ ! -d "$target" ]; then
-            backup="$BACKUP_DIR/${target#"$HOME"/}"
-            if [ -e "$backup" ] || [ -L "$backup" ]; then
-                backup="$backup.$(date +%s)"
-            fi
-
-            echo "Backing up existing file: $target -> $backup"
-            mkdir -p "$(dirname "$backup")"
-            mv "$target" "$backup"
-        fi
-    done < <(git -C "$REPO_DIR" ls-files -z -- "$package")
-done
-
-# Create every directory the packages install into, before stowing them.
-#
-# Left to itself, stow "folds": when a directory in $HOME doesn't exist yet
-# and only one package supplies it, stow points a single symlink at the
-# package -- ~/.config becomes a link to rc_files/nvim/.config -- instead of
-# linking the files inside it. Everything any program then writes anywhere
-# under ~/.config lands in this repo. That is how 66MB of coc extensions and
-# tmux plugins, and a ~/.docker/config.json holding registry credentials,
-# came to live in the working tree, invisible only because the global
-# gitignore hides dot-prefixed paths. A directory that already exists is
-# nothing to fold, so stow links file by file and runtime writes stay in
-# $HOME where they belong.
-echo "Pre-creating target directories so stow can't fold them..."
-for package_dir in "$REPO_DIR"/*/; do
-    while IFS= read -r -d '' dir; do
-        mkdir -p "$HOME/${dir#"$package_dir"}"
-    done < <(find "$package_dir" -mindepth 1 -type d -print0)
-done
-# mkdir honours the umask, which would leave a freshly created ~/.ssh at 755.
-[ -d "$HOME/.ssh" ] && chmod 700 "$HOME/.ssh"
-
-# Use stow to manage dotfiles.
-echo "Setting up dotfiles with stow..."
-for package_dir in "$REPO_DIR"/*/; do
-    package="$(basename "$package_dir")"
-    stow -d "$REPO_DIR" "$package" -v -R -t "$HOME"
-done
+python3 "$REPO_DIR/deploy.py" apply --home "$HOME" --backup "$BACKUP_DIR"
+[ ! -d "$HOME/.ssh" ] || chmod 700 "$HOME/.ssh"
 
 # Initialize vim-plug and install plugins
 if command -v vim >/dev/null 2>&1; then

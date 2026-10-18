@@ -1,5 +1,5 @@
-/.windows-terminal/settings.json text eol=lf
-/.powertoys/settings.json text eol=lf
-/.powertoys/Awake/settings.json text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+**/settings.json text eol=lf
 /git/.gitconfig text eol=lf
-/git/.gitconfig.common text eol=lf
+/git/**/platform.conf text eol=lf
