@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -21,7 +20,6 @@ class InstallerTests(unittest.TestCase):
         self.environment.pop('BACKUP_DIR', None)
         self.git('init', '-q')
         (self.repo / '.setup').mkdir()
-        shutil.copyfile(self.checkout / '.setup/deploy.py', self.repo / '.setup/deploy.py')
         self.source = self.repo / 'editor/.editorrc'
         self.source.parent.mkdir()
         self.source.write_text('tracked preference\n')
@@ -31,10 +29,9 @@ class InstallerTests(unittest.TestCase):
         subprocess.run(['git', '-C', str(self.repo), *arguments], env=self.environment,
                        check=True, capture_output=True)
 
-    def setup_rc(self, *arguments: str, wrapper: bool = False,
+    def setup_rc(self, *arguments: str,
                  environment: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
-        command = (['bash', str(self.checkout / 'install.sh')] if wrapper else
-                   [sys.executable, str(self.checkout / 'install.py')])
+        command = [sys.executable, str(self.checkout / '.setup')]
         return subprocess.run(
             command + ['--repo', str(self.repo), '--home', str(self.home), *arguments],
             cwd=self.root, env=environment or self.environment, text=True, capture_output=True,
@@ -52,13 +49,6 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(target.lstat().st_mtime_ns, before)
         self.assertFalse(backup.exists())
         self.assertFalse((self.home / '.setup').exists())
-
-    def test_configuration_only_skips_application_actions(self) -> None:
-        platform = 'windows' if os.name == 'nt' else sys.platform
-        helper = self.repo / '.setup' / platform / 'unexpected.sh'
-        helper.parent.mkdir()
-        helper.write_text('exit 23\n')
-        self.assertEqual(self.setup_rc('--config-only').returncode, 0)
 
     def test_alternate_home_requires_configuration_only(self) -> None:
         result = self.setup_rc()
@@ -93,27 +83,6 @@ class InstallerTests(unittest.TestCase):
         saved = list(backup.iterdir())
         self.assertEqual(len(saved), 1)
         self.assertEqual(saved[0].read_bytes(), self.source.read_bytes())
-
-    @unittest.skipUnless(sys.platform == 'linux', 'Linux Bash compatibility entry point')
-    def test_bash_wrapper_forwards_arguments(self) -> None:
-        result = self.setup_rc('--config-only', wrapper=True)
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertEqual((self.home / '.editorrc').resolve(), self.source)
-
-    @unittest.skipUnless(sys.platform == 'linux', 'Linux application setup')
-    def test_platform_actions_run_in_order_and_preserve_failure_status(self) -> None:
-        actions = self.repo / '.setup/linux'
-        actions.mkdir()
-        (actions / '01-first.sh').write_text('echo first > "$HOME/order"\n')
-        (actions / '02-fail.sh').write_text('exit 23\n')
-        (actions / '03-later.sh').write_text('echo later >> "$HOME/order"\n')
-        foreign = self.repo / '.setup/windows'
-        foreign.mkdir()
-        (foreign / 'unexpected.sh').write_text('exit 42\n')
-        result = self.setup_rc(environment=dict(self.environment, HOME=str(self.home)))
-        self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
-        self.assertEqual((self.home / 'order').read_text(), 'first\n')
-        self.assertNotIn('Setup completed successfully', result.stdout)
 
 
 if __name__ == '__main__':

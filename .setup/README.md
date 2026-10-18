@@ -5,42 +5,55 @@ are sufficient to install configuration on Linux or Windows; `scripts` is not
 required. Windows needs Developer Mode or permission to create symbolic links.
 
 ```sh
-python3 install.py
-python3 install.py --config-only
+python3 .setup
+python3 .setup --config-only
 ```
 
-Run these commands from the checkout root; setup locates that root
-relative to its own file, so callers can also use an absolute path from any
-working directory. On Windows use `py -3` instead of `python3`.
+This directory is the only command entry point. On Windows use `py -3 .setup`.
+An absolute path works from any working directory. There are no root wrappers
+or separate installation and deployment commands.
 
-The root `install.py` forwards to this directory's `install.py`, which checks
-prerequisites, deploys configuration and discovers application setup for the
-current platform. `bash install.sh` remains a thin compatibility wrapper.
-`--config-only` requires only Git and Python; application setup also needs Bash,
-curl and the applications themselves. `--home`, `--backup` and `--root` are
-forwarded to deployment, and `BACKUP_DIR` remains supported.
-Use `--config-only` with `--home` when preparing another home; application setup
-can change account settings such as the login shell and targets the current account.
+Full setup links configuration and prepares Vim, tmux/psmux and (on Linux) Zsh.
+Install those applications and npm first; system prerequisites belong to the
+separate `scripts` repository. `--config-only` needs only Git and Python.
+Use it with `--home` when preparing another home, since full setup can change
+account settings such as the login shell. `BACKUP_DIR` remains supported.
 
 ## Responsibilities
 
-* `install.py`: common setup order, prerequisite checks and error reporting.
-* `deploy.py`: placement rules, links, conflicts and source migration.
-* `linux/*.sh`: Vim plugins/CoC, tmux plugins and initial Zsh setup. These can
-  also be run individually after configuration deployment.
-* `tests/`: setup and deployment tests.
+* `__main__.py`: the single CLI, setup order and error reporting. It calls the
+  other Python modules directly.
+* `links.py`: generic placement rules, links, conflicts and source migration.
+* `vim.py`: the same vim-plug and CoC installation on both platforms. Plugin
+  choices remain in `vim/.vim/config/plugins.vim` and `coc-extensions.json`.
+* `mux.py`: tmux/psmux plugin setup and native configuration rendering from the
+  shared tmux preferences.
+* `shell.py`: Linux account setup and initial Zsh plugin loading.
+* `context.py`: application paths, process environment and runtime file writes.
+* `tests/`: setup, placement and application tests.
 
-The separate `scripts` repository installs system prerequisites, credentials,
-fonts and services. Its Windows bootstrap calls this same Python setup with
-`--config-only`, then prepares the native applications.
+Vimscript still calls vim-plug, Zsh still loads Zinit, and upstream plugin
+managers retain their own languages. Native PowerShell runtime hooks stay
+with their application configuration. Windows package installation, fonts,
+Developer Mode, WSL and credentials stay in `scripts`.
 
-For deployment operations on their own:
+For individual operations:
 
 ```sh
-python3 .setup/deploy.py plan
-python3 .setup/deploy.py apply
-python3 .setup/deploy.py check
+python3 .setup plan
+python3 .setup apply
+python3 .setup check
+python3 .setup vim
+python3 .setup mux
+python3 .setup shell
 ```
+
+`vim` and `mux` can target an isolated `--home`; they do not change account
+settings. `vim --configure-only` only prepares Windows machine paths, and
+`mux --render-only` only writes the native translation. `--update` also
+refreshes existing Vim and mux plugins. CoC always checks the latest versions
+of every extension in its package.json, preserving local additions and other
+package fields. Unchanged configuration and installed plugins are skipped.
 
 ## Placement conventions
 
@@ -97,7 +110,7 @@ Tracked files remain linked to their sources; untracked runtime data moves out
 of the repository into the real application directory. It backs up obsolete
 source links found in the current deployment directories. It does not traverse
 unrelated directories in your home or require an old installation inventory.
-Both installers use this operation, and an unchanged rerun creates no backups.
+Full setup uses this operation, and an unchanged rerun creates no backups.
 
 `--home PATH` deploys into another home. `--package NAME` limits the packages.
 `--root NAME=PATH` overrides a destination root; a longer key such as
@@ -114,8 +127,9 @@ existing credential stores and private directories.
 Shared agent instructions and skill aliases live in `claude/.codex` and
 `claude/.agents`. Both platforms discover them here; CLI installers do not
 maintain a second set of links. Linux's Node CA helper is deployed from
-`node/.linux/.config/node/ca-cert.sh`, and shells and installers source that
-installed path.
+`node/.linux/.config/node/ca-cert.sh`, and shells source that
+installed path. Python setup uses the operating system CA bundle for npm when
+NODE_EXTRA_CA_CERTS has not already been supplied.
 
 ## Tests
 
@@ -126,8 +140,8 @@ python3 -B -m unittest discover -s .setup/tests
 Tests live with the setup code and use temporary Git repositories and homes.
 They cover source edits, repeated deployment, conflicts, platform overrides,
 repository aliases and migration of old directory links.
-Installer checks also cover the Bash wrapper, prerequisite failures, preserved
-exit codes, platform action selection and unchanged reruns.
+Application checks cover shared Vim installation, retained CoC choices, native
+mux rendering, prerequisite failures, failure propagation and unchanged reruns.
 
 ## Alternatives Considered
 
@@ -137,9 +151,11 @@ exit codes, platform action selection and unchanged reruns.
   represented by directories and becomes another list to update.
 * Putting the deployer in `scripts` would prevent this checkout from installing
   itself when that separate repository is absent.
-* Rewriting every Linux shell command in Python would preserve the same
-  platform-specific operations while making the change larger. Python owns the
-  common decisions; small shell scripts retain the native application actions.
+* Root wrappers and separate deployment CLIs add entry points without owning
+  behavior. A runnable Python directory provides one command without them.
+* Separate shell and PowerShell app installers duplicate decisions such as
+  plugin selection and update policy. Python owns that orchestration; native
+  application languages remain where their APIs require them.
 
 The repository-local Python deployer provides one implementation and a small
 placement convention without introducing another configuration manager.

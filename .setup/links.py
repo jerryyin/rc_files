@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Deploy tracked package trees as direct links, without saved deployment state."""
 
 from __future__ import annotations
@@ -286,25 +285,7 @@ def prune_links(links: list[Link], repo: Path, home: Path, backup: Path) -> None
                 preserve_link(child, backup, home)
 
 
-def arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("plan", "apply", "migrate", "check", "link"))
-    parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
-    parser.add_argument("--home", type=Path, default=Path.home())
-    parser.add_argument("--platform", choices=("linux", "windows", "darwin"),
-                        default="windows" if os.name == "nt" else sys.platform)
-    parser.add_argument("--root", action="append", default=[], metavar="NAME=PATH")
-    parser.add_argument("--package", action="append", default=[])
-    parser.add_argument("--json", action="store_true")
-    parser.add_argument("--backup", type=Path)
-    parser.add_argument("--replace-existing", action="store_true")
-    parser.add_argument("--source", type=Path)
-    parser.add_argument("--target", type=Path)
-    return parser.parse_args()
-
-
-def main() -> int:
-    args = arguments()
+def run(args: argparse.Namespace) -> int:
     roots = {"HOME": absolute(args.home)}
     native_home = roots["HOME"] == absolute(Path.home())
     for name, suffix in (("APPDATA", "Roaming"), ("LOCALAPPDATA", "Local")):
@@ -359,11 +340,3 @@ def main() -> int:
         if args.action == 'migrate':
             prune_links(links, args.repo.resolve(), roots['HOME'], args.backup)
     return 0
-
-
-if __name__ == "__main__":
-    try:
-        sys.exit(main())
-    except (OSError, ValueError, subprocess.CalledProcessError) as error:
-        print(f"deploy: {error}", file=sys.stderr)
-        sys.exit(1)

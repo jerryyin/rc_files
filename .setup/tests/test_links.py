@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import deploy
+import links as deployment
 
 
 class DeploymentTests(unittest.TestCase):
@@ -44,13 +44,13 @@ class DeploymentTests(unittest.TestCase):
 
     def plan(self, platform="linux", **roots):
         destinations = {"HOME": self.home, "LOCALAPPDATA": self.home / "Local", **roots}
-        return deploy.discover(self.repo, platform, destinations, [])
+        return deployment.discover(self.repo, platform, destinations, [])
 
     def apply(self, links):
-        problems = [deploy.problem(link) for link in links]
+        problems = [deployment.problem(link) for link in links]
         self.assertFalse([problem for problem in problems if problem])
         for link in links:
-            deploy.install(link, None)
+            deployment.install(link, None)
 
     def test_shared_platform_override_and_root(self):
         common = self.write("editor/.editorrc", "shared")
@@ -73,7 +73,7 @@ class DeploymentTests(unittest.TestCase):
         self.write("editor/.editorrc")
         (self.repo / "editor/runtime.cache").write_text("runtime")
         self.write(".setup/README.md", "documentation")
-        self.write(".setup/linux/helper.sh")
+        self.write(".setup/helper.py")
         self.write("README.md")
         self.assertEqual([link.target for link in self.plan()], [self.home / ".editorrc"])
 
@@ -132,7 +132,7 @@ class DeploymentTests(unittest.TestCase):
         target = self.home / "z-conflict"
         target.write_text("local edits")
         output = subprocess.run(
-            [sys.executable, str(Path(deploy.__file__)), "apply", "--repo", str(self.repo),
+            [sys.executable, str(Path(deployment.__file__).parent), "apply", "--repo", str(self.repo),
              "--home", str(self.home), "--platform", "linux", "--json"],
             capture_output=True, text=True,
         )
@@ -157,34 +157,34 @@ class DeploymentTests(unittest.TestCase):
         self.write("editor/.editorrc")
         link = self.plan()[0]
         link.target.write_text(link.source.read_text())
-        self.assertFalse(deploy.matches(link))
-        self.assertIsNone(deploy.problem(link))
+        self.assertFalse(deployment.matches(link))
+        self.assertIsNone(deployment.problem(link))
         self.apply([link])
-        self.assertTrue(deploy.matches(link))
+        self.assertTrue(deployment.matches(link))
 
     def test_source_move_repairs_only_owned_broken_links(self):
         source = self.write("editor/.editorrc")
         link = self.plan()[0]
         os.symlink(self.repo / "editor/old-name", link.target)
-        self.assertIsNone(deploy.problem(link, repo=self.repo))
+        self.assertIsNone(deployment.problem(link, repo=self.repo))
         link.target.unlink()
         os.symlink(self.root / "unrelated-missing-file", link.target)
-        self.assertIn("Configuration conflict", deploy.problem(link, repo=self.repo))
+        self.assertIn("Configuration conflict", deployment.problem(link, repo=self.repo))
         source.unlink()
-        self.assertFalse(deploy.matches(link))
+        self.assertFalse(deployment.matches(link))
 
     def test_linked_destination_parent_is_not_traversed(self):
         self.write("editor/.config/editor/settings")
         outside = self.root / "outside"
         outside.mkdir()
         os.symlink(outside, self.home / ".config", target_is_directory=True)
-        self.assertIn("Destination parent is a link", deploy.problem(self.plan()[0]))
+        self.assertIn("Destination parent is a link", deployment.problem(self.plan()[0]))
         self.assertFalse((outside / "editor").exists())
 
     def test_directory_link_convention_uses_real_source_directories(self):
         source = self.write('agent/.agents/skills.links/first/SKILL.md').parent
         links = self.plan()
-        self.assertEqual(links, [deploy.Link(source, self.home / '.agents/skills/first', True)])
+        self.assertEqual(links, [deployment.Link(source, self.home / '.agents/skills/first', True)])
         self.apply(links)
         (self.home / '.agents/skills/first/helper.py').write_text('new helper')
         self.assertTrue((source / 'helper.py').exists())
@@ -196,14 +196,14 @@ class DeploymentTests(unittest.TestCase):
         os.symlink(self.repo / 'editor/.config', self.home / '.config', target_is_directory=True)
         links = self.plan()
         backup = self.root / 'backups'
-        deploy.migrate_parents(links, self.repo, self.home, backup)
+        deployment.migrate_parents(links, self.repo, self.home, backup)
         self.apply(links)
         self.assertFalse((self.home / '.config').is_symlink())
-        self.assertTrue(deploy.matches(links[0]))
+        self.assertTrue(deployment.matches(links[0]))
         self.assertEqual((self.home / '.config/editor/runtime.cache').read_text(), 'preserved runtime')
         self.assertFalse(runtime.exists())
         count = len(list(backup.rglob('*')))
-        deploy.migrate_parents(links, self.repo, self.home, backup)
+        deployment.migrate_parents(links, self.repo, self.home, backup)
         self.assertEqual(count, len(list(backup.rglob('*'))))
 
 

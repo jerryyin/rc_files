@@ -21,7 +21,7 @@ compile commands must match the operating system where clangd runs.
 
 ## Linux
 
-`.setup/linux/vim.sh` prepares vim-plug and CoC after the configuration has been
+`python3 .setup vim` prepares vim-plug and CoC after the configuration has been
 deployed. Gutentags remains enabled when its tools are available. The root
 `.notags` marker suppresses tags inside this checkout; `gtags/.notags` supplies
 the installed home marker. These files belong to Gutentags, not the deployer.
