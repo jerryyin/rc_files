@@ -225,6 +225,24 @@ class DeploymentTests(unittest.TestCase):
         deployment.migrate_parents(links, self.repo, self.home, backup)
         self.assertEqual(count, len(list(backup.rglob('*'))))
 
+    def test_migration_removes_a_retired_alias_and_keeps_its_shared_source(self):
+        source = self.write('editor/.editorrc')
+        alias = self.alias('editor/.windows/_editorrc', source)
+        self.apply(self.plan('windows'))
+        retired = self.home / '_editorrc'
+        self.git('rm', '-f', '--', str(alias.relative_to(self.repo)))
+        links = self.plan('windows')
+        backup = self.root / 'backups'
+        deployment.prune_links(links, self.repo, self.home, backup)
+        self.assertFalse(os.path.lexists(retired))
+        self.assertEqual((self.home / '.editorrc').resolve(), source)
+        self.assertEqual((backup / 'links/_editorrc').resolve(), source)
+        count = len(list(backup.rglob('*')))
+        self.apply(links)
+        deployment.prune_links(links, self.repo, self.home, backup)
+        self.assertFalse(os.path.lexists(retired))
+        self.assertEqual(len(list(backup.rglob('*'))), count)
+
 
 if __name__ == "__main__":
     unittest.main()

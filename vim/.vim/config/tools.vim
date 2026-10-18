@@ -35,14 +35,11 @@ let g:Lf_PreviewResult = {'Function':0, 'BufTag':0, 'Buffer':0, 'File':0}
 let g:Lf_WindowPosition = 'popup'
 let g:Lf_PopupWidth = 0.3
 " Project-aware file listing:
-" - IREE: Include third_party/llvm-project/mlir, exclude other third_party
+" - IREE: Include third_party/llvm-project/mlir, exclude other root paths starting with t
 " - Triton: Include third_party/amd, proton; exclude f2reduce, nvidia
 " - Other: Include all files
-let g:Lf_ExternalCommand = 'cd %s && (git ls-files --recurse-submodules 2>/dev/null; find build -name "*.inc" 2>/dev/null) | if [ -d "iree" ]; then grep -E "^(third_party/llvm-project/mlir/|[^t])"; elif [ -d "python/triton" ]; then grep -v -E "^third_party/(f2reduce|nvidia)/"; else cat; fi'
-if has('win32')
-  let s:git_bash = fnamemodify(resolve(exepath('git.exe')), ':h:h') . '/bin/bash.exe'
-  let g:Lf_ExternalCommand = '"' . s:git_bash . '" "' . s:config_dir . '/leaderf-files.sh" %s'
-endif
+let s:python = has('win32') ? 'py -3' : 'python3'
+let g:Lf_ExternalCommand = s:python . ' ' . shellescape(expand('<sfile>:p:h') . '/leaderf-files.py') . ' %s'
 
 " Grepper
 let g:grepper = {}

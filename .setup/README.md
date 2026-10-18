@@ -68,13 +68,11 @@ Edits through the installed links reach Git and take effect on native reload.
 Every non-hidden top-level directory is a package. Root files are repository
 utilities/documentation and are never installed.
 
-* `vim/.vimrc` installs as `~/.vimrc` on either platform.
+* `vim/.vimrc` installs as the single `~/.vimrc` entry on either platform.
 * `ssh/.linux/.ssh/config` installs as `~/.ssh/config` only on Linux.
-* `vim/.windows/_vimrc` installs as `~/_vimrc` only on Windows.
 * Windows-only tmux and Vim helpers also live beneath `.windows`, even when
   the installed location is a familiar `.tmux/` or `.vim/` directory. A filename
-  extension does not determine its platform; the Git Bash helper for native Vim
-  belongs to Windows.
+  extension does not determine its platform; placement does.
 * A platform subtree overrides a shared file targeting the same destination.
   Two packages targeting the same location at the same priority are an error.
 * A leading `@DOCUMENTS`, `@LOCALAPPDATA`, or `@APPDATA` selects that operating

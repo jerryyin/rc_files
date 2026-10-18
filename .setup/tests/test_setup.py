@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -56,6 +57,17 @@ class InstallerTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('Application setup must run on its target platform', result.stderr)
         self.assertFalse((self.home / '.editorrc').exists())
+
+    def test_windows_deploys_one_shared_vimrc(self) -> None:
+        result = self.setup_rc('plan', '--repo', str(self.checkout), '--platform', 'windows',
+                               '--package', 'vim', '--json')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        source = self.checkout / 'vim/.vimrc'
+        links = json.loads(result.stdout)['links']
+        entries = {Path(link['target']).name for link in links
+                   if Path(link['source']) == source}
+        self.assertEqual(entries, {'.vimrc'})
+        self.assertNotIn(self.home / '_vimrc', {Path(link['target']) for link in links})
 
     def test_conflicting_local_configuration_stops_setup(self) -> None:
         target = self.home / '.editorrc'

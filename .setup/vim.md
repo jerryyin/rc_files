@@ -8,11 +8,15 @@ and plugins; native Windows selects its dependencies with `has('win32')`.
 ## Windows
 
 The PowerShell bootstrap in `scripts/devenv/windows` installs native tools and
-links `%USERPROFILE%\_vimrc` to `vim/.windows/_vimrc`, which reads the discovered
-Git Bash and Python locations and sources this vimrc. Windows helpers live under
-`vim/.windows/.vim/config`, including the Git Bash file discovery helper.
-Their installed locations remain under `~/.vim/config`.
-Python's DLL is discovered by the bootstrap rather than hardcoded in Vim.
+registered Python. Vim loads the shared `~/.vimrc` directly and discovers Python's
+DLL itself. Windows settings and the AI process lookup helper live under
+`vim/.windows/.vim/config`; their installed locations remain under `~/.vim/config`.
+
+LeaderF uses the shared `.vim/config/leaderf-files.py` on both platforms for Git
+files, generated build includes and project filters. Non-Git folders use ripgrep
+or the existing `ag` and exclude `build/`. The custom listing needs Python, Git
+and either search tool, and runs without Bash. `ai-processes.ps1` queries Windows
+processes on demand for the `\cc` pane shortcut.
 
 Windows uses native `clangd` with the existing generic CoC language-server
 configuration and semantic tokens. Do not add `coc-clangd` on top of that
@@ -41,5 +45,5 @@ vim-plug (`:PlugUpdate`) and CoC (`:CocUpdate`).
 
 Keep the existing Git ignore policy. Intentionally authored files under `.vim`
 are added explicitly with `git add -f`; there are no broad ignore exceptions.
-The Windows loader is tracked. Discovered paths, plugin downloads, CoC extension
+Platform settings and helpers are tracked. Plugin downloads, CoC extension
 installs, caches and session files remain outside this checkout.
