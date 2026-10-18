@@ -1,7 +1,6 @@
 {
-  "defaultProfile": "{66fce70d-f58a-45d6-a538-11c34abff4a8}",
-  "copyOnSelect": true,
-  "copyFormatting": "none",
+  "$help": "https://aka.ms/terminal-documentation",
+  "$schema": "https://aka.ms/terminal-profiles-schema",
   "actions": [
     {
       "command": {
@@ -15,18 +14,21 @@
       "id": "User.paste"
     },
     {
-      "command": "find",
-      "id": "User.find"
-    },
-    {
       "command": {
         "action": "splitPane",
         "split": "auto",
         "splitMode": "duplicate"
       },
       "id": "User.splitPane.A6751878"
+    },
+    {
+      "command": "find",
+      "id": "User.find"
     }
   ],
+  "copyFormatting": "none",
+  "copyOnSelect": true,
+  "defaultProfile": "{66fce70d-f58a-45d6-a538-11c34abff4a8}",
   "keybindings": [
     {
       "id": "User.find",
@@ -45,6 +47,10 @@
       "keys": "alt+shift+d"
     },
     {
+      "id": "Terminal.SwitchToTab0",
+      "keys": "alt+1"
+    },
+    {
       "id": "Terminal.SwitchToTab5",
       "keys": "alt+6"
     },
@@ -53,20 +59,16 @@
       "keys": "ctrl+alt+1"
     },
     {
-      "id": "Terminal.SwitchToTab0",
-      "keys": "alt+1"
-    },
-    {
       "id": "Terminal.SwitchToTab1",
       "keys": "alt+2"
     },
     {
       "id": null,
-      "keys": "ctrl+alt+9"
+      "keys": "ctrl+alt+2"
     },
     {
       "id": null,
-      "keys": "ctrl+alt+2"
+      "keys": "ctrl+alt+9"
     },
     {
       "id": "Terminal.SwitchToTab2",
@@ -82,11 +84,11 @@
     },
     {
       "id": null,
-      "keys": "ctrl+alt+7"
+      "keys": "ctrl+alt+4"
     },
     {
       "id": null,
-      "keys": "ctrl+alt+4"
+      "keys": "ctrl+alt+7"
     },
     {
       "id": "Terminal.SwitchToTab4",
@@ -117,28 +119,98 @@
       "keys": "alt+9"
     }
   ],
+  "newTabMenu": [
+    {
+      "type": "remainingProfiles"
+    }
+  ],
   "profiles": {
-    "list": [
-      {
-        "guid": "{66fce70d-f58a-45d6-a538-11c34abff4a8}",
-        "name": "PowerShell",
-        "startingDirectory": "%USERPROFILE%",
-        "hidden": false,
-        "font": { "face": "MonacoLigaturized Nerd Font", "size": 10 },
-        "colorScheme": "GruvboxMaterialHardDark",
-        "cursorShape": "emptyBox",
-        "bellStyle": "taskbar",
-        "opacity": 95,
-        "padding": "5"
-      }
-    ],
     "defaults": {
       "colorScheme": "GruvboxMaterialHardDark",
       "font": {
         "face": "MonacoLigaturized Nerd Font",
         "size": 11
       }
-    }
+    },
+    "list": [
+      {
+        "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+        "hidden": true,
+        "name": "Windows PowerShell"
+      },
+      {
+        "commandline": "%SystemRoot%\\System32\\cmd.exe",
+        "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+        "hidden": false,
+        "name": "Command Prompt"
+      },
+      {
+        "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
+        "hidden": false,
+        "name": "Azure Cloud Shell",
+        "source": "Windows.Terminal.Azure"
+      },
+      {
+        "bellStyle": "taskbar",
+        "cursorShape": "emptyBox",
+        "font": {
+          "face": "MonacoLigaturized Nerd Font",
+          "features": {
+            "ital": 1
+          },
+          "size": 10
+        },
+        "guid": "{963ff2f7-6aed-5ce3-9d91-90d99571f53a}",
+        "hidden": true,
+        "intenseTextStyle": "bold",
+        "name": "Ubuntu-24.04",
+        "opacity": 95,
+        "padding": "5",
+        "source": "Windows.Terminal.Wsl",
+        "useAcrylic": false
+      },
+      {
+        "bellStyle": "taskbar",
+        "cursorShape": "emptyBox",
+        "font": {
+          "face": "MonacoLigaturized Nerd Font",
+          "features": {
+            "ital": 1
+          },
+          "size": 10
+        },
+        "guid": "{96da0a84-64f8-5273-9d83-63cdbc13a35e}",
+        "hidden": false,
+        "intenseTextStyle": "bold",
+        "name": "Ubuntu-24.04",
+        "opacity": 95,
+        "padding": "5",
+        "source": "Microsoft.WSL",
+        "useAcrylic": false
+      },
+      {
+        "guid": "{66fce70d-f58a-45d6-a538-11c34abff4a8}",
+        "name": "PowerShell",
+        "startingDirectory": "%USERPROFILE%",
+        "hidden": false,
+        "font": {
+          "size": 10
+        },
+        "colorScheme": "GruvboxMaterialHardDark",
+        "cursorShape": "emptyBox",
+        "bellStyle": "taskbar",
+        "opacity": 95,
+        "padding": "5",
+        "commandline": "pwsh.exe -NoLogo"
+      },
+      {
+        "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+        "hidden": true,
+        "name": "PowerShell",
+        "source": "Windows.Terminal.PowershellCore"
+      }
+    ]
   },
   "schemes": [
     {
@@ -279,5 +351,7 @@
       "white": "#D4BE98",
       "yellow": "#B47109"
     }
-  ]
+  ],
+  "themes": [],
+  "warning.confirmCloseAllTabs": false
 }

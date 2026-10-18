@@ -1,0 +1,13 @@
+[user]
+  email = zhuoryin@amd.com
+  name = jerryyin
+[pager]
+  branch = false
+[core]
+  excludesfile = ~/.gitignore
+[push]
+  autoSetupRemote = true
+[alias]
+  cmt = commit --signoff
+[include]
+  path = ~/.config/git/windows-machine.conf
