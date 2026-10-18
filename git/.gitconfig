@@ -9,5 +9,11 @@
   autoSetupRemote = true
 [alias]
   cmt = commit --signoff
+[credential "https://github.com"]
+  helper =
+  helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+  helper =
+  helper = !gh auth git-credential
 [include]
   path = ~/.config/git/platform.conf

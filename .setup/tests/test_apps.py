@@ -39,6 +39,13 @@ class ApplicationTests(unittest.TestCase):
                 self.assertEqual(Path(command[-1]).name, 'vim-plugins.vim')
                 extensions.assert_called_once_with(context)
 
+    def test_vim_discovery_uses_path_instead_of_installation_locations(self) -> None:
+        native = self.root / 'bin/vim'
+        with patch.object(vim.shutil, 'which', return_value=str(native)):
+            self.assertEqual(vim.executable(), native)
+        with patch.object(vim.shutil, 'which', return_value=None):
+            self.assertIsNone(vim.executable())
+
     def test_vim_failure_stops_before_npm(self) -> None:
         with patch.object(vim, 'extensions') as extensions, \
                 patch.object(Context, 'run', side_effect=subprocess.CalledProcessError(23, ['vim'])):

@@ -1,4 +1,4 @@
-"""List project files for LeaderF on Windows and Linux."""
+"""List project files for the Vim and Neovim file pickers."""
 
 import argparse
 import os
@@ -30,14 +30,14 @@ def project_files(directory: Path) -> list[str]:
                                 cwd=directory, stdout=subprocess.PIPE, check=True)
         files = result.stdout.decode('utf-8').split('\0')[:-1]
         files.extend(path.relative_to(directory).as_posix()
-                     for path in (directory / 'build').rglob('*.inc'))
+                     for path in (directory / 'build').rglob('*.inc')
+                     if path.name.endswith('.inc'))
     else:
         files = untracked_files(directory)
-    if (directory / 'iree').is_dir():
-        # Preserve the existing picker rule, including its exclusion of tools/ and tests/.
-        return [name for name in files if not name.startswith('t')
+    if any((directory / name).is_dir() for name in ('iree', 'compiler/src/iree', 'runtime/src/iree')):
+        return [name for name in files if not name.startswith('third_party/')
                 or name.startswith('third_party/llvm-project/mlir/')]
-    if (directory / 'python/triton').is_dir():
+    if any((directory / name).is_dir() for name in ('python/triton', 'include/triton')):
         return [name for name in files
                 if not name.startswith(('third_party/f2reduce/', 'third_party/nvidia/'))]
     return files

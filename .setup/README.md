@@ -14,7 +14,7 @@ An absolute path works from any working directory. There are no root wrappers
 or separate installation and deployment commands.
 
 Full setup links configuration and prepares Vim, tmux/psmux and (on Linux) Zsh.
-Install those applications and npm first; system prerequisites belong to the
+Install those applications and npm on `PATH` first; system prerequisites belong to the
 separate `scripts` repository. `--config-only` needs only Git and Python.
 Both full setup and configuration-only deployment can target another `--home`.
 Setup does not change account settings. `BACKUP_DIR` remains supported.
@@ -62,6 +62,12 @@ Both tmux and psmux source `~/.config/tmux/common.conf` directly. The Linux
 `.tmux.conf` and Windows `.psmux.conf` own terminal, clipboard and native plugin
 differences. There is no translation or generated configuration to refresh.
 Edits through the installed links reach Git and take effect on native reload.
+
+The PowerShell profile invokes native tools on `PATH`. The Windows system
+bootstrap adds Vim's installation directory to the account's `PATH`; redirected
+test homes only change their process environment. No generated command-path file
+is needed by the profile. The Unix-dependent Neovim configuration lives beneath
+`vim/.linux`, and shares Vim's project-file listing helper.
 
 ## Placement conventions
 
@@ -116,8 +122,10 @@ including aliases checked out as text files by Git for Windows.
 `migrate --backup PATH` also unfolds old directory links owned by this checkout.
 Tracked files remain linked to their sources; untracked runtime data moves out
 of the repository into the real application directory. It backs up obsolete
-source links found in the current deployment directories. It does not traverse
-unrelated directories in your home or require an old installation inventory.
+source links found in deployment directories described by any tracked platform.
+This also cleans up a former shared file after it becomes platform-specific.
+It does not traverse unrelated directories in your home or require an old
+installation inventory.
 Full setup uses this operation, and an unchanged rerun creates no backups.
 
 `--home PATH` deploys into another home. `--package NAME` limits the packages.

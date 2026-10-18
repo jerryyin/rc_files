@@ -68,6 +68,7 @@ class InstallerTests(unittest.TestCase):
                    if Path(link['source']) == source}
         self.assertEqual(entries, {'.vimrc'})
         self.assertNotIn(self.home / '_vimrc', {Path(link['target']) for link in links})
+        self.assertFalse(any('.config/nvim' in Path(link['target']).as_posix() for link in links))
 
     def test_conflicting_local_configuration_stops_setup(self) -> None:
         target = self.home / '.editorrc'
@@ -77,6 +78,21 @@ class InstallerTests(unittest.TestCase):
         self.assertIn('Configuration conflict', result.stdout + result.stderr)
         self.assertNotIn('Setup completed successfully', result.stdout)
         self.assertEqual(target.read_text(), 'local preference\n')
+
+    def test_github_credential_helper_is_shared_and_uses_path(self) -> None:
+        for platform in ('linux', 'windows'):
+            with self.subTest(platform=platform):
+                home = self.root / platform
+                result = self.setup_rc('apply', '--repo', str(self.checkout), '--home', str(home),
+                                       '--platform', platform, '--package', 'git')
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                environment = dict(self.environment, HOME=str(home), USERPROFILE=str(home),
+                                   GIT_CONFIG_GLOBAL=str(home / '.gitconfig'))
+                for domain in ('github.com', 'gist.github.com'):
+                    helper = subprocess.check_output(
+                        ['git', 'config', '--global', '--get-urlmatch', 'credential.helper',
+                         'https://' + domain], env=environment, text=True)
+                    self.assertEqual(helper.strip(), '!gh auth git-credential')
 
     def test_missing_git_is_reported_before_deployment(self) -> None:
         empty_path = self.root / 'empty-path'

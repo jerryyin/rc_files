@@ -166,8 +166,6 @@ nnoremap <leader>tg :CMakeTest all --output-on-failure --label-regex '^requires-
 
 " Copy test command of current buffer into unamed register
 "nnoremap <silent> <leader>ty :let @" = GetMLIRTestCommand()<CR>
-" Copy test command of current buffer into tmux buffer
-nnoremap <silent> <leader>tc :let @" = GetMLIRTestCommand()<CR>:call system("tmux load-buffer -", @0)<CR>
 nnoremap <silent> <leader>td :execute 'Dbg '. GetMLIRTestCommand()<CR>
 nnoremap <leader>ml :set syntax=mlir<CR>
 

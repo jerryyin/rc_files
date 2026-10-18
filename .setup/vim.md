@@ -12,7 +12,7 @@ registered Python. Vim loads the shared `~/.vimrc` directly and discovers Python
 DLL itself. Windows settings and the AI process lookup helper live under
 `vim/.windows/.vim/config`; their installed locations remain under `~/.vim/config`.
 
-LeaderF uses the shared `.vim/config/leaderf-files.py` on both platforms for Git
+LeaderF uses the shared `.vim/config/project-files.py` on both platforms for Git
 files, generated build includes and project filters. Non-Git folders use ripgrep
 or the existing `ag` and exclude `build/`. The custom listing needs Python, Git
 and either search tool, and runs without Bash. `ai-processes.ps1` queries Windows
@@ -24,6 +24,12 @@ configuration: doing so would launch a second clangd. Project include paths and
 compile commands must match the operating system where clangd runs.
 
 ## Linux
+
+Neovim's Unix-dependent configuration is under `vim/.linux/.config/nvim`.
+Its file picker invokes the same `~/.vim/config/project-files.py` as LeaderF.
+The shared IREE filter includes LLVM's MLIR files and keeps `tools/` and `tests/`,
+while excluding other third-party trees. Both legacy and current IREE layouts
+are recognized.
 
 `python3 .setup vim` prepares vim-plug and CoC after the configuration has been
 deployed. Gutentags remains enabled when its tools are available. The root

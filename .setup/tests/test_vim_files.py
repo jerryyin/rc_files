@@ -1,5 +1,7 @@
+import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -13,7 +15,7 @@ class LeaderfFilesTests(unittest.TestCase):
         self.root = Path(temporary.name).resolve()
         self.project = self.root / "Someone's project"
         self.project.mkdir()
-        self.helper = Path(__file__).resolve().parents[2] / 'vim/.vim/config/leaderf-files.py'
+        self.helper = Path(__file__).resolve().parents[2] / 'vim/.vim/config/project-files.py'
         self.environment = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1')
 
     def git(self, *arguments: str, directory: Path | None = None) -> None:
@@ -37,12 +39,12 @@ class LeaderfFilesTests(unittest.TestCase):
         for name in ('source file.cpp', 'naïve.cpp', 'src/main.cpp'):
             self.write(name)
         self.git('add', '-f', '--all')
-        for name in ('untracked.cpp', 'build/generated/header.inc', 'build/other.o'):
+        for name in ('untracked.cpp', 'build/generated/header.inc', 'build/other.o', 'build/upper.INC'):
             self.write(name)
         self.assertEqual(self.files(), {'source file.cpp', 'naïve.cpp', 'src/main.cpp',
                                         'build/generated/header.inc'})
 
-    def test_existing_iree_filter(self) -> None:
+    def test_iree_filter_keeps_tools_and_tests(self) -> None:
         self.git('init', '-q')
         for name in ('main.cpp', 'iree/compiler.cpp', 'third_party/llvm-project/mlir/pass.cpp',
                      'third_party/llvm-project/llvm/pass.cpp', 'third_party/other/file.cpp',
@@ -50,6 +52,16 @@ class LeaderfFilesTests(unittest.TestCase):
             self.write(name)
         self.git('add', '-f', '--all')
         self.assertEqual(self.files(), {'main.cpp', 'iree/compiler.cpp',
+                                        'third_party/llvm-project/mlir/pass.cpp',
+                                        'tools/tool.cpp', 'tests/test.cpp'})
+
+    def test_current_iree_layout(self) -> None:
+        self.git('init', '-q')
+        for name in ('compiler/src/iree/pass.cpp', 'third_party/llvm-project/mlir/pass.cpp',
+                     'third_party/other/file.cpp'):
+            self.write(name)
+        self.git('add', '-f', '--all')
+        self.assertEqual(self.files(), {'compiler/src/iree/pass.cpp',
                                         'third_party/llvm-project/mlir/pass.cpp'})
 
     def test_triton_filter(self) -> None:
@@ -93,6 +105,44 @@ class LeaderfFilesTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stdout, b'')
         self.assertIn(b'not a git repository:', result.stderr)
+
+
+@unittest.skipUnless(os.name != 'nt' and shutil.which('nvim'), 'Linux Neovim required')
+class NeovimFilesTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temporary = tempfile.TemporaryDirectory(prefix='nvim-files-')
+        self.addCleanup(temporary.cleanup)
+        self.home = Path(temporary.name)
+        self.checkout = Path(__file__).resolve().parents[2]
+        helper = self.home / '.vim/config/project-files.py'
+        helper.parent.mkdir(parents=True)
+        helper.symlink_to(self.checkout / 'vim/.vim/config/project-files.py')
+        self.project = self.home / "Someone's project"
+        (self.project / 'build').mkdir(parents=True)
+        (self.project / 'source file.cpp').write_text('fixture\n')
+        (self.project / 'build/ignored.inc').write_text('fixture\n')
+
+    def test_picker_uses_shared_listing_in_a_non_git_folder(self) -> None:
+        report = self.home / 'report.json'
+        probe = self.home / 'probe.lua'
+        probe.write_text('''
+vim.cmd("cd " .. vim.fn.fnameescape(vim.env.RC_PICKER_PROJECT))
+package.loaded["fzf-lua"] = { fzf_exec = function(entries, opts)
+  vim.fn.writefile({vim.fn.json_encode({files = entries, cwd = opts.cwd})}, vim.env.RC_PICKER_REPORT)
+end }
+package.loaded["fzf-lua.actions"] = {}
+dofile(vim.env.RC_PICKER_MODULE).files()
+''')
+        environment = dict(os.environ, HOME=str(self.home), GIT_CONFIG_GLOBAL=os.devnull,
+                           RC_PICKER_PROJECT=str(self.project), RC_PICKER_REPORT=str(report),
+                           RC_PICKER_MODULE=str(self.checkout / 'vim/.linux/.config/nvim/lua/config/fuzzy.lua'),
+                           RC_PICKER_TEST=str(probe))
+        result = subprocess.run(['nvim', '--headless', '-u', 'NONE', '-n', '-i', 'NONE',
+                                 '-c', 'lua dofile(vim.env.RC_PICKER_TEST)', '-c', 'qa!'],
+                                env=environment, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(json.loads(report.read_text()),
+                         {'files': ['source file.cpp'], 'cwd': str(self.project)})
 
 
 if __name__ == '__main__':

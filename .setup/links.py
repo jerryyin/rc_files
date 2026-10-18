@@ -285,23 +285,32 @@ def migrate_parents(links: list[Link], repo: Path, home: Path, backup: Path) -> 
         os.replace(temporary, parent)
 
 
-def prune_links(links: list[Link], repo: Path, home: Path, backup: Path) -> None:
+def prune_links(links: list[Link], repo: Path, home: Path, backup: Path,
+                other_platforms: list[Link] | None = None) -> None:
     wanted = {link.target for link in links}
-    parents = {parent for link in links for parent in link.target.parents if parent.is_relative_to(home)}
+    active_parents = {parent for link in links for parent in link.target.parents}
+    parents = {parent for link in links + (other_platforms or [])
+               for parent in link.target.parents if parent.is_relative_to(home)}
     for parent in sorted(parents, key=str):
         if not parent.is_dir() or is_link(parent):
             continue
-        for child in parent.iterdir():
-            if child not in wanted and child not in parents and source_owned(child, repo):
+        for child in list(parent.iterdir()):
+            if (child not in wanted and child not in parents and not child.is_relative_to(repo)
+                    and source_owned(child, repo)):
                 preserve_link(child, backup, home)
+                directory = child.parent
+                while directory != home and directory not in active_parents and not any(directory.iterdir()):
+                    directory.rmdir()
+                    directory = directory.parent
 
 
 def run(args: argparse.Namespace) -> int:
     roots = {"HOME": absolute(args.home)}
     native_home = roots["HOME"] == absolute(Path.home())
     for name, suffix in (("APPDATA", "Roaming"), ("LOCALAPPDATA", "Local")):
-        if os.name == "nt":
-            roots[name] = absolute(Path(os.environ[name])) if native_home and os.environ.get(name) else roots["HOME"] / "AppData" / suffix
+        roots[name] = (absolute(Path(os.environ[name]))
+                       if os.name == "nt" and native_home and os.environ.get(name)
+                       else roots["HOME"] / "AppData" / suffix)
     roots["DOCUMENTS"] = roots["HOME"] / "Documents"
     if (os.name == "nt" and native_home and not args.source
             and not any(entry.startswith("DOCUMENTS=") for entry in args.root)):
@@ -324,6 +333,8 @@ def run(args: argparse.Namespace) -> int:
     if args.action == 'migrate':
         if not args.backup or args.package:
             raise ValueError('migrate requires --backup and the complete package tree')
+        other_platforms = [link for platform in sorted(PLATFORMS - {'.' + args.platform})
+                           for link in discover(args.repo, platform[1:], roots, [])]
         migrate_parents(links, args.repo.resolve(), roots['HOME'], args.backup)
     issues: list[str] = []
     for link in links:
@@ -349,5 +360,5 @@ def run(args: argparse.Namespace) -> int:
         for link in links:
             install(link, args.backup)
         if args.action == 'migrate':
-            prune_links(links, args.repo.resolve(), roots['HOME'], args.backup)
+            prune_links(links, args.repo.resolve(), roots['HOME'], args.backup, other_platforms)
     return 0

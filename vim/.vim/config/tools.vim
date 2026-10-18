@@ -35,11 +35,11 @@ let g:Lf_PreviewResult = {'Function':0, 'BufTag':0, 'Buffer':0, 'File':0}
 let g:Lf_WindowPosition = 'popup'
 let g:Lf_PopupWidth = 0.3
 " Project-aware file listing:
-" - IREE: Include third_party/llvm-project/mlir, exclude other root paths starting with t
+" - IREE: Include third_party/llvm-project/mlir, exclude other third_party
 " - Triton: Include third_party/amd, proton; exclude f2reduce, nvidia
 " - Other: Include all files
 let s:python = has('win32') ? 'py -3' : 'python3'
-let g:Lf_ExternalCommand = s:python . ' ' . shellescape(expand('<sfile>:p:h') . '/leaderf-files.py') . ' %s'
+let g:Lf_ExternalCommand = s:python . ' ' . shellescape(expand('<sfile>:p:h') . '/project-files.py') . ' %s'
 
 " Grepper
 let g:grepper = {}
@@ -69,6 +69,7 @@ execute 'nnoremap <leader>sa :Grepper -tool ' . s:grep_tool . ' -cword -noprompt
 let s:mux = has('win32') ? 'psmux' : 'tmux'
 execute 'vnoremap <leader>ty y<CR>:call system(' . string(s:mux . ' load-buffer -') . ', @0)<CR>gv'
 execute 'nnoremap <leader>tp :let @0 = system(' . string(s:mux . ' save-buffer -') . ')<CR>"0p<CR>g;'
+execute 'nnoremap <silent> <leader>tc :let @" = GetMLIRTestCommand()<CR>:call system(' . string(s:mux . ' load-buffer -') . ', @")<CR>'
 
 " Fugitive
 augroup fuDeleteBuffer

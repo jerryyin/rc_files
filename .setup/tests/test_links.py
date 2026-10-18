@@ -243,6 +243,33 @@ class DeploymentTests(unittest.TestCase):
         self.assertFalse(os.path.lexists(retired))
         self.assertEqual(len(list(backup.rglob('*'))), count)
 
+    def test_migration_prunes_foreign_platform_subtrees_without_removing_local_data(self):
+        self.write('editor/.config/current/settings')
+        retired = self.write('editor/.config/retired/lua/settings.lua')
+        self.apply(self.plan('windows'))
+        local = self.home / '.config/retired/local.json'
+        local.write_text('local runtime data')
+        self.git('rm', '-f', '--', str(retired.relative_to(self.repo)))
+        self.write('editor/.linux/.config/retired/lua/settings.lua')
+        backup = self.root / 'backups'
+        links = self.plan('windows')
+        deployment.prune_links(links, self.repo, self.home, backup, self.plan('linux'))
+        self.assertFalse(os.path.lexists(local.parent / 'lua/settings.lua'))
+        self.assertFalse((local.parent / 'lua').exists())
+        self.assertEqual(local.read_text(), 'local runtime data')
+        self.assertTrue(os.path.lexists(backup / 'links/.config/retired/lua/settings.lua'))
+        self.assertTrue((self.home / '.config/current/settings').is_symlink())
+        count = len(list(backup.rglob('*')))
+        deployment.prune_links(links, self.repo, self.home, backup, self.plan('linux'))
+        self.assertEqual(len(list(backup.rglob('*'))), count)
+
+    def test_migration_keeps_home_when_all_configuration_belongs_to_another_platform(self):
+        self.write('editor/.linux/.editorrc')
+        self.apply(self.plan('linux'))
+        deployment.prune_links([], self.repo, self.home, self.root / 'backups', self.plan('linux'))
+        self.assertTrue(self.home.is_dir())
+        self.assertFalse(os.path.lexists(self.home / '.editorrc'))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,15 +1,7 @@
 # Native Windows tools. This profile never invokes WSL.
-$script:DevenvState = $null
-function Get-DevenvState {
-    if (!$script:DevenvState) {
-        $script:DevenvState = Get-Content -LiteralPath (Join-Path $env:LOCALAPPDATA 'PersonalDevenv/state.json') -Raw | ConvertFrom-Json
-    }
-    $script:DevenvState
-}
-
-function vim { & (Get-DevenvState).vimExe @args }
-function tmux { & (Get-DevenvState).psmuxExe @args }
-function dev { & (Get-DevenvState).psmuxExe new-session -A -s main @args }
+function vim { & vim.exe @args }
+function tmux { & psmux.exe @args }
+function dev { & psmux.exe new-session -A -s main @args }
 function ll { Get-ChildItem -Force @args }
 function la { Get-ChildItem -Force @args }
 Set-Alias -Name vi -Value vim

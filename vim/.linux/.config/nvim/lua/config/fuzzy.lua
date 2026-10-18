@@ -12,36 +12,11 @@ local function git_root()
   return vim.fn.getcwd()
 end
 
-local function is_dir(path)
-  return vim.fn.isdirectory(path) == 1
-end
-
-local function project_file_command(root)
-  local base = [[(git ls-files --recurse-submodules 2>/dev/null; find build -name "*.inc" 2>/dev/null)]]
-  local quoted_root = vim.fn.shellescape(root)
-
-  if is_dir(root .. "/compiler/src/iree") or is_dir(root .. "/runtime/src/iree") then
-    return (
-      "cd %s && { "
-      .. "git ls-files 2>/dev/null | grep -v '^third_party/'; "
-      .. "git -C third_party/llvm-project ls-files mlir 2>/dev/null | sed 's#^#third_party/llvm-project/#'; "
-      .. "find build -name \"*.inc\" 2>/dev/null; "
-      .. "}"
-    ):format(quoted_root)
-  end
-
-  if vim.fn.filereadable(root .. "/python/triton/__init__.py") == 1 or is_dir(root .. "/include/triton") then
-    return ("cd %s && %s | grep -v -E '^third_party/(f2reduce|nvidia)/'"):format(quoted_root, base)
-  end
-
-  return ("cd %s && %s"):format(quoted_root, base)
-end
-
 function M.files()
   local root = git_root()
   local fzf = require("fzf-lua")
   local actions = require("fzf-lua.actions")
-  local entries = vim.fn.systemlist(project_file_command(root))
+  local entries = vim.fn.systemlist({ "python3", vim.fn.expand("~/.vim/config/project-files.py"), root })
 
   if vim.v.shell_error ~= 0 then
     vim.notify("File picker source command failed", vim.log.levels.ERROR)
