@@ -24,7 +24,7 @@ Rather than cluttering your actual project with AI context files, this separate 
 
 ## Directory Structure
 
-All files live under `~/.cursor/` (hidden) via stow symlinks from `~/rc_files/cursor/.cursor/`:
+All files live under `~/.cursor/` (hidden) via direct links symlinks from `~/rc_files/cursor/.cursor/`:
 
 ```
 ~/.cursor/

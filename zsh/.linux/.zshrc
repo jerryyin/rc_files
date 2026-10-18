@@ -12,8 +12,8 @@ export LANG=en_US.UTF-8
 # explicit `date -u` (e.g. orchestration/preflight.sh) and are unaffected.
 export TZ=America/New_York
 
-# Node/npm CA trust through corporate TLS-inspecting proxies (see lib/ for why).
-[[ -f "$HOME/rc_files/lib/node-ca-cert.sh" ]] && source "$HOME/rc_files/lib/node-ca-cert.sh"
+# Node/npm CA trust through corporate TLS-inspecting proxies.
+[[ -f "$HOME/.config/node/ca-cert.sh" ]] && source "$HOME/.config/node/ca-cert.sh"
 
 # TMUX: auto-attach one base session per user on interactive shells. On by
 # default so a freshly provisioned client host (a fresh rc_files checkout,
@@ -21,7 +21,7 @@ export TZ=America/New_York
 # machine -- rather than commenting/uncommenting per host, opt out on a
 # specific machine (e.g. your own daily driver) by creating an empty,
 # untracked ~/.no-auto-tmux there once: `touch ~/.no-auto-tmux`. That file
-# lives outside rc_files, so `git pull`/re-stow never touches it.
+# lives outside rc_files, so `git pull`/redeploy never touches it.
 # https://unix.stackexchange.com/questions/16237/why-might-tmux-only-be-capable-of-attaching-once-per-shell-session
 # `su -` wipes $TMUX, so also check whether this tty is already a tmux pane;
 # otherwise the session attaches to itself and recurses.
@@ -49,7 +49,7 @@ ZINIT_BIN_DIR="$CACHE_DIR/zinit/bin"
 if [[ ! -f $ZINIT_BIN_DIR/zinit.zsh ]]; then
     command rm -rf $ZINIT_BIN_DIR
     command mkdir -p $ZINIT_BIN_DIR
-    command git clone https://github.com/zdharma-continuum/zinit $ZINIT_BIN_DIR --depth=1
+    GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 command git clone https://github.com/zdharma-continuum/zinit $ZINIT_BIN_DIR --depth=1
 fi
 if [[ -f $ZINIT_BIN_DIR/zinit.zsh ]]; then
     source "$ZINIT_BIN_DIR/zinit.zsh"

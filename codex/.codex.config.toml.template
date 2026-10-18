@@ -1,7 +1,7 @@
 # Managed template for local Codex defaults.
 #
-# This file is stowed to ~/.codex.config.toml.template. scripts/docker/env/codex.sh
-# copies it to ~/.codex/config.toml on first run, or when this template is newer.
+# This file is linked to ~/.codex.config.toml.template. scripts/docker/env/codex.sh
+# copies it to ~/.codex/config.toml only when that local file is absent.
 # The real ~/.codex/config.toml is local runtime state and should not be tracked.
 
 # Leave `model` unset so Codex follows the built-in recommended/latest local
@@ -15,6 +15,3 @@ plan_mode_reasoning_effort = "max"
 # Match Claude's bypassPermissions behavior for local Codex sessions.
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
-
-[projects."/home/zhuoryin"]
-trust_level = "trusted"

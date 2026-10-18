@@ -10,7 +10,6 @@ import filecmp
 import json
 import os
 from pathlib import Path
-import re
 import shutil
 import stat
 import subprocess
@@ -19,8 +18,6 @@ import uuid
 
 
 PLATFORMS = {".linux", ".windows", ".darwin"}
-METADATA = {".stow-local-ignore", ".stow-global-ignore", ".deploy-ignore"}
-DEFAULT_IGNORES = (r"(^|/)(README[^/]*|LICENSE[^/]*|COPYING)$", r"(~|\.sw[op])$")
 CSIDL_PERSONAL = 5
 CSIDL_FLAG_DONT_VERIFY = 0x4000
 
@@ -90,14 +87,6 @@ def resolve_source(path: Path, repo: Path, tracked: dict[str, str]) -> Path:
     raise ValueError(f"Repository symlink loop: {path}")
 
 
-def ignore_patterns(repo: Path, package: str) -> list[re.Pattern[str]]:
-    patterns = list(DEFAULT_IGNORES)
-    for path in (repo / package / ".stow-local-ignore", repo / package / ".deploy-ignore"):
-        if path.is_file():
-            patterns.extend(line.split("#", 1)[0].strip() for line in path.read_text().splitlines())
-    return [re.compile(pattern) for pattern in patterns if pattern]
-
-
 def destination(parts: tuple[str, ...], roots: dict[str, Path]) -> Path:
     root = roots["HOME"]
     if parts[0].startswith("@"):
@@ -130,7 +119,6 @@ def discover(repo: Path, platform: str, roots: dict[str, Path], packages: list[s
     for package in sorted(available):
         if package.startswith(".") or (packages and package not in packages):
             continue
-        patterns = ignore_patterns(repo, package)
         for name in sorted(tracked):
             if not name.startswith(package + "/"):
                 continue
@@ -140,18 +128,24 @@ def discover(repo: Path, platform: str, roots: dict[str, Path], packages: list[s
                 if parts[0] != "." + platform:
                     continue
                 parts = parts[1:]
-            if not parts or any(part in METADATA for part in parts):
+            if not parts:
                 continue
-            if any(pattern.search("/".join(parts)) for pattern in patterns):
-                continue
-            source = resolve_source(repo / name, repo, tracked)
-            if parts[-1].endswith(".links"):
+            marker = next((index for index, part in enumerate(parts) if part.endswith('.links')), None)
+            if marker is not None and marker < len(parts) - 1:
+                child_parts = parts[:marker] + (parts[marker][:-len('.links')], parts[marker + 1])
+                depth = len(parts) - marker - 2
+                child = (repo / name).parents[depth - 1] if depth else repo / name
+                source = resolve_source(child, repo, tracked)
+                links = [Link(source, destination(child_parts, roots), source.is_dir())]
+            elif marker is not None:
+                source = resolve_source(repo / name, repo, tracked)
                 if not source.is_dir():
                     raise ValueError(f"A .links source must be a directory: {name}")
                 target = destination(parts[:-1] + (parts[-1][:-len('.links')],), roots)
                 links = [Link(child, target / child.name, child.is_dir())
                          for child in directory_children(source, repo, tracked)]
             else:
+                source = resolve_source(repo / name, repo, tracked)
                 target = destination(parts, roots)
                 links = [Link(source, target, source.is_dir())]
             for link in links:
@@ -227,7 +221,7 @@ def install(link: Link, backup: Path | None) -> None:
             elif link.target.is_dir() and not is_link(link.target):
                 raise ValueError(f"A backup directory is required to replace {link.target}")
             elif is_link(link.target):
-                if link.target.is_dir() and os.name == "nt":
+                if os.name == "nt" and stat.S_ISDIR(link.target.lstat().st_mode):
                     os.rmdir(link.target)
                 else:
                     link.target.unlink()
@@ -239,10 +233,63 @@ def install(link: Link, backup: Path | None) -> None:
             temporary.unlink()
 
 
+def source_owned(path: Path, repo: Path) -> bool:
+    return is_link(path) and path.resolve().is_relative_to(repo)
+
+
+def preserve_link(path: Path, backup: Path, home: Path) -> None:
+    relative = path.relative_to(home) if path.is_relative_to(home) else Path(path.name)
+    saved = backup / 'links' / relative
+    if os.path.lexists(saved):
+        saved = saved.with_name(saved.name + '.' + uuid.uuid4().hex)
+    saved.parent.mkdir(parents=True, exist_ok=True)
+    path.rename(saved)
+
+
+def unfold(source: Path, target: Path, repo: Path, tracked: dict[str, str]) -> None:
+    target.mkdir()
+    if not source.exists():
+        return
+    for entry in source.iterdir():
+        name = entry.relative_to(repo).as_posix()
+        child = target / entry.name
+        if entry.is_dir() and not is_link(entry) and any(key.startswith(name + '/') for key in tracked):
+            unfold(entry, child, repo, tracked)
+        elif name in tracked:
+            actual = resolve_source(entry, repo, tracked)
+            os.symlink(actual, child, target_is_directory=actual.is_dir())
+        else:
+            shutil.move(str(entry), str(child))
+
+
+def migrate_parents(links: list[Link], repo: Path, home: Path, backup: Path) -> None:
+    parents = {parent for link in links for parent in link.target.parents if parent != repo}
+    tracked = tracked_files(repo)
+    for parent in sorted(parents, key=lambda path: len(path.parts)):
+        if not source_owned(parent, repo):
+            continue
+        source = parent.resolve()
+        temporary = parent.with_name(parent.name + '.unfold-' + uuid.uuid4().hex)
+        unfold(source, temporary, repo, tracked)
+        preserve_link(parent, backup, home)
+        os.replace(temporary, parent)
+
+
+def prune_links(links: list[Link], repo: Path, home: Path, backup: Path) -> None:
+    wanted = {link.target for link in links}
+    parents = {parent for link in links for parent in link.target.parents if parent.is_relative_to(home)}
+    for parent in sorted(parents, key=str):
+        if not parent.is_dir() or is_link(parent):
+            continue
+        for child in parent.iterdir():
+            if child not in wanted and child not in parents and source_owned(child, repo):
+                preserve_link(child, backup, home)
+
+
 def arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("plan", "apply", "check", "link"))
-    parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parent)
+    parser.add_argument("action", choices=("plan", "apply", "migrate", "check", "link"))
+    parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--home", type=Path, default=Path.home())
     parser.add_argument("--platform", choices=("linux", "windows", "darwin"),
                         default="windows" if os.name == "nt" else sys.platform)
@@ -282,6 +329,10 @@ def main() -> int:
         links = [Link(source, absolute(args.target), source.is_dir())]
     else:
         links = discover(args.repo.resolve(strict=True), args.platform, roots, args.package)
+    if args.action == 'migrate':
+        if not args.backup or args.package:
+            raise ValueError('migrate requires --backup and the complete package tree')
+        migrate_parents(links, args.repo.resolve(), roots['HOME'], args.backup)
     issues: list[str] = []
     for link in links:
         if args.action == "check":
@@ -302,9 +353,11 @@ def main() -> int:
             print(f"{status} {link.target} -> {link.source}")
     if issues:
         return 1
-    if args.action in ("apply", "link"):
+    if args.action in ("apply", "migrate", "link"):
         for link in links:
             install(link, args.backup)
+        if args.action == 'migrate':
+            prune_links(links, args.repo.resolve(), roots['HOME'], args.backup)
     return 0
 
 

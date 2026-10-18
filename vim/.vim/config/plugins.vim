@@ -94,4 +94,4 @@ Plug 'llvm/llvm.vim'
 call plug#end()
 
 " Shared extension choices used by both Vim and the Windows bootstrap.
-let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-pyright', 'coc-snippets']
+let g:coc_global_extensions = json_decode(join(readfile(expand('<sfile>:p:h:h') . '/coc-extensions.json'), "\n"))

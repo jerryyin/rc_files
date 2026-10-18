@@ -72,15 +72,13 @@ class DeploymentTests(unittest.TestCase):
     def test_untracked_runtime_and_metadata_are_excluded(self):
         self.write("editor/.editorrc")
         (self.repo / "editor/runtime.cache").write_text("runtime")
-        self.write("editor/README.md", "documentation")
-        self.write("private/.deploy-ignore", ".*")
-        self.write("private/helper.py")
+        self.write(".deploy/README.md", "documentation")
+        self.write(".install/helper.sh")
         self.write("README.md")
         self.assertEqual([link.target for link in self.plan()], [self.home / ".editorrc"])
 
-    def test_existing_stow_ignore_is_respected(self):
-        self.write("helpers/.stow-local-ignore", ".*")
-        self.write("helpers/helper.sh")
+    def test_hidden_utilities_are_not_packages(self):
+        self.write(".helpers/helper.sh")
         self.assertEqual(self.plan(), [])
 
     def test_file_edits_and_repeat_apply(self):
@@ -182,6 +180,31 @@ class DeploymentTests(unittest.TestCase):
         os.symlink(outside, self.home / ".config", target_is_directory=True)
         self.assertIn("Destination parent is a link", deploy.problem(self.plan()[0]))
         self.assertFalse((outside / "editor").exists())
+
+    def test_directory_link_convention_uses_real_source_directories(self):
+        source = self.write('agent/.agents/skills.links/first/SKILL.md').parent
+        links = self.plan()
+        self.assertEqual(links, [deploy.Link(source, self.home / '.agents/skills/first', True)])
+        self.apply(links)
+        (self.home / '.agents/skills/first/helper.py').write_text('new helper')
+        self.assertTrue((source / 'helper.py').exists())
+
+    def test_migration_unfolds_owned_directories_and_preserves_runtime(self):
+        source = self.write('editor/.config/editor/settings')
+        runtime = source.parent / 'runtime.cache'
+        runtime.write_text('preserved runtime')
+        os.symlink(self.repo / 'editor/.config', self.home / '.config', target_is_directory=True)
+        links = self.plan()
+        backup = self.root / 'backups'
+        deploy.migrate_parents(links, self.repo, self.home, backup)
+        self.apply(links)
+        self.assertFalse((self.home / '.config').is_symlink())
+        self.assertTrue(deploy.matches(links[0]))
+        self.assertEqual((self.home / '.config/editor/runtime.cache').read_text(), 'preserved runtime')
+        self.assertFalse(runtime.exists())
+        count = len(list(backup.rglob('*')))
+        deploy.migrate_parents(links, self.repo, self.home, backup)
+        self.assertEqual(count, len(list(backup.rglob('*'))))
 
 
 if __name__ == "__main__":

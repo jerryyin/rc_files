@@ -2,7 +2,8 @@ local M = {}
 
 function M.setup()
   vim.g.coc_config_home = vim.fn.expand("~/.vim")
-  vim.g.coc_global_extensions = { "coc-tsserver", "coc-json", "coc-pyright", "coc-snippets" }
+  vim.g.coc_global_extensions = vim.fn.json_decode(table.concat(
+    vim.fn.readfile(vim.fn.expand("~/.vim/coc-extensions.json")), "\n"))
   vim.g.coc_disable_startup_warning = 1
 
   if vim.fn.executable("/usr/bin/node") == 1 then

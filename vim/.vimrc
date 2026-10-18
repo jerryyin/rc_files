@@ -1,6 +1,6 @@
 " General settings
 set nocompatible                " Vim defaults rather than vi ones. Keep at top.
-" Resolve the checkout even when this vimrc is reached through a stow symlink.
+" Resolve the checkout even when this vimrc is reached through a source symlink.
 let s:vim_root = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 if has('win32')
   let g:coc_config_home = s:vim_root . '/.vim'
