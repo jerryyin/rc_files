@@ -106,6 +106,7 @@ endfunction
 nnoremap <leader>gf :call <SID>GitClangFormatHere()<CR>
 nnoremap <leader>gp :Git pull --rebase<CR>
 nnoremap <leader>gl :Gclog<CR>
+nnoremap <leader>g? :help fugitive-maps<CR>
 nnoremap <leader>gw :Gwrite<CR>
 nnoremap <leader>gr :Gread<CR>
 

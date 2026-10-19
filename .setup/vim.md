@@ -15,6 +15,20 @@ Mappings and their plugin settings are authored in the linked configuration file
 
 Diff backgrounds preserve syntax colors. Editors that support them use word-level change highlighting and similar-line alignment; older versions retain their supported behavior.
 
+## Reviewing commits
+
+`\gl` loads commit history; `:copen` displays the list. Select an entry and press Enter for its commit overview. Press Enter on a `diff --git` header to open that file's comparison.
+
+- From the pane showing the reviewed commit, `dq` closes the comparison and `C` returns to that commit's overview at the current file.
+- In the overview, `]/` and `[/` move between files. Press Enter to open the next comparison.
+- In a comparison, `]c` and `[c` move between changed blocks.
+
+Remember **d**iff **q**uit, **C**ommit, then `]/` for the next file. These are Normal-mode keys without a leader prefix.
+
+`\g?` opens Fugitive's mapping help from any buffer. Inside a Fugitive buffer, `g?` shows general help and `d?` shows diff help. `:help fugitive-maps` opens the same reference directly.
+
+Quickfix lists use their normal syntax. For a buffer containing ANSI-colored output, `\ea` explicitly toggles ANSI rendering.
+
 ## Installation and updates
 
 After deploying the configuration, run the shared installer from the repository root. On Windows use `py -3` in place of `python3`.

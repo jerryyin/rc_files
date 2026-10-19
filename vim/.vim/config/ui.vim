@@ -155,13 +155,7 @@ let g:dispatch_no_job_make = 1
 nnoremap <leader>qo :Copen<CR>:10wincmd_<CR>
 nnoremap <leader>qc :cclose<CR>
 
-" Do not allow auto-resize of quickfix window
-augroup QuickfixCustomSettings
-  autocmd!
-  " Apply AnsiEsc when buffer is loaded, one time setup
-  autocmd FileType qf silent! AnsiEsc
-augroup END
-" Escape sequence for Ansi
+" Render ANSI-colored output on demand.
 nnoremap <leader>ea :AnsiEsc<CR>
 
 " Indent guides

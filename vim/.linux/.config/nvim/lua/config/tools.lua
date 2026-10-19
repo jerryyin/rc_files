@@ -64,6 +64,7 @@ map("n", "<leader>gd", "<cmd>Gvdiffsplit HEAD<CR>", { silent = true })
 map("n", "<leader>gf", git_clang_format_here, { silent = true })
 map("n", "<leader>gp", "<cmd>Git pull --rebase<CR>", { silent = true })
 map("n", "<leader>gl", "<cmd>Gclog<CR>", { silent = true })
+map("n", "<leader>g?", "<cmd>help fugitive-maps<CR>", { silent = true })
 map("n", "<leader>gw", "<cmd>Gwrite<CR>", { silent = true })
 map("n", "<leader>gr", "<cmd>Gread<CR>", { silent = true })
 

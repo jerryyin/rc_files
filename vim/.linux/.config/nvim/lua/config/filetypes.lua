@@ -46,7 +46,6 @@ autocmd("FileType", {
   pattern = "qf",
   callback = function()
     vim.opt_local.wrap = true
-    pcall(vim.cmd, "AnsiEsc")
   end,
 })
 
