@@ -32,6 +32,9 @@ opt.ignorecase = true
 opt.smartcase = true
 opt.incsearch = true
 opt.showmatch = true
+for _, option in ipairs({ "inline:word", "linematch:60" }) do
+  pcall(vim.cmd, "set diffopt+=" .. option)
+end
 opt.backspace = { "indent", "eol", "start" }
 opt.autoread = true
 opt.hidden = true

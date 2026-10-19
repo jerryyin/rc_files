@@ -1,28 +1,9 @@
-# Available Scripts (`~/scripts/tools/`)
+# Reuse existing development tools
 
 Applies when: Preparing a reusable script, rule, skill, or document, or looking for an existing personal development tool.
 
-Before creating any script, rule, skill, or doc: check for an existing one and
-extend/parametrize it instead of adding a near-duplicate. Keep it generic — encode
-how to *find* a volatile value (path, version), not the literal; fix a mis-wired
-source (mount, config, script) rather than documenting the workaround. The scripts
-below are the concrete instance — check them before writing a one-off. Their advertised paths require the scripts checkout on the execution host; inspect what exists before using them. Installing or reading rc_files does not require that separate checkout.
+Before creating a reusable tool or document, look for an existing owner and extend it when the purpose matches. Inspect the actual checkout on the execution host; personal scripts may be organized under `devenv`, `numerics`, project directories or other purpose-specific locations.
 
-| Script | Purpose |
-|--------|---------|
-| `compare.py` | Compare two binary files element-wise (bf16/f16/f32/i32) with configurable threshold |
-| `genRandInput.py` | Generate random binary input files: `python genRandInput.py out.bin --shape 2 235 363 224 --dtype bf16` |
-| `gdb_print_lanes.py` | GDB helper: print a variable across GPU lanes in compact format. Source in GDB, call `print_variable_for_lanes("var")` |
-| `att_analyze.py` | Analyze ATT profiling CSVs — instruction categorization, latency/stall breakdown, cross-run comparison |
-| `run_on_model.sh` | Run a command under AM or FFM simulator environment (sets up HSA env vars, library paths) |
-| `ffm_teardown.py` | Pytest plugin: `hipDeviceReset` + `os._exit` after session to prevent FFM hangs |
-| `prof.sh` | Fix `/opt/rocm` symlink and set up ROCm profiling environment |
-| `download_github_attachment.py` | Download attachments from a GitHub issue by issue ID |
-| `torch_event_replay.py` | Replay TraceLens op events (e.g. `aten::addmm`) for benchmarking |
+Use `rg --files` and content searches to find candidates, then read their usage and prerequisites before invoking them. A tool installed on the local Windows account may be absent from WSL, a container or a remote host. Installing `rc_files` does not require a separate `scripts` checkout.
 
-## Benchmarking Drivers (`~/scripts/bench/`)
-
-| Script | Purpose |
-|--------|---------|
-| `hipblaslt.py` | Run hipBLASLt benchmark commands from a file, parse results to CSV |
-| `miopen.py` | Run MIOpenDriver commands across multiple GPUs with multiprocessing, collect results to CSV |
+Keep reusable tools generic: discover volatile paths and versions on the target host, and fix the owning configuration or script when a connection is wrong. Keep current usage beside the tool rather than maintaining a duplicate inventory in agent instructions.

@@ -1,11 +1,9 @@
 # Personal configuration
 
-Application directories contain the tracked settings installed into a user home.
-The repository includes its own Python deployment tool; a `scripts` checkout is
-not required.
+Tracked application settings, personal agent guidance and editor preferences for Linux and Windows. This checkout includes its own Python setup; a separate `scripts` checkout is not required.
 
-* [Setup, deployment conventions and tests](.setup/README.md)
-* [Shared Vim configuration](.setup/vim.md)
+- [Setup and placement conventions](.setup/README.md)
+- [Vim configuration and daily use](.setup/vim.md)
+- [Shared agent instructions, rules and skills](.setup/agents.md)
 
-Configuration edits made through installed links reach their Git source.
-Plugin downloads, caches, credentials and machine-specific state stay local.
+Installed links keep configuration edits attached to their Git source. Plugin downloads, caches, credentials and application state stay local. System prerequisites and workstation provisioning belong to the separate [scripts repository](https://github.com/jerryyin/scripts).

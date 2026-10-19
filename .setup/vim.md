@@ -1,61 +1,35 @@
-# Shared Vim configuration
+# Vim configuration
 
-`.vimrc` is the entry point on Linux and Windows. It resolves this checkout
-through symlinks and sources `.vim/config` directly. Theme, mappings, plugin
-choices and CoC extension choices are shared. Linux keeps its current commands
-and plugins; native Windows selects its dependencies with `has('win32')`.
+Linux and Windows Vim share `vim/.vimrc`, installed as `~/.vimrc`. It resolves the checkout through its link and loads the configuration under `vim/.vim/config`. Native Windows settings live under `vim/.windows`; Linux Neovim configuration lives under `vim/.linux/.config/nvim`.
 
-## Editing and review
+## Daily use
 
-`\gd` compares the current file with `HEAD`, showing its combined staged and unstaged changes. Use `:Gvdiffsplit` directly to compare with the staged version.
+The leader key is backslash. Common navigation and review commands are:
 
-`config/debug.vim` is shared by Vim and Neovim. It enables `E`, `J`, `S`, `B`, `D` and `C` when a Termdebug session starts and restores the previous global mappings when that session ends. Buffer-local mappings retain their precedence.
+- Ctrl-h/j/k/l move between Vim splits. Native Windows console Vim also accepts Ctrl-Backspace as left navigation because ConPTY can deliver Ctrl-h with that key identity inside psmux.
+- `\gg` opens Fugitive's Git status view. Use `=` on a file to inspect its changes there.
+- `\gd` compares the current file with `HEAD`, showing combined staged and unstaged changes. `:Gvdiffsplit` compares with the staged version. Use `:diffoff! | only` to leave the diff and close the other split windows.
+- Termdebug enables `E`, `J`, `S`, `B`, `D` and `C` for evaluate, next, step, breakpoint, clear and continue during a debugging session, restoring previous global mappings when the session ends.
 
-## Windows
+Mappings and their plugin settings are authored in the linked configuration files. Project build, test, formatting and debugging commands still require the project's toolchain on the execution host.
 
-The PowerShell bootstrap in `scripts/devenv/windows` installs native tools and
-registered Python. Vim loads the shared `~/.vimrc` directly and discovers Python's
-DLL itself. Windows settings and the AI process lookup helper live under
-`vim/.windows/.vim/config`; their installed locations remain under `~/.vim/config`.
+Diff backgrounds preserve syntax colors. Editors that support them use word-level change highlighting and similar-line alignment; older versions retain their supported behavior.
 
-LeaderF uses the shared `.vim/config/project-files.py` on both platforms for Git
-files, generated build includes and project filters. Non-Git folders use ripgrep
-or the existing `ag` and exclude `build/`. The custom listing needs Python, Git
-and either search tool, and runs without Bash. `ai-processes.ps1` queries Windows
-processes on demand for the `\cc` pane shortcut.
+## Installation and updates
 
-Windows uses native `clangd` with the existing generic CoC language-server
-configuration and semantic tokens. Do not add `coc-clangd` on top of that
-configuration: doing so would launch a second clangd. Project include paths and
-compile commands must match the operating system where clangd runs.
+After deploying the configuration, run the shared installer from the repository root. On Windows use `py -3` in place of `python3`.
 
-## Linux
+```sh
+python3 .setup vim
+python3 .setup vim --update
+```
 
-Neovim's Unix-dependent configuration is under `vim/.linux/.config/nvim`.
-Its file picker invokes the same `~/.vim/config/project-files.py` as LeaderF.
-The shared IREE filter includes LLVM's MLIR files and keeps `tools/` and `tests/`,
-while excluding other third-party trees. Both legacy and current IREE layouts
-are recognized.
+[Plugin declarations](../vim/.vim/config/plugins.vim) and [CoC extension choices](../vim/.vim/coc-extensions.json) are the source of truth. Setup installs missing plugins; `--update` also refreshes existing plugins. CoC checks the latest selected extensions on every setup and retains local additions. Plugin downloads and extension installations stay outside Git.
 
-`python3 .setup vim` prepares vim-plug and CoC after the configuration has been
-deployed. Gutentags remains enabled when its tools are available. The root
-`.notags` marker suppresses tags inside this checkout; `gtags/.notags` supplies
-the installed home marker. These files belong to Gutentags, not the deployer.
+C/C++ language services use the shared [CoC settings](../vim/.vim/coc-settings.json) and a native clangd. Compile commands, include paths and toolchains must match the host running clangd. Adding a second clangd extension alongside the configured server would duplicate it.
 
-`config/plugins.vim` is used both by Vim and the Windows plugin installer.
-`coc-extensions.json` supplies the extension choices for Vim, Neovim and both
-platforms' installers.
-Windows uses built-in syntax rather than Polyglot, whose unnamed-buffer handler
-currently fails there. LeaderF runs in Python mode without the Unix build hook.
-Native search/multiplexer commands are `rg` and `psmux`, selected in the same
-mapping definitions used for `ag` and `tmux` on Linux. Ctags is not installed by
-the Windows bootstrap; Windows outlines use CoC.
+Gutentags remains available where its tools are installed. The root `.notags` excludes this checkout; `gtags/.notags` supplies the home marker. These are editor markers and remain tracked.
 
-Pull this repository and restart Vim to load new settings; no configuration
-copy or separate platform vimrc needs refreshing. Plugin updates remain under
-vim-plug (`:PlugUpdate`) and CoC (`:CocUpdate`).
+## Editing configuration
 
-Keep the existing Git ignore policy. Intentionally authored files under `.vim`
-are added explicitly with `git add -f`; there are no broad ignore exceptions.
-Platform settings and helpers are tracked. Plugin downloads, CoC extension
-installs, caches and session files remain outside this checkout.
+Edit through the installed links or directly in this checkout, then reload the affected configuration or restart Vim. Review changes in Git before updating another machine. New authored files under ignored configuration directories need explicit `git add -f`; caches, swap files, plugin code and sessions retain their application ownership.

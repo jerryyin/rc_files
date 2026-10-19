@@ -234,7 +234,7 @@ If everything is nominal and unchanged, say so in one or two lines. Do not pad t
 
 ## The ninth question is not delegated
 
-The rule's *Does the round still have unspent cells?* is missing from the briefing on purpose. Its answer authorizes new work, so it is the operator's and never a subagent's — see *Keep the decisions, delegate the observations*. The sweep supplies the evidence; the operator draws the conclusion and arms the successor.
+The rule's *Does the round still have unspent cells?* is missing from the briefing on purpose. Its answer authorizes new work, so it is the operator's and never a subagent's — see *Delegate the sweep, keep the decisions*. The sweep supplies the evidence; the operator draws the conclusion and arms the successor.
 
 ## Re-arm when the *stable* half changes
 

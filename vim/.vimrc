@@ -46,6 +46,15 @@ set smartcase
 set incsearch
 set showmatch
 
+" Older editors keep their defaults for unsupported diff options.
+for s:diff_option in ['inline:word', 'linematch:60']
+  try
+    execute 'set diffopt+=' . s:diff_option
+  catch /^Vim\%((\a\+)\)\=:E474:/
+  endtry
+endfor
+unlet s:diff_option
+
 " Make backspace behavior match normal editor
 set backspace=indent,eol,start
 
