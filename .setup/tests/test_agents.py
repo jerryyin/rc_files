@@ -1,5 +1,4 @@
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -17,14 +16,28 @@ class AgentConfigurationTests(unittest.TestCase):
         self.root = Path(temporary.name).resolve()
         self.repo = self.root / 'relocated rc files'
         self.repo.mkdir()
-        shutil.copytree(original / 'agents', self.repo / 'agents', symlinks=True)
-        shutil.copyfile(original / '.gitignore', self.repo / '.gitignore')
+        names = subprocess.check_output(['git', '-C', str(original), 'ls-files', '-z',
+                                         '--', 'agents', '.gitignore'])
+        subprocess.run(['git', '-C', str(original), 'checkout-index', '-z', '--stdin',
+                        '--prefix=' + self.repo.as_posix() + '/'], input=names, check=True)
         subprocess.run(['git', '-C', str(self.repo), 'init', '-q'], check=True)
         subprocess.run(['git', '-C', str(self.repo), '-c', 'core.symlinks=true', '-c', 'core.autocrlf=false',
                         'add', '-f', '--', 'agents'], check=True)
+        self.preserve_alias_modes(original)
         self.source = self.repo / 'agents/.agents'
         self.skills = {path.parent.name for path in (self.source / 'skills.links').glob('*/SKILL.md')}
         self.assertTrue(self.skills)
+
+    def preserve_alias_modes(self, original):
+        # A Windows checkout can represent a Git symlink as an ordinary text file.
+        for name, mode in deployment.tracked_files(original).items():
+            if not name.startswith('agents/') or mode != '120000':
+                continue
+            target = subprocess.check_output(['git', '-C', str(original), 'show', ':' + name])
+            blob = subprocess.check_output(['git', '-C', str(self.repo), 'hash-object', '-w', '--stdin'],
+                                           input=target).decode().strip()
+            subprocess.run(['git', '-C', str(self.repo), 'update-index', '--add', '--cacheinfo',
+                            '120000,' + blob + ',' + name], check=True)
 
     def assert_collection(self, plan, home):
         by_target = {link.target.relative_to(home).as_posix(): link for link in plan}

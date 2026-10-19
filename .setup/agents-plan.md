@@ -4,7 +4,7 @@
 
 Use one Git-owned collection of personal instructions, rules, and skills across Claude Code, Codex, and Cursor on Windows and Ubuntu. Author shared instructions in `AGENTS.md`, reuse the existing Python deployer, and retain only the links required by the tools' discovery locations. Adding personal content must not require updating a manifest or a separate inventory.
 
-The migration is implemented and applied to native Windows and Ubuntu/WSL. It includes the agent configuration package in `rc_files`, its setup checks, and removal of the obsolete Cursor rule installation in `scripts`. Application installers and native permission settings retain their existing owners. Changes are staged for review; no commit or push is part of this implementation request. Interactive model verification is deferred at the user's request; Claude checks use a local stub.
+The migration is implemented and applied to native Windows and Ubuntu/WSL. It includes the agent configuration package in `rc_files`, its setup checks, and removal of the obsolete Cursor rule installation in `scripts`. Application installers and native permission settings retain their existing owners. Interactive model verification is deferred at the user's request; Claude checks use a local stub.
 
 ## Compatibility checked on 2026-10-18
 
@@ -145,6 +145,7 @@ The change was prepared against native Windows `rc_files/master` at `6b8c52a` an
 - Claude's actual CLI on each platform sends the shared preferences, an unrelated project's native `AGENTS.md`, and all 16 personal skill names to a loopback stub. No real model response is used. The campaign rule body is absent from startup context. This checks loading, not whether a model chooses the correct conditional rule during a real task.
 - Cursor's account User Rule was added through its Settings UI and read back there. Its only policy is the shared-file loading pointer shown above. The Skills UI lists the 16 personal skills. A fresh model session still needs to demonstrate the file read and conditional selection.
 - Ubuntu's divergent Cursor `talk-gist` copy was backed up and retired; its useful extra paragraph is in the shared source. Its unrelated staged work and local SSH configuration are preserved.
+- The inherited `cursor/.cursor/workspace` package was removed after confirming that its task records and directory map were placeholders and its helper scripts had no external references. Its seven installed links are retired with the cleanup; personal guidance stays in the neutral agent package.
 
 Acceptance records and displaced links are local runtime artifacts under `%LOCALAPPDATA%/PersonalDevenv/acceptance/agents-refactor-*` on Windows and `~/.local/state/devenv-acceptance/agents-refactor-*` on Ubuntu. These records are evidence, not a deployment inventory or configuration dependency.
 
