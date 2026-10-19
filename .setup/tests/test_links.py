@@ -100,6 +100,20 @@ class DeploymentTests(unittest.TestCase):
         self.write(".helpers/helper.sh")
         self.assertEqual(self.plan(), [])
 
+    def test_package_setup_is_reserved_at_the_package_root(self):
+        source = self.write('editor/.editorrc')
+        self.write('editor/.setup/__main__.py')
+        self.write('editor/.setup/tests/test_setup.py')
+        self.write('editor/.setup/driver.vim')
+        self.write('editor/.windows/.setup/helper.py')
+        self.write('editor/.linux/.setup/helper.py')
+        native = self.write('editor/.config/editor/.setup')
+        for platform in ('linux', 'windows'):
+            with self.subTest(platform=platform):
+                plan = {link.target: link.source for link in self.plan(platform)}
+                self.assertEqual(plan, {self.home / '.editorrc': source,
+                                        self.home / '.config/editor/.setup': native})
+
     def test_file_edits_and_repeat_apply(self):
         source = self.write("editor/.editorrc")
         links = self.plan()

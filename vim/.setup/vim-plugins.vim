@@ -1,9 +1,9 @@
 set nocompatible
 set eventignore=all
 execute 'set runtimepath^=' . fnameescape(expand('~/.vim'))
-let s:repo = fnamemodify(resolve(expand('<sfile>:p')), ':h:h')
+let s:package = fnamemodify(resolve(expand('<sfile>:p')), ':h:h')
 try
-  execute 'source ' . fnameescape(s:repo . '/vim/.vim/config/plugins.vim')
+  execute 'source ' . fnameescape(s:package . '/.vim/config/plugins.vim')
   if $RC_SETUP_UPDATE ==# '1'
     PlugUpdate --sync
   elseif !empty(filter(copy(values(g:plugs)), '!isdirectory(v:val.dir)'))

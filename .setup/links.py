@@ -108,26 +108,31 @@ def directory_children(source: Path, repo: Path, tracked: dict[str, str]) -> lis
     return [source / name for name in sorted(names)]
 
 
+def package_names(tracked: dict[str, str], packages: list[str]) -> list[str]:
+    available = {name.split("/", 1)[0] for name in tracked
+                 if "/" in name and not name.startswith(".")}
+    if set(packages) - available:
+        raise ValueError(f"Unknown packages: {', '.join(sorted(set(packages) - available))}")
+    return sorted(set(packages) if packages else available)
+
+
 def discover(repo: Path, platform: str, roots: dict[str, Path], packages: list[str]) -> list[Link]:
     repo = repo.resolve(strict=True)
     tracked = tracked_files(repo)
-    available = {name.split("/", 1)[0] for name in tracked if "/" in name}
-    if set(packages) - available:
-        raise ValueError(f"Unknown packages: {', '.join(sorted(set(packages) - available))}")
     selected: dict[str, tuple[int, Link]] = {}
-    for package in sorted(available):
-        if package.startswith(".") or (packages and package not in packages):
-            continue
+    for package in package_names(tracked, packages):
         for name in sorted(tracked):
             if not name.startswith(package + "/"):
                 continue
             parts = Path(name).parts[1:]
+            if parts[0] == '.setup':
+                continue
             priority = int(parts[0] in PLATFORMS)
             if priority:
                 if parts[0] != "." + platform:
                     continue
                 parts = parts[1:]
-            if not parts:
+            if not parts or parts[0] == '.setup':
                 continue
             marker = next((index for index, part in enumerate(parts) if part.endswith('.links')), None)
             if marker is not None and marker < len(parts) - 1:

@@ -8,7 +8,7 @@ if $RC_SETUP ==# '1' && (!filereadable(s:plug) || $RC_SETUP_UPDATE ==# '1')
   endif
 endif
 if !filereadable(s:plug)
-  throw 'Run python .setup vim to install Vim plugins'
+  throw 'Run python .setup --package vim to install Vim plugins'
 endif
 execute 'source ' . fnameescape(s:plug)
 

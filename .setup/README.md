@@ -20,13 +20,14 @@ For full setup, install the native applications and their prerequisites first, i
 python3 .setup
 ```
 
-Full setup deploys configuration, prepares tmux/psmux and Vim plugins, then loads Zsh's plugin setup on Linux. Application setup runs on the target operating system. Windows package installation, fonts, Developer Mode, WSL and credentials belong to [scripts' Windows bootstrap](https://github.com/jerryyin/scripts/tree/main/devenv/windows); Linux system prerequisites belong to its `docker/env/min.sh`. Configuration-only setup remains independent of that repository.
+Full setup deploys all selected configuration before running the selected packages' setup entries in package-name order. Each package owns its application commands and platform differences. Application setup runs on the target operating system. Windows package installation, fonts, Developer Mode, WSL and credentials belong to [scripts' Windows bootstrap](https://github.com/jerryyin/scripts/tree/main/devenv/windows); Linux system prerequisites belong to its `docker/env/min.sh`. Configuration setup remains independent of that repository.
 
 ## Placement conventions
 
 Every non-hidden top-level directory is a package. Root files and hidden root directories, including `.setup`, are repository utilities and are not installed.
 
 - A package mirrors its destination: `vim/.vimrc` installs as `~/.vimrc` on both platforms.
+- A package's `.setup/` directory contains its installation code and is excluded from deployment. An optional tracked `.setup/__main__.py` is its sole setup entry, shared across platforms. Runtime and untracked files do not register setup entries.
 - `.linux` and `.windows` subtrees select platform content. For example, `ssh/.linux/.ssh/config` installs only on Linux. Platform content overrides a shared file with the same destination; equal-priority conflicts between packages are errors.
 - A leading `@DOCUMENTS`, `@LOCALAPPDATA` or `@APPDATA` selects that operating system directory. Remaining path components keep their normal meaning.
 - Tracked repository symlinks reuse a source at multiple destinations. Setup resolves their final source, including aliases materialized as text by Git for Windows.
@@ -48,30 +49,38 @@ python3 .setup migrate --backup /path/to/backup
 
 Use `--replace-existing` only after reconciling local edits; it requires a backup destination. Directory copies also require a backup. `migrate` handles the complete package tree: it unfolds old source-owned directory links, moves untracked application data into real destination directories, and retires obsolete links owned by this checkout. Unfolding can happen before later conflict reporting.
 
-Full setup, including `--config-only`, uses migration and selects a timestamped backup under `~/.dotfiles-backup` unless `--backup` or `BACKUP_DIR` supplies one. An unchanged rerun leaves correct links alone and creates no redundant backups. Moved sources and tracked aliases are repaired from the current layout.
+Full setup, including `--config-only`, uses migration and selects a timestamped backup under `~/.dotfiles-backup` unless `--backup` or `BACKUP_DIR` supplies one. With `--package`, setup applies only the selected packages and leaves other packages' links alone; complete-tree migration remains an explicit separate operation. An unchanged rerun leaves correct links alone and creates no redundant backups. Moved sources and tracked aliases are repaired from the current layout.
 
 ## Application maintenance
 
-After configuration deployment, run individual application setup as needed:
+Select packages to link their configuration and run their setup as needed:
 
 ```sh
-python3 .setup vim
-python3 .setup mux
-python3 .setup shell
-python3 .setup vim --update
-python3 .setup mux --update
+python3 .setup --package vim
+python3 .setup --package tmux
+python3 .setup --package zsh
+python3 .setup --package vim --update
+python3 .setup --package tmux --update
 ```
 
-The `shell` action prepares Zsh plugins on Linux. Plugin choices stay in the native application configuration. Existing Vim and mux plugins are retained unless `--update` is requested; CoC checks the latest versions of both tracked extension choices and existing package dependencies on every setup, preserving local additions.
+Vim prepares vim-plug and CoC, tmux prepares TPM on Linux or PPM on Windows, and Zsh loads its declared plugins on Linux. SSH setup restricts its destination directory permissions on Unix. `--config-only` skips every package setup entry. Plugin choices stay in the native application configuration. Existing Vim and mux plugins are retained unless `--update` is requested; CoC checks the latest versions of both tracked extension choices and existing package dependencies on every setup, preserving local additions.
+
+The runner starts each tracked entry with its own Python interpreter and the entry's directory as the working directory, stopping on the first failed process. Entries locate their source files relative to `__file__` and use the inherited environment: `HOME` (also `USERPROFILE` on Windows), redirected XDG/application directories for another home, `RC_SETUP=1`, `RC_SETUP_UPDATE=0` or `1`, and `RC_SETUP_REDIRECTED=0` or `1`. The last flag lets an entry avoid touching a live account session when testing another home. Public Git downloads are noninteractive and ignore the account's global Git configuration. Entries own additional environment requirements, such as npm's certificate bundle. The shared runner has no application registry, dependency list or application-specific options.
 
 Vim and tmux/psmux load their linked configuration directly. Reload or restart the application after editing its settings. System installers do not render a second configuration file. See [Vim's guide](vim.md) for editor maintenance.
+
+### Alternatives considered
+
+Keeping application calls in the central command would require changing it for every new application. A manifest describing installation commands would add another format alongside Python and native plugin declarations. A single optional Python entry per package keeps executable application decisions with their owner and lets package selection work without registration.
 
 ## Other destinations and checks
 
 `plan`, `apply` and `check` accept repeated `--package NAME` selections. `--home PATH` selects another home; `--root NAME=PATH` redirects a destination root. A longer root key can redirect a subtree, such as an unpackaged Windows Terminal settings location. These are invocation arguments, not stored bookkeeping. Use `--help` for the full command interface.
 
-`plan --json` and `check --json` expose discovered links for installers and readiness checks. The setup tests live in `tests/`, use temporary repositories and homes, and run from the repository root with:
+`plan --json` and `check --json` expose discovered links for installers and readiness checks. Shared setup tests live in `tests/`; application tests live beside their package's setup. Tests use temporary repositories and homes. Run from the repository root with:
 
 ```sh
 python3 -B -m unittest discover -s .setup/tests
+python3 -B -m unittest discover -s vim/.setup/tests
+python3 -B -m unittest discover -s tmux/.setup/tests
 ```

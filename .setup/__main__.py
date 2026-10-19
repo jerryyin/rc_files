@@ -10,16 +10,14 @@ import shutil
 import subprocess
 import sys
 
-from context import Context
+from context import environment
 import links
-import mux
-import vim
 
 
 def arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', nargs='?', default='setup',
-                        choices=('setup', 'plan', 'apply', 'migrate', 'check', 'link', 'vim', 'mux', 'shell'))
+                        choices=('setup', 'plan', 'apply', 'migrate', 'check', 'link'))
     parser.add_argument('--repo', type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument('--home', type=Path, default=Path.home())
     parser.add_argument('--platform', choices=('linux', 'windows', 'darwin'),
@@ -32,8 +30,7 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument('--source', type=Path)
     parser.add_argument('--target', type=Path)
     parser.add_argument('--config-only', action='store_true', help='link configuration without application setup')
-    parser.add_argument('--update', action='store_true', help='also update installed Vim and mux plugins')
-    parser.add_argument('--vim-exe', type=Path)
+    parser.add_argument('--update', action='store_true', help='ask selected packages to update installed dependencies')
     return parser.parse_args(argv)
 
 
@@ -50,28 +47,21 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError('Required commands are missing: git')
     backup = args.backup or Path(os.environ.get('BACKUP_DIR', str(
         args.home / '.dotfiles-backup' / datetime.now().strftime('%Y%m%d-%H%M%S'))))
-    context = Context(args.repo, args.home, args.platform, args.update)
-    if args.action == 'setup':
-        args.action = 'migrate'
-        args.backup = backup.resolve()
-        if links.run(args):
-            return 1
-        if args.platform == 'linux' and (args.home / '.ssh').is_dir():
-            (args.home / '.ssh').chmod(0o700)
-        if not args.config_only:
-            mux.setup(context)
-            vim.setup(context, vim_exe=args.vim_exe)
-            if args.platform == 'linux':
-                context.run(['zsh', '-c', 'source "$HOME/.zshrc"'])
-        print('Setup completed successfully!')
-    elif args.action == 'vim':
-        vim.setup(context, vim_exe=args.vim_exe)
-    elif args.action == 'mux':
-        mux.setup(context)
-    elif args.action == 'shell':
-        if args.platform != 'linux':
-            raise ValueError('Zsh plugin setup is only supported on Linux')
-        context.run(['zsh', '-c', 'source "$HOME/.zshrc"'])
+    tracked = links.tracked_files(args.repo)
+    packages = links.package_names(tracked, args.package)
+    args.action = 'apply' if args.package else 'migrate'
+    args.backup = backup.resolve()
+    if links.run(args):
+        return 1
+    if not args.config_only:
+        for package in packages:
+            name = f'{package}/.setup/__main__.py'
+            if name in tracked:
+                entry = links.resolve_source(args.repo / name, args.repo, tracked)
+                print(f'Setup: {package}', flush=True)
+                subprocess.run([sys.executable, '-B', str(entry)], cwd=entry.parent,
+                               env=environment(args.home, args.update), check=True)
+    print('Setup completed successfully!')
     return 0
 
 
