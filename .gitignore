@@ -1,12 +1,10 @@
 !/.gitignore
 # The global excludes (~/.gitignore) ignores dot-prefixed paths via ".*", which
-# hides the whole .claude/ config dir. Re-include ONLY the tracked config subtrees
+# hides dot-prefixed config dirs. Re-include ONLY the authored agent subtrees
 # so new files there are picked up without `git add -f`. Runtime state
 # (projects/, jobs/, file-history/, plugins/, caches, daemon*, sessions/, ...)
 # stays ignored.
-!claude/.claude/
-claude/.claude/*
-!claude/.claude/rules/
-!claude/.claude/rules/**
-!claude/.claude/skills.links/
-!claude/.claude/skills.links/**
+!agents/.agents/
+agents/.agents/*
+!agents/.agents/rules/
+!agents/.agents/skills.links/

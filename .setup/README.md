@@ -140,9 +140,7 @@ link that file to their tracked platform settings. Credential helper choices
 are configuration; authentication tokens and SSH private keys stay in their
 existing credential stores and private directories.
 
-Shared agent instructions and skill aliases live in `claude/.codex` and
-`claude/.agents`. Both platforms discover them here; CLI installers do not
-maintain a second set of links. Linux's Node CA helper is deployed from
+Shared agent instructions, conditional rules and personal skills live in `agents/.agents`. The `agents/.codex` and `agents/.claude` aliases reuse that source on both platforms; CLI installers do not maintain a second set of links. See [the agent configuration design](agents-plan.md) for tool entrypoints and loading checks. Migration also retires source-owned links in former configuration directories immediately below managed parents; unrelated files and deeper application runtime directories are preserved. Linux's Node CA helper is deployed from
 `node/.linux/.config/node/ca-cert.sh`, and shells source that
 installed path. Python setup uses the operating system CA bundle for npm when
 NODE_EXTRA_CA_CERTS has not already been supplied.

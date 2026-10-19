@@ -270,6 +270,34 @@ class DeploymentTests(unittest.TestCase):
         self.assertTrue(self.home.is_dir())
         self.assertFalse(os.path.lexists(self.home / '.editorrc'))
 
+    def test_migration_prunes_retired_directory_beside_current_configuration(self):
+        self.write('editor/.editor/current')
+        old = self.write('editor/.editor/rules/old.md')
+        self.apply(self.plan())
+        local = self.home / '.editor/rules/local.md'
+        local.write_text('untracked local note')
+        self.git('rm', '-f', '--', str(old.relative_to(self.repo)))
+        links = self.plan()
+        backup = self.root / 'backups'
+        deployment.prune_links(links, self.repo, self.home, backup)
+        self.assertFalse(os.path.lexists(local.parent / 'old.md'))
+        self.assertEqual(local.read_text(), 'untracked local note')
+        self.assertTrue(os.path.lexists(backup / 'links/.editor/rules/old.md'))
+        before = len(list(backup.rglob('*')))
+        deployment.prune_links(links, self.repo, self.home, backup)
+        self.assertEqual(len(list(backup.rglob('*'))), before)
+
+    def test_migration_does_not_search_unmanaged_home_or_deep_runtime_directories(self):
+        self.write('editor/.editor/current')
+        self.apply(self.plan())
+        for name in ('unrelated/old', '.editor/runtime/nested/old'):
+            target = self.home / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.symlink_to(self.repo / 'editor/missing')
+        deployment.prune_links(self.plan(), self.repo, self.home, self.root / 'backups')
+        self.assertTrue(os.path.lexists(self.home / 'unrelated/old'))
+        self.assertTrue(os.path.lexists(self.home / '.editor/runtime/nested/old'))
+
 
 if __name__ == "__main__":
     unittest.main()

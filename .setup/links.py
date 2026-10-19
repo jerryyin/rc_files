@@ -291,6 +291,19 @@ def prune_links(links: list[Link], repo: Path, home: Path, backup: Path,
     active_parents = {parent for link in links for parent in link.target.parents}
     parents = {parent for link in links + (other_platforms or [])
                for parent in link.target.parents if parent.is_relative_to(home)}
+    # Retired configuration directories can outlive every file in their old plan.
+    for parent in tuple(parents - {home}):
+        if not parent.is_dir() or is_link(parent):
+            continue
+        for child in parent.iterdir():
+            if child in parents or not child.is_dir() or is_link(child) or child.is_relative_to(repo):
+                continue
+            try:
+                entries = list(child.iterdir())
+            except (PermissionError, FileNotFoundError):
+                continue
+            if any(source_owned(entry, repo) for entry in entries):
+                parents.add(child)
     for parent in sorted(parents, key=str):
         if not parent.is_dir() or is_link(parent):
             continue
