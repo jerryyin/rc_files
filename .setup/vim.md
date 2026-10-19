@@ -5,6 +5,12 @@ through symlinks and sources `.vim/config` directly. Theme, mappings, plugin
 choices and CoC extension choices are shared. Linux keeps its current commands
 and plugins; native Windows selects its dependencies with `has('win32')`.
 
+## Editing and review
+
+`\gd` compares the current file with `HEAD`, showing its combined staged and unstaged changes. Use `:Gvdiffsplit` directly to compare with the staged version.
+
+`config/debug.vim` is shared by Vim and Neovim. It enables `E`, `J`, `S`, `B`, `D` and `C` when a Termdebug session starts and restores the previous global mappings when that session ends. Buffer-local mappings retain their precedence.
+
 ## Windows
 
 The PowerShell bootstrap in `scripts/devenv/windows` installs native tools and

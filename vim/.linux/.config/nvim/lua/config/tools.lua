@@ -60,7 +60,7 @@ end
 map("n", "<leader>gg", toggle_git_status, { silent = true })
 map("n", "<leader>gb", "<cmd>Git blame<CR>", { silent = true })
 map("n", "<leader>gc", "<cmd>Git commit<CR>", { silent = true })
-map("n", "<leader>gd", "<cmd>Gvdiffsplit<CR>", { silent = true })
+map("n", "<leader>gd", "<cmd>Gvdiffsplit HEAD<CR>", { silent = true })
 map("n", "<leader>gf", git_clang_format_here, { silent = true })
 map("n", "<leader>gp", "<cmd>Git pull --rebase<CR>", { silent = true })
 map("n", "<leader>gl", "<cmd>Gclog<CR>", { silent = true })
@@ -115,12 +115,7 @@ end
 
 vim.api.nvim_create_user_command("Dbg", run_termdebug, { nargs = "*" })
 map("n", "<Leader>dl", adjust_debug_layout, { silent = true })
-map("n", "E", "<cmd>Evaluate<CR>", { silent = true })
-map("n", "J", "<cmd>Over<CR>", { silent = true })
-map("n", "S", "<cmd>Step<CR>", { silent = true })
-map("n", "B", "<cmd>Break<CR>", { silent = true })
-map("n", "D", "<cmd>Clear<CR>", { silent = true })
-map("n", "C", "<cmd>Continue<CR>", { silent = true })
+vim.cmd("source " .. vim.fn.fnameescape(vim.fn.expand("~/.vim/config/debug.vim")))
 
 -- Return true if any process in the tree rooted at pid runs claude or codex.
 local function pane_runs_ai(pid)

@@ -90,7 +90,7 @@ endfunction
 nnoremap <leader>gg :call <SID>toggle_gstatus()<CR>
 nnoremap <leader>gb :Git blame<CR>
 nnoremap <leader>gc :Git commit<CR>
-nnoremap <leader>gd :Gvdiffsplit<CR>
+nnoremap <leader>gd :Gvdiffsplit HEAD<CR>
 function! s:GitClangFormatHere() abort
   let l:bufdir = expand('%:p:h')
   let l:root = systemlist('git -C ' . shellescape(l:bufdir) . ' rev-parse --show-toplevel')
@@ -157,12 +157,7 @@ nmap <leader>cr <Plug>(coc-rename)
 nmap <leader>cf <Plug>(coc-fix-current)
 
 " Termdebug Mappings
-nmap E :Evaluate<CR>
-nmap J :Over<CR>
-nmap S :Step<CR>
-nmap B :Break<CR>
-nmap D :Clear<CR>
-nmap C :Continue<CR>
+execute 'source ' . fnameescape(expand('<sfile>:p:h') . '/debug.vim')
 
 function! s:AdjustLayout() abort
   " Get window layout

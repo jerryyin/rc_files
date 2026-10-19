@@ -15,3 +15,6 @@ plan_mode_reasoning_effort = "max"
 # Match Claude's bypassPermissions behavior for local Codex sessions.
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
+
+[tui]
+alternate_screen = "never"
