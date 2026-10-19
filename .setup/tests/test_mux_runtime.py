@@ -33,8 +33,15 @@ class NativeConfigurationTests(unittest.TestCase):
             server = [native, '-L', 'rc-test-' + uuid.uuid4().hex]
             entry = home / ('.psmux.conf' if os.name == 'nt' else '.tmux.conf')
             command = ['--', 'pwsh', '-NoProfile', '-Command', 'Start-Sleep 90'] if os.name == 'nt' else ['sleep 90']
+            if os.name != 'nt':
+                manager = home / '.tmux/plugins/tpm/tpm'
+                manager.parent.mkdir(parents=True)
+                manager.write_text('#!/bin/sh\nprintf loaded > "$HOME/tpm-loaded"\n')
+                manager.chmod(0o755)
             try:
                 run(*server, '-f', str(entry), 'new-session', '-d', '-s', 'verify', *command)
+                if os.name != 'nt':
+                    self.assertEqual((home / 'tpm-loaded').read_text(), 'loaded')
                 self.assertIn('`', run(*server, 'show-options', '-g', 'prefix'))
                 common = home / '.config/tmux/common.conf'
                 self.assertTrue(common.is_symlink())
