@@ -1,6 +1,12 @@
 # Native Windows tools. This profile never invokes WSL.
 function vim { & vim.exe @args }
-function tmux { & psmux.exe @args }
+function psmux {
+    if ($args.Count) { & psmux.exe @args; return }
+    & psmux.exe has-session 2>$null
+    if ($LASTEXITCODE -eq 0) { & psmux.exe attach-session }
+    else { & psmux.exe new-session -A -s main }
+}
+function tmux { psmux @args }
 function dev { & psmux.exe new-session -A -s main @args }
 function ll { Get-ChildItem -Force @args }
 function la { Get-ChildItem -Force @args }

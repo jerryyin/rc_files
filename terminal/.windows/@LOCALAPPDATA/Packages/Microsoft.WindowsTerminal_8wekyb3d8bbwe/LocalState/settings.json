@@ -29,6 +29,10 @@
   "copyFormatting": "none",
   "copyOnSelect": true,
   "defaultProfile": "{66fce70d-f58a-45d6-a538-11c34abff4a8}",
+  "disabledProfileSources": [
+    "Windows.Terminal.Wsl",
+    "Microsoft.WSL"
+  ],
   "keybindings": [
     {
       "id": "User.find",
@@ -161,32 +165,13 @@
           },
           "size": 10
         },
-        "guid": "{963ff2f7-6aed-5ce3-9d91-90d99571f53a}",
-        "hidden": true,
-        "intenseTextStyle": "bold",
-        "name": "Ubuntu-24.04",
-        "opacity": 95,
-        "padding": "5",
-        "source": "Windows.Terminal.Wsl",
-        "useAcrylic": false
-      },
-      {
-        "bellStyle": "taskbar",
-        "cursorShape": "emptyBox",
-        "font": {
-          "face": "MonacoLigaturized Nerd Font",
-          "features": {
-            "ital": 1
-          },
-          "size": 10
-        },
-        "guid": "{96da0a84-64f8-5273-9d83-63cdbc13a35e}",
+        "commandline": "wsl.exe --cd ~",
+        "guid": "{d43d4fd2-d534-4d90-bcfa-e25b6fef7700}",
         "hidden": false,
         "intenseTextStyle": "bold",
-        "name": "Ubuntu-24.04",
+        "name": "Ubuntu",
         "opacity": 95,
         "padding": "5",
-        "source": "Microsoft.WSL",
         "useAcrylic": false
       },
       {
