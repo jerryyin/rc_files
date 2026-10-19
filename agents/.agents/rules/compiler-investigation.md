@@ -2,27 +2,18 @@
 
 Applies when: Investigating or explaining IREE, Triton, GPU code generation, compiler CI failures, or compiler correctness/performance. Run hardware and Linux-specific commands on the configured execution host.
 
-## Evidence Before Conclusion
-
-- Separate observations from hypotheses. State what is known, what is inferred,
-  and what remains unknown.
-- Do not explain a failure from a passing local run alone. Passing locally is a
-  clue, not a root cause.
-- For compiler bugs, first prove whether the failing test exercises the changed
-  code path. Use IR, logs, or targeted counters rather than intent.
-- When the user challenges an assumption, re-check the evidence and update the
-  hypothesis instead of elaborating the original explanation.
+Apply [investigate-dont-assert](~/.agents/skills/investigate-dont-assert/SKILL.md) for technical evidence and explanations. For bugs, failing tests, or regressions, also follow [root-cause-debug](~/.agents/skills/root-cause-debug/SKILL.md).
 
 ## Concrete Compiler Evidence
 
+- For compiler bugs, first prove whether the failing test exercises the changed
+  code path. Use IR, logs, or targeted counters rather than intent.
 - For transformations, show a concrete before/intermediate/after IR sketch
   before generalizing.
 - When the user asks what a pass produces, prefer dumping the actual IR over
   paraphrasing it.
 - For hardware-level explanations, name the level being discussed: workgroup,
   warp, lane, register, LDS, global memory, runtime, or driver.
-- Keep examples minimal. Strip boilerplate unless it changes the behavior under
-  discussion.
 
 ## Trace the Mechanism, Don't Paraphrase It
 
@@ -43,14 +34,8 @@ Applies when: Investigating or explaining IREE, Triton, GPU code generation, com
   hardware effect.
 - Prefer framing a fix as recovering information the analysis lacked over
   relaxing a check; say which invariant still holds.
-- Spend the detail on the one non-obvious hop, not a uniform tour.
 
 ## Experiment Discipline
-
-Before comparing compiler performance or correctness results, freeze the
-experiment: branch/SHA, build directory, input, flags, baseline, variant,
-metric, and sanity checks. If any dimension changes, do not compare the numbers
-as the same run.
 
 On a shared machine, queue for the device lock — never poll it. Give the launcher
 a blocking wait (`flock -w`, or whatever flag it exposes) and let it take its turn.
@@ -72,19 +57,10 @@ a hypothesis needs a clean device, take the reboot and pay its bring-up cost. To
 whether accumulated work is the cause, prefer a dose-response inside one boot —
 measure, inject a described dose of work, measure again — over waiting.
 
-## Make the Evidence Navigable (not just correct)
+## IR and Assembly Artifacts
 
-Locate and lay the evidence out so the reader can jump in — the rules above show
-and trace the IR; these make it findable.
-
-- Persist every IR/asm dump to a file and present each comparison as a locatable
-  chunk — (a) `file:line`, (b) minimal snippet, (c) one line of *why* — not a
-  paragraph or a bare count. Ephemeral stdout doesn't count.
-- Pair BEFORE/AFTER at the *same* anchor, plus a CONTRAST/control (the nearest case
-  that behaves correctly) to isolate the one variable.
-- For a keeper artifact set, stage before/after IR+asm and a small guide that resolves line numbers into `file:line` + snippet + why. Commit only with current-turn authorization so the inspection is reproducible without granting this rule Git authority.
+- Persist before/after IR and assembly dumps to files at matching anchors. Include a small guide with `file:line`, a minimal snippet, and an explanation for each comparison.
 - Diff *canonicalized* asm, not raw bytes: strip target metadata/comments and
   compare the histogram of the opcodes that matter, plus the normalized stream. A
   raw `md5` counts benign scheduler/reg-alloc churn as a real change, so
   "byte-identical" claims made without stripping are wrong.
-- Close with a compact delta table: `metric | before | after`.
