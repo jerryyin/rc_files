@@ -1,6 +1,6 @@
 # Managed template for local Codex defaults.
 #
-# This file is linked to ~/.codex.config.toml.template. scripts/docker/env/codex.sh
+# This file is linked to ~/.codex.config.toml.template. scripts/setup/linux/packages/codex.sh
 # copies it to ~/.codex/config.toml only when that local file is absent.
 # The real ~/.codex/config.toml is local runtime state and should not be tracked.
 

@@ -20,7 +20,7 @@ For full setup, install the selected applications and their prerequisites first.
 python3 .setup
 ```
 
-Full setup deploys all selected configuration before running the selected packages' setup entries in package-name order. Each package owns its application commands and platform differences. Application setup runs on the target operating system. Windows package installation, fonts, Developer Mode, WSL and credentials belong to [scripts' Windows bootstrap](https://github.com/jerryyin/scripts/tree/main/devenv/windows); Linux system prerequisites belong to its `docker/env/min.sh`. Configuration setup remains independent of that repository.
+Full setup deploys all selected configuration before running the selected packages' setup entries in package-name order. Each package owns its application commands and platform differences. Application setup runs on the target operating system. Windows package installation, fonts, Developer Mode, WSL and credentials belong to [scripts' Windows bootstrap](https://github.com/jerryyin/scripts/tree/main/setup/windows); Linux system prerequisites belong to its `setup/linux/bootstrap.sh`. Configuration setup remains independent of that repository.
 
 ## Placement conventions
 

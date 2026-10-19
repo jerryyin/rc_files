@@ -1,5 +1,8 @@
 set nocompatible
 set eventignore=all
+" Keep unattended installs sequential; concurrent vim-plug jobs can fail while
+" looking up completed jobs in headless Vim.
+let g:plug_threads = 1
 execute 'set runtimepath^=' . fnameescape(expand('~/.vim'))
 let s:package = fnamemodify(resolve(expand('<sfile>:p')), ':h:h')
 try
@@ -16,6 +19,7 @@ try
   endif
   cquit 0
 catch
+  echom v:throwpoint
   echom v:exception
   cquit 1
 endtry

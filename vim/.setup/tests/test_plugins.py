@@ -2,6 +2,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -69,6 +70,38 @@ class VimSetupTests(unittest.TestCase):
                 vim.setup(self.home)
             self.assertEqual(failure.exception.returncode, 23)
             extensions.assert_not_called()
+
+    @unittest.skipUnless(vim.executable(), 'Native Vim is required for the driver check')
+    def test_headless_install_and_update_are_sequential_and_reject_incomplete_checkouts(self) -> None:
+        driver = self.package / '.setup/vim-plugins.vim'
+        shutil.copy2(entry.with_name('vim-plugins.vim'), driver)
+        config = self.package / '.vim/config/plugins.vim'
+        config.parent.mkdir(exist_ok=True)
+        config.write_text('''
+let g:plugs = {'fixture': {'dir': expand('~/.vim/plugged/fixture')}}
+function! InstallFixture(action)
+  if g:plug_threads != 1
+    throw 'Headless setup must use one job'
+  endif
+  call writefile([a:action], expand('~/action'))
+  if $FIXTURE_COMPLETE ==# '1'
+    call mkdir(g:plugs.fixture.dir . '/.git', 'p')
+    call writefile(['ref: refs/heads/main'], g:plugs.fixture.dir . '/.git/HEAD')
+  endif
+endfunction
+command! -nargs=* PlugInstall call InstallFixture('install')
+command! -nargs=* PlugUpdate call InstallFixture('update')
+''')
+        for update, complete in ((False, True), (True, True), (False, False)):
+            with self.subTest(update=update, complete=complete):
+                shutil.rmtree(self.home / '.vim', ignore_errors=True)
+                result = subprocess.run([
+                    str(vim.executable()), '-n', '-i', 'NONE', '-E', '-s', '-u', 'NONE', '-S', str(driver)],
+                    env=dict(os.environ, HOME=str(self.home), USERPROFILE=str(self.home),
+                             RC_SETUP_UPDATE=str(int(update)), FIXTURE_COMPLETE=str(int(complete))),
+                    text=True, capture_output=True, timeout=30)
+                self.assertEqual(result.returncode, 0 if complete else 1, result.stdout + result.stderr)
+                self.assertEqual((self.home / 'action').read_text().strip(), 'update' if update else 'install')
 
     def test_npm_preserves_runtime_metadata_and_installs_all_choices_at_latest(self) -> None:
         package = self.home / '.config/coc/extensions/package.json'

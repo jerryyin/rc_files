@@ -229,12 +229,12 @@ class DeploymentTests(SettingsFixture):
                          'Set SCRIPTS_ROOT for the Linux credential-setup integration check')
     def test_container_credential_setup_generates_settings_after_the_vault_is_available(self) -> None:
         scripts = Path(os.environ['SCRIPTS_ROOT'])
-        fixture = self.root / 'scripts/docker'
-        (fixture / 'env').mkdir(parents=True)
+        fixture = self.root / 'scripts/setup/linux'
+        (fixture / 'credentials').mkdir(parents=True)
         (fixture / 'lib').mkdir()
-        shutil.copy2(scripts / 'docker/env/priv.sh', fixture / 'env/priv.sh')
-        for name in ('credentials.sh', 'vault.sh'):
-            (fixture / 'env' / name).write_text('printf "%s\\n" "$*" >> "$HOME/credential-calls"\n')
+        shutil.copy2(scripts / 'setup/linux/credentials/activate.sh', fixture / 'credentials/activate.sh')
+        for name in ('sync.sh', 'vault.sh'):
+            (fixture / 'credentials' / name).write_text('printf "%s\\n" "$*" >> "$HOME/credential-calls"\n')
         (fixture / 'lib/find_persistent_root.sh').write_text('find_persistent_root() { :; }\n')
         (fixture / 'lib/fix_hostname.sh').write_text('fix_hostname() { :; }\n')
         (self.home / '.ssh').mkdir()
@@ -247,7 +247,7 @@ class DeploymentTests(SettingsFixture):
         self.git('add', '-f', '--all')
         for value in (self.secret, 'replacement-' + self.secret):
             self.key.write_text(value)
-            result = subprocess.run(['bash', str(fixture / 'env/priv.sh')], env=self.environment,
+            result = subprocess.run(['bash', str(fixture / 'credentials/activate.sh')], env=self.environment,
                                     cwd=self.root, text=True, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(json.loads(self.settings.read_text())['env']['ANTHROPIC_CUSTOM_HEADERS'],

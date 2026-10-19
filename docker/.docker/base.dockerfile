@@ -13,10 +13,17 @@ RUN printf 'Acquire::http::proxy "%s";\nAcquire::https::proxy "%s";\n' "${HTTP_P
 WORKDIR /root
 
 ARG SERVICE_NAME
-# Clone scripts.git first so setup-service.sh can run from its canonical
-# location with no self-bootstrap dance. min.sh's own `if [ ! -d scripts ]`
-# check makes its clone block a no-op here.
+ARG SETUP_PROFILE
+ARG SCRIPTS_REPOSITORY=https://github.com/jerryyin/scripts.git
+ARG SCRIPTS_REF
+# SERVICE_NAME remains supported for existing docker build commands. Profiles
+# belong to scripts/setup; Docker selects the build phase (no credential activation).
+# SCRIPTS_REF optionally selects a branch/tag for reproducible builds.
 RUN apt-get update && apt-get -y install git ca-certificates sudo wget curl gpg lsb-release && \
-    git clone --depth 1 https://github.com/jerryyin/scripts.git /root/scripts && \
+    if [ -n "$SCRIPTS_REF" ]; then \
+        git clone --depth 1 --branch "$SCRIPTS_REF" "$SCRIPTS_REPOSITORY" /root/scripts; \
+    else \
+        git clone --depth 1 "$SCRIPTS_REPOSITORY" /root/scripts; \
+    fi && \
     git -C /root/scripts remote set-url origin git@github.com:jerryyin/scripts.git && \
-    bash /root/scripts/docker/setup-service.sh "$SERVICE_NAME"
+    bash /root/scripts/setup/linux/setup.sh "${SETUP_PROFILE:-${SERVICE_NAME:-base}}" --phase build

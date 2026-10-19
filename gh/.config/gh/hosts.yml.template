@@ -1,4 +1,4 @@
-# gh CLI auth, templated by scripts/docker/env/vault.sh from ~/vault tokens.
+# gh CLI auth, templated by scripts/setup/linux/credentials/vault.sh from ~/vault tokens.
 # Two accounts on one host; zhuoryin_amdeng is the default active account (the
 # top-level user/oauth_token mirror the zhuoryin_amdeng entry). Switch at
 # runtime with `gh auth switch -u jerryyin`. Placeholders are substituted in

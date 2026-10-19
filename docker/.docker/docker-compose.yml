@@ -5,7 +5,11 @@ volumes:
 x-base-service: &base-service
   container_name: ${COMPOSE_PROJECT_NAME:-dev}
   hostname: ${COMPOSE_PROJECT_NAME:-zyin}
-  command: ["bash", "-c", "scripts/docker/env/priv.sh && exec /bin/zsh"]
+  command:
+    - bash
+    - -c
+    - |
+      DEVENV_PERSISTENT_ROOT=/zyin bash scripts/setup/linux/credentials/activate.sh && exec /bin/zsh
   tty: true
   stdin_open: true
   network_mode: host
@@ -28,6 +32,8 @@ x-base-service: &base-service
     # If you need ctags or other packelf'd tools, re-add the mount AND
     # re-add `depends_on: [tools-setup]` to the consuming service.
 
+# SERVICE_NAME remains the build argument so existing CLI overrides keep working.
+# base.dockerfile maps it to the setup profile; SETUP_PROFILE is an optional override.
 services:
   tools-setup:
     command: ["/bin/sh", "-c", "cp -r /usr/local/* /tools || true"]
@@ -63,7 +69,7 @@ services:
       dockerfile: .docker/base.dockerfile
       args:
         BASE_IMAGE: rocm/mlir:latest
-        SERVICE_NAME: rocmlir
+        SERVICE_NAME: base
     image: "jeryin/dev:rocmlir"
     profiles: ["rocmlir"]
 
@@ -74,7 +80,7 @@ services:
       dockerfile: .docker/base.dockerfile
       args:
         BASE_IMAGE: rocm/composable_kernel:ck_ub24.04_rocm7.0.1_amd-staging
-        SERVICE_NAME: ck
+        SERVICE_NAME: base
     image: "jeryin/dev:ck"
     profiles: ["ck"]
 

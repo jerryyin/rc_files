@@ -12,7 +12,7 @@
 # machines with no such proxy at all.
 #
 # No-op if NODE_EXTRA_CA_CERTS is already set. Uses portable `[ ]`/`for` so
-# this sources cleanly from both zsh (.zshrc) and bash (install.sh, min.sh).
+# this sources cleanly from both zsh (.zshrc) and bash (install.sh, bootstrap.sh).
 if [ -z "${NODE_EXTRA_CA_CERTS:-}" ]; then
     for _ca_bundle in /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt; do
         if [ -f "$_ca_bundle" ]; then
