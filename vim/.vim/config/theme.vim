@@ -10,6 +10,11 @@ else
     set notermguicolors
 endif
 
+" ConPTY misreads semicolon-separated underline colors as text attributes.
+if has('win32') && !has('gui_running')
+  let &t_8u = "\e[58:2::%lu:%lu:%lum"
+endif
+
 " Undercurl
 let &t_Cs = "\e[4:3m"
 " Underdouble
