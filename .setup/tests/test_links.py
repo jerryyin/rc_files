@@ -114,6 +114,29 @@ class DeploymentTests(unittest.TestCase):
                 self.assertEqual(plan, {self.home / '.editorrc': source,
                                         self.home / '.config/editor/.setup': native})
 
+    def test_package_readmes_are_documentation_and_nested_markdown_is_installed(self):
+        self.write('editor/README.md', 'package documentation')
+        self.write('editor/.linux/README.md', 'Linux documentation')
+        self.write('editor/.windows/README.md', 'Windows documentation')
+        config = self.write('editor/.editorrc')
+        nested = self.write('editor/.config/editor/README.md', 'installed application content')
+        instructions = self.write('agent/.agents/AGENTS.md', 'personal instructions')
+        rule = self.write('agent/.agents/rules/example.md', 'conditional instructions')
+        skill = self.write('agent/.agents/skills.links/example/SKILL.md', 'skill instructions').parent
+        self.write('agent/.agents/skills.links/example/README.md', 'skill reference')
+        for platform in ('linux', 'windows'):
+            with self.subTest(platform=platform):
+                plan = {link.target: link.source for link in self.plan(platform)}
+                self.assertEqual(plan, {self.home / '.editorrc': config,
+                                       self.home / '.config/editor/README.md': nested,
+                                       self.home / '.agents/AGENTS.md': instructions,
+                                       self.home / '.agents/rules/example.md': rule,
+                                       self.home / '.agents/skills/example': skill})
+                self.apply(self.plan(platform))
+                self.assertFalse((self.home / 'README.md').exists())
+                self.assertEqual((self.home / '.config/editor/README.md').read_text(), 'installed application content')
+                self.assertEqual((self.home / '.agents/skills/example/README.md').read_text(), 'skill reference')
+
     def test_file_edits_and_repeat_apply(self):
         source = self.write("editor/.editorrc")
         links = self.plan()

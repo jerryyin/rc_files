@@ -41,6 +41,7 @@ class AgentConfigurationTests(unittest.TestCase):
 
     def assert_collection(self, plan, home):
         by_target = {link.target.relative_to(home).as_posix(): link for link in plan}
+        self.assertNotIn('README.md', by_target)
         for target in ('.agents/AGENTS.md', '.codex/AGENTS.md', '.claude/CLAUDE.md'):
             self.assertEqual(by_target[target].source, self.source / 'AGENTS.md')
         self.assertFalse(any(target.startswith('.claude/rules/') for target in by_target))

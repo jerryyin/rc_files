@@ -125,14 +125,12 @@ def discover(repo: Path, platform: str, roots: dict[str, Path], packages: list[s
             if not name.startswith(package + "/"):
                 continue
             parts = Path(name).parts[1:]
-            if parts[0] == '.setup':
-                continue
             priority = int(parts[0] in PLATFORMS)
             if priority:
                 if parts[0] != "." + platform:
                     continue
                 parts = parts[1:]
-            if not parts or parts[0] == '.setup':
+            if not parts or parts[0] in ('.setup', 'README.md'):
                 continue
             marker = next((index for index, part in enumerate(parts) if part.endswith('.links')), None)
             if marker is not None and marker < len(parts) - 1:

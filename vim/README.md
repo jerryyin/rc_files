@@ -38,9 +38,9 @@ python3 .setup --package vim
 python3 .setup --package vim --update
 ```
 
-[Plugin declarations](../vim/.vim/config/plugins.vim) and [CoC extension choices](../vim/.vim/coc-extensions.json) are the source of truth; [Vim's package setup](../vim/.setup/__main__.py) runs their installers. Native Vim and npm must be on `PATH`. Setup installs missing plugins; `--update` also refreshes existing plugins. CoC checks the latest selected extensions on every setup and retains local additions. Plugin downloads and extension installations stay outside Git.
+[Plugin declarations](.vim/config/plugins.vim) and [CoC extension choices](.vim/coc-extensions.json) are the source of truth; [Vim's package setup](.setup/__main__.py) runs their installers. Native Vim and npm must be on `PATH`. Setup installs missing plugins; `--update` also refreshes existing plugins. CoC checks the latest selected extensions on every setup and retains local additions. Plugin downloads and extension installations stay outside Git.
 
-C/C++ language services use the shared [CoC settings](../vim/.vim/coc-settings.json) and a native clangd. Compile commands, include paths and toolchains must match the host running clangd. Adding a second clangd extension alongside the configured server would duplicate it.
+C/C++ language services use the shared [CoC settings](.vim/coc-settings.json) and a native clangd. Compile commands, include paths and toolchains must match the host running clangd. Adding a second clangd extension alongside the configured server would duplicate it.
 
 Gutentags remains available where its tools are installed. The root `.notags` excludes this checkout; `gtags/.notags` supplies the home marker. These are editor markers and remain tracked.
 

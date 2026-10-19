@@ -30,7 +30,7 @@ Per-skill directory links keep edits and new helper files attached to their Git 
 
 Resolve installed links before editing personal configuration. Put always-needed guidance in the shared `AGENTS.md`, conditional guidance in an existing applicable rule, and reusable procedures in skills. Keep project-specific instructions with their project.
 
-Stage intended new content, then run `python3 .setup --config-only` from the repository root (`py -3 .setup --config-only` on Windows). No separate inventory needs updating. See [setup conventions](README.md) for conflicts, backups and ignored authored files.
+Stage intended new content, then run `python3 .setup --config-only` from the repository root (`py -3 .setup --config-only` on Windows). No separate inventory needs updating. See [setup conventions](../.setup/README.md) for conflicts, backups and ignored authored files.
 
 Claude settings are linked from their application package. Codex's tracked template initializes a missing local configuration; changing the template does not overwrite an existing local configuration. Record wanted application integrations in their tracked settings while leaving downloaded plugin code with the application.
 

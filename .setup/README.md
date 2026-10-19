@@ -14,7 +14,7 @@ python3 .setup check
 
 `plan` shows the discovered destinations. `--config-only` links configuration and migrates links from older layouts. `check` reports missing or detached links; it does not prove that an application loaded its settings.
 
-For full setup, install the native applications and their prerequisites first, including npm for CoC:
+For full setup, install the selected applications and their prerequisites first. Each package's guide describes its requirements.
 
 ```sh
 python3 .setup
@@ -27,6 +27,7 @@ Full setup deploys all selected configuration before running the selected packag
 Every non-hidden top-level directory is a package. Root files and hidden root directories, including `.setup`, are repository utilities and are not installed.
 
 - A package mirrors its destination: `vim/.vimrc` installs as `~/.vimrc` on both platforms.
+- `README.md` at a package root describes that package and is excluded from deployment, including at the root of a platform subtree. Markdown within configuration trees keeps its normal destination; agent instructions, rules and skills are installed content.
 - A package's `.setup/` directory contains its installation code and is excluded from deployment. An optional tracked `.setup/__main__.py` is its sole setup entry, shared across platforms. Runtime and untracked files do not register setup entries.
 - `.linux` and `.windows` subtrees select platform content. For example, `ssh/.linux/.ssh/config` installs only on Linux. Platform content overrides a shared file with the same destination; equal-priority conflicts between packages are errors.
 - A leading `@DOCUMENTS`, `@LOCALAPPDATA` or `@APPDATA` selects that operating system directory. Remaining path components keep their normal meaning.
@@ -35,7 +36,7 @@ Every non-hidden top-level directory is a package. Root files and hidden root di
 
 Discovery uses the Git index. Stage intended new configuration before deploying it; ignored authored files need `git add -f`. Existing ignore rules still exclude generated files. A deliberately linked directory exposes its whole source directory, so new helpers created through an installed skill directory also reach the checkout.
 
-The source layout supplies placement; there is no separate manifest or installation database. See [agent configuration](agents.md) for shared instruction and skill ownership.
+The source layout supplies placement; there is no separate manifest or installation database. See [agent configuration](../agents/README.md) for shared instruction and skill ownership.
 
 ## Conflicts and migration
 
@@ -63,11 +64,11 @@ python3 .setup --package vim --update
 python3 .setup --package tmux --update
 ```
 
-Vim prepares vim-plug and CoC, tmux prepares TPM on Linux or PPM on Windows, and Zsh loads its declared plugins on Linux. SSH setup restricts its destination directory permissions on Unix. `--config-only` skips every package setup entry. Plugin choices stay in the native application configuration. Existing Vim and mux plugins are retained unless `--update` is requested; CoC checks the latest versions of both tracked extension choices and existing package dependencies on every setup, preserving local additions.
+Each package decides which platforms it supports and what `--update` refreshes. `--config-only` skips every package setup entry. Application requirements, dependency choices and maintenance behavior belong with the package; see [Vim's guide](../vim/README.md) for an example.
 
 The runner starts each tracked entry with its own Python interpreter and the entry's directory as the working directory, stopping on the first failed process. Entries locate their source files relative to `__file__` and use the inherited environment: `HOME` (also `USERPROFILE` on Windows), redirected XDG/application directories for another home, `RC_SETUP=1`, `RC_SETUP_UPDATE=0` or `1`, and `RC_SETUP_REDIRECTED=0` or `1`. The last flag lets an entry avoid touching a live account session when testing another home. Public Git downloads are noninteractive and ignore the account's global Git configuration. Entries own additional environment requirements, such as npm's certificate bundle. The shared runner has no application registry, dependency list or application-specific options.
 
-Vim and tmux/psmux load their linked configuration directly. Reload or restart the application after editing its settings. System installers do not render a second configuration file. See [Vim's guide](vim.md) for editor maintenance.
+Applications read their linked configuration directly. Reload or restart the application after editing its settings. System installers do not render a second configuration file.
 
 ### Alternatives considered
 
