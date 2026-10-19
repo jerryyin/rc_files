@@ -1,0 +1,20 @@
+{
+  "env": {
+    "ANTHROPIC_API_KEY": "dummy",
+    "ANTHROPIC_BASE_URL": "https://llm-api.amd.com/Anthropic",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+    "CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN": "1",
+    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "IS_SANDBOX": "1"
+  },
+  "attribution": {"commit": "", "pr": ""},
+  "permissions": {
+    "allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)"],
+    "defaultMode": "bypassPermissions"
+  },
+  "enabledPlugins": {"clangd-lsp@claude-plugins-official": true},
+  "autoCompactWindow": 1000000,
+  "tui": "default",
+  "skipDangerousModePermissionPrompt": true
+}

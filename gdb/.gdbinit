@@ -2,8 +2,16 @@ set print pretty on
 set print object on
 set history save on
 
-source ~/iree/third_party/llvm-project/llvm/utils/gdb-scripts/prettyprinters.py
-source ~/iree/third_party/llvm-project/mlir/utils/gdb-scripts/prettyprinters.py
+python
+from pathlib import Path
+import gdb
+
+llvm_root = Path.home() / "iree/third_party/llvm-project"
+for project in ("llvm", "mlir"):
+    printer = llvm_root / project / "utils/gdb-scripts/prettyprinters.py"
+    if printer.is_file():
+        gdb.execute("source " + str(printer))
+end
 
 # libc++ pretty printers
 # See: https://github.com/koutheir/libcxx-pretty-printers

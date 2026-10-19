@@ -68,7 +68,7 @@ Each package decides which platforms it supports and what `--update` refreshes. 
 
 The runner starts each tracked entry with its own Python interpreter and the entry's directory as the working directory, stopping on the first failed process. Entries locate their source files relative to `__file__` and use the inherited environment: `HOME` (also `USERPROFILE` on Windows), redirected XDG/application directories for another home, `RC_SETUP=1`, `RC_SETUP_UPDATE=0` or `1`, and `RC_SETUP_REDIRECTED=0` or `1`. The last flag lets an entry avoid touching a live account session when testing another home. Public Git downloads are noninteractive and ignore the account's global Git configuration. Entries own additional environment requirements, such as npm's certificate bundle. The shared runner has no application registry, dependency list or application-specific options.
 
-Applications read their linked configuration directly. Reload or restart the application after editing its settings. System installers do not render a second configuration file.
+Applications read their linked configuration directly. Reload or restart the application after editing its settings. Packages may generate private credential-bearing settings from tracked templates; those files remain local and their package guide describes how they are refreshed.
 
 ### Alternatives considered
 
