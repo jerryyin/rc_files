@@ -250,6 +250,43 @@ count.write_text(str(int(count.read_text()) + 1) if count.exists() else '1')
         self.assertEqual(len(saved), 1)
         self.assertEqual(saved[0].read_bytes(), self.source.read_bytes())
 
+    def test_selected_package_prepares_and_links_its_dependencies_first(self) -> None:
+        self.entry('runtime', "(Path.home() / 'runtime-ready').touch()\n")
+        self.entry('editor', "assert (Path.home() / 'runtime-ready').exists()\n")
+        requirement = self.repo / 'editor/.setup/requirements.py'
+        requirement.write_text("DEPENDENCIES = ('runtime',)\n")
+        self.git('add', '-f', '--', str(requirement))
+        result = self.setup_rc('--package', 'editor', '--no-install')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertLess(result.stdout.index('Setup: runtime'), result.stdout.index('Setup: editor'))
+
+    def test_prerequisite_inventory_is_read_only_and_no_install_rejects_missing_tools(self) -> None:
+        self.entry('editor', "(Path.home() / 'prepared').touch()\n")
+        requirement = self.repo / 'editor/.setup/requirements.py'
+        requirement.write_text("from system import Package\nPACKAGES = [Package('rc-test-nonexistent', ('rc-test-nonexistent',), 'Fixture.Missing')]\n")
+        self.git('add', '-f', '--', str(requirement))
+        result = self.setup_rc('prerequisites', '--json')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(json.loads(result.stdout)[0]['command'], 'rc-test-nonexistent')
+        result = self.setup_rc('--no-install')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Missing native requirements', result.stderr)
+        self.assertFalse((self.home / '.editorrc').exists())
+        self.assertFalse((self.home / 'prepared').exists())
+        self.assertEqual(self.setup_rc('--config-only').returncode, 0)
+
+    def test_skipping_package_entry_still_links_its_settings(self) -> None:
+        self.entry('editor', 'raise SystemExit(99)\n')
+        result = self.setup_rc('--skip-setup', 'editor')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue((self.home / '.editorrc').is_symlink())
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows application launch')
+    def test_package_launch_has_real_redirected_application_directories(self) -> None:
+        self.entry('editor', "assert Path(os.environ['APPDATA']).is_dir()\nassert Path(os.environ['LOCALAPPDATA']).is_dir()\n")
+        result = self.setup_rc('--package', 'editor')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
 
 if __name__ == '__main__':
     unittest.main()

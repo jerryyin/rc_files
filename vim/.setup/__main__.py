@@ -9,6 +9,7 @@ import shutil
 import ssl
 import subprocess
 
+from system import persist_path
 
 def executable() -> Path | None:
     found = shutil.which('vim')
@@ -21,10 +22,14 @@ def setup(home: Path) -> None:
     vim_exe = executable()
     if vim_exe is None:
         raise ValueError('Native Vim is not on PATH')
+    persist_path(vim_exe.parent)
     (home / '.vim').mkdir(parents=True, exist_ok=True)
     subprocess.run([str(vim_exe), '-n', '-E', '-s', '-V1' + str(home / '.vim/plugin-install.log'),
                     '-u', 'NONE', '-S', str(Path(__file__).with_name('vim-plugins.vim'))], check=True)
     extensions(home)
+    if os.name == 'nt':
+        script = Path(__file__).with_name('shortcuts.ps1')
+        subprocess.run(['powershell.exe', '-NoProfile', '-File', str(script), '-VimExe', str(vim_exe)], check=True)
 
 
 def extensions(home: Path) -> None:

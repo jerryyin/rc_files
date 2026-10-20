@@ -2,18 +2,31 @@ import importlib.util
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
 
 entry = Path(__file__).resolve().parents[1] / '__main__.py'
+sys.path.insert(0, str(entry.parents[2] / '.setup'))
+import links
+import packages
+
 spec = importlib.util.spec_from_file_location('mux_setup', entry)
 mux = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mux)
 
 
 class MuxSetupTests(unittest.TestCase):
+    def test_selected_mux_includes_its_configured_shell_before_plugin_setup(self) -> None:
+        repo = entry.parents[2]
+        for platform, shell in (('linux', 'zsh'), ('windows', 'powershell')):
+            with self.subTest(platform=platform):
+                selected = packages.discover(repo, links.tracked_files(repo), ['tmux'], platform)
+                self.assertIn(shell, selected.names)
+                self.assertLess(selected.names.index(shell), selected.names.index('tmux'))
+
     def setUp(self) -> None:
         temporary = tempfile.TemporaryDirectory(prefix='rc-mux-')
         self.addCleanup(temporary.cleanup)

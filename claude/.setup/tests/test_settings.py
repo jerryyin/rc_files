@@ -29,7 +29,8 @@ class SettingsFixture(unittest.TestCase):
         self.state = self.home / '.claude.json'
         self.state.write_text('{"projects":{"keep":{}},"machineID":"keep"}')
         self.environment = dict(os.environ, HOME=str(self.home), USERPROFILE=str(self.home),
-                                GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1')
+                                GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1',
+                                PYTHONPATH=str(self.checkout / '.setup'))
         for name in ('CLAUDE_KEY_FILE', 'CLAUDE_CONFIG_DIR', 'RC_SETUP_UPDATE',
                      'RC_SETUP_REDIRECTED', 'BACKUP_DIR'):
             self.environment.pop(name, None)
@@ -40,7 +41,8 @@ class SettingsFixture(unittest.TestCase):
                 self.environment[name] = str(directory)
 
     def setup_claude(self) -> subprocess.CompletedProcess[str]:
-        return subprocess.run([sys.executable, '-B', str(self.entry)], env=self.environment,
+        return subprocess.run([sys.executable, '-B', '-c', 'import runpy; from pathlib import Path; ' +
+                               'runpy.run_path(' + repr(str(self.entry / '__main__.py')) + ')["setup"](Path.home())'], env=self.environment,
                               cwd=self.root, text=True, encoding='utf-8', capture_output=True)
 
     def prepared(self) -> dict[str, object]:
@@ -55,6 +57,33 @@ class SettingsFixture(unittest.TestCase):
 
 
 class SettingsTests(SettingsFixture):
+    def test_entry_installs_claude_before_preparing_settings(self) -> None:
+        modules = self.root / 'modules'
+        modules.mkdir()
+        (modules / 'npm.py').write_text('''
+import json
+import os
+from pathlib import Path
+
+def install(package, command):
+    home = Path.home()
+    assert not (home / '.claude/settings.json').exists()
+    (home / 'installation.json').write_text(json.dumps([package, command]))
+    if os.environ.get('FAIL_INSTALL') == '1':
+        raise OSError('fixture installation failed')
+''')
+        environment = dict(self.environment, PYTHONPATH=str(modules))
+        for fail in ('1', '0'):
+            with self.subTest(fail=fail):
+                result = subprocess.run([sys.executable, '-B', str(self.entry)],
+                                        env=dict(environment, FAIL_INSTALL=fail),
+                                        text=True, capture_output=True)
+                self.assertEqual(json.loads((self.home / 'installation.json').read_text()),
+                                 ['@anthropic-ai/claude-code', 'claude'])
+                self.assertEqual(result.returncode, int(fail), result.stdout + result.stderr)
+                self.assertEqual(self.settings.exists(), fail == '0')
+                self.assertNotIn(self.secret, result.stdout + result.stderr)
+
     def test_fresh_setup_generates_private_settings_and_leaves_state_and_sources_unchanged(self) -> None:
         before = self.state.read_bytes(), self.state.stat().st_mtime_ns
         template = self.entry / 'settings.json.template'
@@ -182,6 +211,13 @@ class DeploymentTests(SettingsFixture):
                        env=self.environment, capture_output=True)
 
     def test_generic_setup_and_config_only_have_distinct_roles(self) -> None:
+        shutil.copytree(self.checkout / 'node', self.repo / 'node', ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+        binaries = self.home / '.local/bin'
+        binaries.mkdir(parents=True)
+        cli = binaries / ('claude.cmd' if os.name == 'nt' else 'claude')
+        cli.write_text('@echo off\nexit /b 0\n' if os.name == 'nt' else '#!/bin/sh\nexit 0\n')
+        cli.chmod(0o755)
+        self.environment['PATH'] = str(binaries) + os.pathsep + self.environment['PATH']
         self.git('init', '-q')
         self.git('add', '-f', '--all')
         command = [sys.executable, '-B', str(self.checkout / '.setup'), '--repo', str(self.repo),
@@ -212,6 +248,13 @@ class DeploymentTests(SettingsFixture):
         instructions = self.repo / 'agents/.claude/CLAUDE.md'
         instructions.parent.mkdir(parents=True)
         instructions.write_text('tracked instructions')
+        shutil.copytree(self.checkout / 'node', self.repo / 'node', ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+        binaries = self.home / '.local/bin'
+        binaries.mkdir(parents=True)
+        cli = binaries / ('claude.cmd' if os.name == 'nt' else 'claude')
+        cli.write_text('@echo off\nexit /b 0\n' if os.name == 'nt' else '#!/bin/sh\nexit 0\n')
+        cli.chmod(0o755)
+        self.environment['PATH'] = str(binaries) + os.pathsep + self.environment['PATH']
         self.git('init', '-q')
         self.git('add', '-f', '--all')
         source = self.repo / 'claude/old-launch.py'
@@ -243,6 +286,13 @@ class DeploymentTests(SettingsFixture):
         for name in ('__main__.py', 'context.py', 'links.py'):
             shutil.copy2(self.checkout / '.setup' / name, self.repo / '.setup' / name)
         (self.home / 'rc_files').symlink_to(self.repo, target_is_directory=True)
+        shutil.copytree(self.checkout / 'node', self.repo / 'node', ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+        binaries = self.home / '.local/bin'
+        binaries.mkdir(parents=True)
+        cli = binaries / ('claude.cmd' if os.name == 'nt' else 'claude')
+        cli.write_text('@echo off\nexit /b 0\n' if os.name == 'nt' else '#!/bin/sh\nexit 0\n')
+        cli.chmod(0o755)
+        self.environment['PATH'] = str(binaries) + os.pathsep + self.environment['PATH']
         self.git('init', '-q')
         self.git('add', '-f', '--all')
         for value in (self.secret, 'replacement-' + self.secret):

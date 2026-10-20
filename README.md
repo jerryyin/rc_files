@@ -6,4 +6,4 @@ Tracked application settings, personal agent guidance and editor preferences for
 - [Vim configuration and daily use](vim/README.md)
 - [Shared agent instructions, rules and skills](agents/README.md)
 
-Installed links keep configuration edits attached to their Git source. Plugin downloads, caches, credentials and application state stay local. System prerequisites and workstation provisioning belong to the separate [scripts repository](https://github.com/jerryyin/scripts).
+Installed links keep configuration edits attached to their Git source. Plugin downloads, caches, credentials and application state stay local. Declared application requirements are installed by this checkout. Machine provisioning, credentials and project workflows belong to the separate [scripts repository](https://github.com/jerryyin/scripts).

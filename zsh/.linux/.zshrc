@@ -268,8 +268,8 @@ function set_compose_project_name() {
 # Function to set Docker Compose file and ensure COMPOSE_PROJECT_NAME is set
 function dcompose() {
   set_compose_project_name "$@[-1]"
-  local compose_file="$HOME/.docker/docker-compose.yml"
-  # Resolve Stow's per-file symlink so relative Dockerfile paths stay regular files.
+  local compose_file="${COMPOSE_FILE:-$HOME/scripts/containers/docker/docker-compose.yml}"
+  # Resolve an explicit Compose override before Docker interprets relative build paths.
   docker compose -f "${compose_file:A}" "$@"
 }
 

@@ -31,14 +31,16 @@ Quickfix lists use their normal syntax. For a buffer containing ANSI-colored out
 
 ## Installation and updates
 
-After deploying the configuration, run the shared installer from the repository root. On Windows use `py -3` in place of `python3`.
+Native Vim, Node/npm and clangd are installed by this package and its dependencies. Linux also installs Neovim, ag and the build tools needed by LeaderF. Windows installs ripgrep and console Vim and maintains one terminal shortcut; the terminal package owns fonts. Existing installations are reused.
+
+Run the shared installer from the repository root. On Windows use `py -3` in place of `python3`.
 
 ```sh
 python3 .setup --package vim
 python3 .setup --package vim --update
 ```
 
-[Plugin declarations](.vim/config/plugins.vim) and [CoC extension choices](.vim/coc-extensions.json) are the source of truth; [Vim's package setup](.setup/__main__.py) runs their installers. Native Vim and npm must be on `PATH`. Setup installs missing plugins; `--update` also refreshes existing plugins. CoC checks the latest selected extensions on every setup and retains local additions. Plugin downloads and extension installations stay outside Git.
+[Plugin declarations](.vim/config/plugins.vim) and [CoC extension choices](.vim/coc-extensions.json) are the source of truth; [Vim's package setup](.setup/__main__.py) runs their installers. Native tools are prepared before plugin installation. Setup installs missing plugins; `--update` also refreshes existing plugins. CoC checks the latest selected extensions on every setup and retains local additions. Plugin downloads and extension installations stay outside Git.
 
 C/C++ language services use the shared [CoC settings](.vim/coc-settings.json) and a native clangd. Compile commands, include paths and toolchains must match the host running clangd. Adding a second clangd extension alongside the configured server would duplicate it.
 

@@ -15,6 +15,7 @@ import subprocess
 import sys
 import uuid
 
+from context import account_home
 
 PLATFORMS = {".linux", ".windows", ".darwin"}
 CSIDL_PERSONAL = 5
@@ -322,7 +323,7 @@ def prune_links(links: list[Link], repo: Path, home: Path, backup: Path,
 
 def run(args: argparse.Namespace) -> int:
     roots = {"HOME": absolute(args.home)}
-    native_home = roots["HOME"] == absolute(Path.home())
+    native_home = roots["HOME"] == account_home()
     for name, suffix in (("APPDATA", "Roaming"), ("LOCALAPPDATA", "Local")):
         roots[name] = (absolute(Path(os.environ[name]))
                        if os.name == "nt" and native_home and os.environ.get(name)

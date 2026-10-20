@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 
+from npm import install
 
 Json = str | int | float | bool | None | list['Json'] | dict[str, 'Json']
 
@@ -96,6 +97,7 @@ def setup(home: Path) -> None:
 
 if __name__ == '__main__':
     try:
+        install('@anthropic-ai/claude-code', 'claude')
         setup(Path.home())
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         print(f'Claude setup: {error}', file=sys.stderr)

@@ -4,11 +4,13 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / '.setup'))
 entry = Path(__file__).resolve().parents[1] / '__main__.py'
 spec = importlib.util.spec_from_file_location('vim_setup', entry)
 vim = importlib.util.module_from_spec(spec)
@@ -30,6 +32,9 @@ class VimSetupTests(unittest.TestCase):
         setup_entry.parent.mkdir()
         self.file_patch = patch.object(vim, '__file__', str(setup_entry))
         self.file_patch.start()
+        persistence = patch.object(vim, 'persist_path')
+        persistence.start()
+        self.addCleanup(persistence.stop)
         self.addCleanup(self.file_patch.stop)
 
     def test_vim_uses_its_own_driver_and_native_executable(self) -> None:
@@ -37,11 +42,11 @@ class VimSetupTests(unittest.TestCase):
         with patch.object(vim, 'executable', return_value=native), \
                 patch.object(vim, 'extensions') as extensions, patch.object(vim.subprocess, 'run') as run:
             vim.setup(self.home)
-        command = run.call_args.args[0]
+        command = run.call_args_list[0].args[0]
         self.assertEqual(command[0], str(native))
         self.assertEqual(Path(command[-1]), self.package / '.setup/vim-plugins.vim')
         self.assertIn('-u', command)
-        self.assertTrue(run.call_args.kwargs['check'])
+        self.assertTrue(run.call_args_list[0].kwargs['check'])
         extensions.assert_called_once_with(self.home)
 
     def test_vim_discovery_uses_path(self) -> None:
@@ -114,7 +119,7 @@ command! -nargs=* PlugUpdate call InstallFixture('update')
             'npm', 'install', '--save', '--no-package-lock', 'coc-json@latest', 'coc-personal@latest',
         ])
         self.assertEqual(run.call_args.kwargs['cwd'], package.parent)
-        self.assertTrue(run.call_args.kwargs['check'])
+        self.assertTrue(run.call_args_list[0].kwargs['check'])
         self.assertEqual(package.read_bytes(), before)
 
     def test_npm_creates_a_fresh_runtime_directory(self) -> None:
