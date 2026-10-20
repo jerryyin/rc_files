@@ -13,7 +13,7 @@ The leader key is backslash. Common navigation and review commands are:
 
 Mappings and their plugin settings are authored in the linked configuration files. Project build, test, formatting and debugging commands still require the project's toolchain on the execution host.
 
-Diff backgrounds preserve syntax colors. Editors that support them use word-level change highlighting and similar-line alignment; older versions retain their supported behavior.
+Diff views retain normal line wrapping on both sides, including staged files and past revisions. Diff backgrounds preserve syntax colors. Editors that support them use word-level change highlighting and similar-line alignment; older versions retain their supported behavior.
 
 ## Reviewing commits
 
