@@ -28,6 +28,12 @@ This reads `~/vault/claude_key.txt` and updates only its subscription header, pr
 
 Claude owns its separate `.claude.json` state, onboarding, login and project information. Setup leaves that file alone. Existing source-owned settings links become ordinary files; unrelated links require reconciliation. Full configuration migration retires obsolete launcher and template links.
 
+## Appearance
+
+The public template selects `custom:gruvbox-material`. The native JSON theme in `.claude.links/themes/` supplies the Gruvbox Material dark, hard palette for interface accents and subtle diff backgrounds. Syntax highlighting stays enabled, and the existing scrolling renderer stays selected. See [Claude's native theme support](https://code.claude.com/docs/en/terminal-config#create-a-custom-theme).
+
+Setup links the whole dedicated themes directory to `~/.claude/themes`, so edits and newly created themes stay in the checkout even when Claude replaces a theme file while saving. Edit the source or use `/theme` to preview and edit it. New theme files still need explicit staging. Theme selection itself is a local preference; update `.setup/settings.json.template` to carry a different default to future machines. Restart Claude after first deploying the directory; subsequent theme-file edits reload automatically.
+
 ## Checks
 
 ```sh

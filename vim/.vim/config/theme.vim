@@ -48,6 +48,17 @@ function! s:gruvbox_material_custom() abort
   " CocCommand semanticTokens.inspect
   call gruvbox_material#highlight('CocSemTypeProperty', l:palette.aqua, l:palette.none, 'underline')
   call gruvbox_material#highlight('debugPC', l:palette.none, l:palette.grey0)
+
+  " ANSI log buffers use the active Material palette too.
+  let g:ansi_Black = l:palette.bg0[0]
+  let g:ansi_DarkRed = l:palette.red[0]
+  let g:ansi_DarkGreen = l:palette.green[0]
+  let g:ansi_DarkYellow = l:palette.yellow[0]
+  let g:ansi_DarkBlue = l:palette.blue[0]
+  let g:ansi_DarkMagenta = l:palette.purple[0]
+  let g:ansi_DarkCyan = l:palette.aqua[0]
+  let g:ansi_LightGray = l:palette.fg0[0]
+  let g:ansi_DarkGray = l:palette.grey2[0]
 endfunction
 
 augroup GruvboxMaterialCustom
@@ -98,15 +109,5 @@ let g:lightline = {
   \   'tabline': 1
   \ }
 \ }
-
-let g:ansi_Black = '#1d2021'
-let g:ansi_DarkRed = '#cc241d'
-let g:ansi_DarkGreen = '#98971a'
-let g:ansi_DarkYellow = '#d79921'
-let g:ansi_DarkBlue = '#458588'
-let g:ansi_DarkMagenta = '#b16286'
-let g:ansi_DarkCyan = '#689d6a'
-let g:ansi_LightGray = '#ebdbb2'
-let g:ansi_DarkGray = '#a89984'
 
 let g:tmuxline_powerline_separators = 0

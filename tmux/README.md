@@ -2,6 +2,8 @@
 
 Linux uses tmux and Windows uses native psmux. Both load the shared preferences in `.config/tmux/common.conf`; platform configuration owns shell and plugin integration. Run `python3 ~/rc_files/.setup --package tmux` to install and configure the package, or use `py -3 "$HOME/rc_files/.setup" --package tmux` on Windows.
 
+The shared status bar and pane borders use explicit Gruvbox Material dark, hard colors. The terminal supplies the default background and ordinary application colors; SSH clients choose their own terminal palette. Reload the configuration with prefix, then `r` after editing.
+
 ## Mobile handling
 
 After connecting over SSH, attach to the existing server session to read agent output and send instructions. A full-screen window per task works well on a phone. The same shortcuts work in tmux and psmux.

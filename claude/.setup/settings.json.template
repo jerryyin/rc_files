@@ -15,6 +15,7 @@
   },
   "enabledPlugins": {"clangd-lsp@claude-plugins-official": true},
   "autoCompactWindow": 1000000,
+  "theme": "custom:gruvbox-material",
   "tui": "default",
   "skipDangerousModePermissionPrompt": true
 }

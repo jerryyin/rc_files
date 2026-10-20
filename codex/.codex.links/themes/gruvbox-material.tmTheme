@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>name</key>
+  <string>Gruvbox Material Dark Hard</string>
+  <key>settings</key>
+  <array>
+    <dict>
+      <key>settings</key>
+      <dict>
+        <key>background</key><string>#1d2021</string>
+        <key>foreground</key><string>#d4be98</string>
+        <key>caret</key><string>#a89984</string>
+        <key>selection</key><string>#3c3836</string>
+        <key>lineHighlight</key><string>#282828</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>comment</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key><string>#928374</string>
+        <key>fontStyle</key><string>italic</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>string, constant.numeric</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#d3869b</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>constant.language, support.constant</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#89b482</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>constant.character.escape, keyword.operator</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#e78a4e</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>keyword, storage, entity.name.tag</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#ea6962</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>entity.name.function, support.function</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#a9b665</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>entity.name.type, entity.name.class, support.type, support.class, storage.type, entity.other.attribute-name</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#d8a657</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>variable, entity.other.inherited-class</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#7daea3</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>meta.preprocessor</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#d3869b</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>invalid</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key><string>#ea6962</string>
+        <key>fontStyle</key><string>underline</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.heading</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key><string>#e78a4e</string>
+        <key>fontStyle</key><string>bold</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.bold</string>
+      <key>settings</key>
+      <dict><key>fontStyle</key><string>bold</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.italic</string>
+      <key>settings</key>
+      <dict><key>fontStyle</key><string>italic</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.underline.link</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key><string>#7daea3</string>
+        <key>fontStyle</key><string>underline</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.inserted</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#a9b665</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>markup.deleted</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#ea6962</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>meta.diff.header, markup.changed</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#7daea3</string></dict>
+    </dict>
+  </array>
+</dict>
+</plist>
