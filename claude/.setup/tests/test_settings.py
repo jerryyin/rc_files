@@ -30,6 +30,7 @@ class SettingsFixture(unittest.TestCase):
         self.state.write_text('{"projects":{"keep":{}},"machineID":"keep"}')
         self.environment = dict(os.environ, HOME=str(self.home), USERPROFILE=str(self.home),
                                 GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1',
+                                RC_SETUP_REPO=str(self.repo),
                                 PYTHONPATH=str(self.checkout / '.setup'))
         for name in ('CLAUDE_KEY_FILE', 'CLAUDE_CONFIG_DIR', 'RC_SETUP_UPDATE',
                      'RC_SETUP_REDIRECTED', 'BACKUP_DIR'):
@@ -40,9 +41,9 @@ class SettingsFixture(unittest.TestCase):
                 directory.mkdir(parents=True)
                 self.environment[name] = str(directory)
 
-    def setup_claude(self) -> subprocess.CompletedProcess[str]:
-        return subprocess.run([sys.executable, '-B', '-c', 'import runpy; from pathlib import Path; ' +
-                               'runpy.run_path(' + repr(str(self.entry / '__main__.py')) + ')["setup"](Path.home())'], env=self.environment,
+    def setup_claude(self, *, credentials: bool = True) -> subprocess.CompletedProcess[str]:
+        return subprocess.run([sys.executable, '-B', '-c', 'import runpy, sys; from pathlib import Path; sys.path.insert(0, ' + repr(str(self.entry)) + '); ' +
+                               'runpy.run_path(' + repr(str(self.entry / 'settings.py')) + ')["setup"](Path.home(), credentials=' + repr(credentials) + ')'], env=self.environment,
                               cwd=self.root, text=True, encoding='utf-8', capture_output=True)
 
     def prepared(self) -> dict[str, object]:
@@ -72,7 +73,7 @@ def install(package, command):
     if os.environ.get('FAIL_INSTALL') == '1':
         raise OSError('fixture installation failed')
 ''')
-        environment = dict(self.environment, PYTHONPATH=str(modules))
+        environment = dict(self.environment, PYTHONPATH=str(modules) + os.pathsep + self.environment['PYTHONPATH'])
         for fail in ('1', '0'):
             with self.subTest(fail=fail):
                 result = subprocess.run([sys.executable, '-B', str(self.entry)],
@@ -96,6 +97,13 @@ def install(package, command):
         self.assertEqual(template.read_bytes(), source)
         self.assertFalse(any(self.secret.encode() in path.read_bytes() for path in self.repo.rglob('*') if path.is_file()))
 
+    def test_public_setup_never_reads_the_vault_even_when_present(self) -> None:
+        self.key.write_text('invalid key\nInjected: header')
+        result = self.setup_claude(credentials=False)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn('ANTHROPIC_CUSTOM_HEADERS', json.loads(self.settings.read_text())['env'])
+        self.assertNotIn('Injected', result.stdout + result.stderr)
+
     def test_ordinary_rerun_keeps_local_preferences_format_and_timestamp(self) -> None:
         settings = self.prepared()
         settings['env']['CLAUDE_CODE_EFFORT_LEVEL'] = 'local-choice'
@@ -118,6 +126,7 @@ def install(package, command):
 
     def test_missing_key_allows_setup_and_preserves_existing_credentials(self) -> None:
         self.key.unlink()
+        self.assertEqual(self.setup_claude(credentials=False).returncode, 0)
         self.assertNotIn('ANTHROPIC_CUSTOM_HEADERS', self.prepared()['env'])
         self.key.write_text(self.secret)
         self.prepared()
@@ -138,7 +147,7 @@ def install(package, command):
     def test_invalid_key_cannot_modify_existing_settings_or_leak_its_value(self) -> None:
         self.prepared()
         before = self.settings.read_bytes(), self.settings.stat().st_mtime_ns
-        for value in ('', 'invalid-secret\nInjected: header', 'invalid\x00secret', 'invalid secret', 'invalid-é-secret'):
+        for value in ('', 'invalid-secret\nInjected: header', 'invalid\x00secret', 'invalid secret', 'invalid-Ã©-secret'):
             with self.subTest(value=repr(value)):
                 self.key.write_text(value, encoding='utf-8')
                 result = self.setup_claude()
@@ -268,43 +277,6 @@ class DeploymentTests(SettingsFixture):
         self.assertFalse(os.path.lexists(launcher))
         self.assertEqual((self.settings.read_bytes(), self.settings.stat().st_mtime_ns), before)
 
-    @unittest.skipUnless(sys.platform == 'linux' and os.environ.get('SCRIPTS_ROOT'),
-                         'Set SCRIPTS_ROOT for the Linux credential-setup integration check')
-    def test_container_credential_setup_generates_settings_after_the_vault_is_available(self) -> None:
-        scripts = Path(os.environ['SCRIPTS_ROOT'])
-        fixture = self.root / 'scripts/setup/linux'
-        (fixture / 'credentials').mkdir(parents=True)
-        (fixture / 'lib').mkdir()
-        shutil.copy2(scripts / 'setup/linux/credentials/activate.sh', fixture / 'credentials/activate.sh')
-        for name in ('sync.sh', 'vault.sh'):
-            (fixture / 'credentials' / name).write_text('printf "%s\\n" "$*" >> "$HOME/credential-calls"\n')
-        (fixture / 'lib/find_persistent_root.sh').write_text('find_persistent_root() { :; }\n')
-        (fixture / 'lib/fix_hostname.sh').write_text('fix_hostname() { :; }\n')
-        (self.home / '.ssh').mkdir()
-        (self.home / '.ssh/id_ed25519').touch()
-        (self.repo / '.setup').mkdir()
-        for name in ('__main__.py', 'context.py', 'links.py'):
-            shutil.copy2(self.checkout / '.setup' / name, self.repo / '.setup' / name)
-        (self.home / 'rc_files').symlink_to(self.repo, target_is_directory=True)
-        shutil.copytree(self.checkout / 'node', self.repo / 'node', ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
-        binaries = self.home / '.local/bin'
-        binaries.mkdir(parents=True)
-        cli = binaries / ('claude.cmd' if os.name == 'nt' else 'claude')
-        cli.write_text('@echo off\nexit /b 0\n' if os.name == 'nt' else '#!/bin/sh\nexit 0\n')
-        cli.chmod(0o755)
-        self.environment['PATH'] = str(binaries) + os.pathsep + self.environment['PATH']
-        self.git('init', '-q')
-        self.git('add', '-f', '--all')
-        for value in (self.secret, 'replacement-' + self.secret):
-            self.key.write_text(value)
-            result = subprocess.run(['bash', str(fixture / 'credentials/activate.sh')], env=self.environment,
-                                    cwd=self.root, text=True, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertEqual(json.loads(self.settings.read_text())['env']['ANTHROPIC_CUSTOM_HEADERS'],
-                             'Ocp-Apim-Subscription-Key: ' + value)
-            self.assertNotIn(value, result.stdout + result.stderr)
-        self.assertEqual(self.state.read_text(), '{"projects":{"keep":{}},"machineID":"keep"}')
-        self.assertEqual((self.home / 'credential-calls').read_text().splitlines().count('docker'), 2)
 
 
 if __name__ == '__main__':

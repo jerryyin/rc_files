@@ -13,7 +13,7 @@ import unittest
 @unittest.skipUnless(os.environ.get('RC_CLAUDE_CLI_TEST') == '1',
                      'Set RC_CLAUDE_CLI_TEST=1 to check the installed CLI against a local gateway')
 class InstalledCliTests(unittest.TestCase):
-    def test_normal_cli_uses_saved_credentials_until_setup_refreshes_them(self) -> None:
+    def test_normal_cli_uses_saved_credentials_until_explicit_refresh(self) -> None:
         received: list[tuple[str | None, str | None]] = []
 
         class Gateway(BaseHTTPRequestHandler):
@@ -83,7 +83,8 @@ class InstalledCliTests(unittest.TestCase):
             key.write_text('fixture-key-one')
             for value, refresh in (('fixture-key-one', True), ('fixture-key-one', False), ('fixture-key-two', True)):
                 if refresh:
-                    prepared = subprocess.run([sys.executable, '-B', str(checkout / 'claude/.setup')],
+                    prepared = subprocess.run([sys.executable, '-B', str(checkout / '.setup'),
+                                               'credentials', '--package', 'claude', '--home', str(home)],
                                               env=environment, text=True, capture_output=True)
                     self.assertEqual(prepared.returncode, 0, prepared.stdout + prepared.stderr)
                 received.clear()
