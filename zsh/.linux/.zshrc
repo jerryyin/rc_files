@@ -251,47 +251,6 @@ function sshf() {
   ssh -o ExitOnForwardFailure=yes -L 1455:localhost:1455 "$@"
 }
 
-# Function to set the COMPOSE_PROJECT_NAME if not already set
-function set_compose_project_name() {
-  local DATE=$(date "+%m%d")
-  local TIME=$(date "+%H%M")
-  local SERVICE=""
-
-  # Check if a custom project name is provided as an argument
-  if [ -n "$1" ]; then
-    SERVICE="$1"
-  fi
-
-  export COMPOSE_PROJECT_NAME="${USER}-${SERVICE}-${DATE}-${TIME}"
-}
-
-# Function to set Docker Compose file and ensure COMPOSE_PROJECT_NAME is set
-function dcompose() {
-  set_compose_project_name "$@[-1]"
-  local compose_file="${COMPOSE_FILE:-$HOME/scripts/containers/docker/docker-compose.yml}"
-  # Resolve an explicit Compose override before Docker interprets relative build paths.
-  docker compose -f "${compose_file:A}" "$@"
-}
-
-# Function to bring up Docker services in detached mode
-function drun() {
-  local CONTAINER_NAME="zyin-tools-setup"
-
-  # Check if the container exists and remove it if necessary
-  if docker ps -a --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
-    echo "Removing existing container: ${CONTAINER_NAME}"
-    docker rm -f "${CONTAINER_NAME}"
-  fi
-
-  # Generate a unique project name and bring up the service
-  dcompose up -d --no-build "$1"
-}
-
-# Function to build Docker services with a dynamic project name
-function dbuild() {
-  dcompose build "$@"
-}
-
 export CLICOLOR_FORCE=1
 
 # IREE environment
@@ -335,5 +294,5 @@ else
     start_agent
 fi
 
-# Add ~/.local/bin to PATH (for Claude Code)
+# User-installed commands.
 export PATH="$HOME/.local/bin:$PATH"
