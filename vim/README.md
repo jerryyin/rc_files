@@ -2,6 +2,8 @@
 
 Linux and Windows Vim share `vim/.vimrc`, installed as `~/.vimrc`. It resolves the checkout through its link and loads the configuration under `vim/.vim/config`. Native Windows settings live under `vim/.windows`; Linux Neovim configuration lives under `vim/.linux/.config/nvim`.
 
+For Windows SSH sessions, launch with `vim` or `vi` from the managed PowerShell profile. The launcher temporarily supplies `WT_SESSION` when absent because native Vim uses that marker to preserve the terminal's default background instead of painting console black. Existing markers and local launches are unchanged; the shell environment is restored on exit. Your connecting terminal still controls opacity. Direct `vim.exe` calls bypass this workaround. After updating an existing shell, reload `. $PROFILE.CurrentUserAllHosts` and reopen Vim to apply it.
+
 ## Daily use
 
 The leader key is backslash. Common navigation and review commands are:

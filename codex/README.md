@@ -4,7 +4,9 @@ Normal setup installs or reuses the CLI and seeds missing local preferences from
 
 ## Appearance
 
-The template selects `tui.theme = "gruvbox-material"`. The native `.tmTheme` file in `.codex.links/themes/` uses the Gruvbox Material dark, hard palette, including Vim's purple string preference. Codex applies it to code blocks and diffs; other interface colors retain their native behavior. See [OpenAI's theme documentation](https://learn.chatgpt.com/docs/cli-customization).
+The template selects `tui.theme = "gruvbox-material"`. The native `.tmTheme` file in `.codex.links/themes/` uses the Gruvbox Material dark, hard palette, including Vim's purple string preference. Code blocks and diffs use this theme; inline code and local file paths explicitly use its muted green (`#a9b665`). See [OpenAI's theme documentation](https://learn.chatgpt.com/docs/cli-customization).
+
+Codex 0.163.0 also derives session-title and footer colors from the selected theme. Selected controls use the theme's `codex.accent` rule (`#7daea3`). Ordinary web links retain Codex's fixed blue; success/failure indicators and block quotes use the connecting terminal's ANSI palette. Selecting the theme does not replace that SSH-client palette.
 
 Setup links the dedicated themes directory to `~/.codex/themes`, keeping theme edits in the checkout. On an existing installation, run `/theme` and select the custom theme; setup preserves the existing local `config.toml`. Keep future-machine defaults in `.codex.config.toml.template`. The alternate screen remains disabled.
 

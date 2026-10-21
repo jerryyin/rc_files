@@ -1,5 +1,13 @@
 # Native Windows tools. This profile never invokes WSL.
-function vim { & vim.exe @args }
+function vim {
+    if ($env:WT_SESSION -or !($env:SSH_CONNECTION -or $env:SSH_CLIENT)) { & vim.exe @args; return }
+    $previousTerminal = $env:WT_SESSION
+    try {
+        # Native Vim otherwise replaces a transparent background with console black over SSH.
+        $env:WT_SESSION = 'vim-ssh'
+        & vim.exe @args
+    } finally { $env:WT_SESSION = $previousTerminal }
+}
 function psmux {
     if ($args.Count) { & psmux.exe @args; return }
     & psmux.exe has-session 2>$null
