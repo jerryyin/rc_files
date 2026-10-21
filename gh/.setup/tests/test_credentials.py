@@ -51,16 +51,29 @@ class WindowsCredentialTests(unittest.TestCase):
         self.assertEqual(len([1 for arguments, _ in calls if arguments[:2] == ['auth', 'login']]), 2)
         self.assertTrue([arguments for arguments, _ in calls if arguments[:2] == ['auth', 'switch']])
 
-    def test_rejected_token_stops_without_revealing_it(self) -> None:
-        def fake(arguments: list[str], text: str) -> subprocess.CompletedProcess[str]:
-            code = 1 if arguments[1:3] == ['auth', 'login'] else 0
-            return subprocess.CompletedProcess(arguments, code, '{"hosts": {}}', 'bad credentials')
+    def run_with_rejected(self, rejected: set[str]) -> list[list[str]]:
+        calls: list[list[str]] = []
 
-        with patch.object(credentials.shutil, 'which', return_value='gh'), \
+        def fake(arguments: list[str], text: str) -> subprocess.CompletedProcess[str]:
+            calls.append(arguments[1:])
+            code = 1 if arguments[1:3] == ['auth', 'login'] and text in rejected else 0
+            return subprocess.CompletedProcess(arguments, code, '{"hosts": {}}', 'IP allow list')
+
+        with patch.dict(os.environ, RC_SETUP_UPDATE='0'), \
+                patch.object(credentials.shutil, 'which', return_value='gh'), \
                 patch.object(credentials, 'command', side_effect=fake):
-            with self.assertRaises(ValueError) as raised:
-                credentials.windows(TOKENS)
+            credentials.windows(TOKENS)
+        return calls
+
+    def test_account_rejected_on_this_network_does_not_block_the_others(self) -> None:
+        calls = self.run_with_rejected({'fixture-enterprise'})
+        self.assertFalse([arguments for arguments in calls if arguments[:2] == ['auth', 'switch']])
+
+    def test_no_accepted_token_stops_without_revealing_tokens(self) -> None:
+        with self.assertRaises(ValueError) as raised:
+            self.run_with_rejected(set(TOKENS.values()))
         self.assertNotIn('fixture-personal', str(raised.exception))
+        self.assertNotIn('fixture-enterprise', str(raised.exception))
 
 
 if __name__ == '__main__':

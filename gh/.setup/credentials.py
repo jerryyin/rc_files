@@ -23,14 +23,22 @@ def windows(tokens: dict[str, str]) -> None:
         accounts = []
     present = {account.get('login') for account in accounts if account.get('state') == 'success'}
     update = os.environ.get('RC_SETUP_UPDATE') == '1'
+    signed_in = set(present)
     for login, token in tokens.items():
         if login in present and not update:
             continue
+        # gh verifies each token online; an enterprise IP allow list can reject a valid token here.
         result = command([executable, 'auth', 'login', '--hostname', 'github.com',
                           '--git-protocol', 'https', '--with-token'], token)
         if result.returncode:
-            raise ValueError(f'GitHub CLI rejected the vault token for {login}')
-    if update or not present:
+            reason = result.stderr.strip().splitlines()[-1] if result.stderr.strip() else 'no reason given'
+            print(f'SKIP gh {login}: GitHub rejected the vault token here ({reason})')
+            signed_in.discard(login)
+        else:
+            signed_in.add(login)
+    if not signed_in:
+        raise ValueError('GitHub CLI accepted none of the vault tokens')
+    if (update or not present) and ACTIVE in signed_in:
         result = command([executable, 'auth', 'switch', '--hostname', 'github.com', '--user', ACTIVE], '')
         if result.returncode:
             raise ValueError(f'GitHub CLI could not activate {ACTIVE}')
