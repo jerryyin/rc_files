@@ -45,3 +45,14 @@ function prompt {
     }
     $esc + '[38;2;125;174;163m' + $folder + $esc + '[38;2;216;166;87m' + $branch + $esc + '[38;2;169;182;101m ' + [char]0x279c + $esc + '[0m '
 }
+
+# Only a terminal login may attach. SSH commands and shells inside psmux must
+# finish loading their profile without starting another interactive client.
+$sshLoginArguments = @([Environment]::GetCommandLineArgs() | Select-Object -Skip 1 |
+    Where-Object { $_ -notin @('-NoLogo', '-NoExit', '-Login', '-Interactive') })
+if ($env:SSH_CONNECTION -and $env:SSH_TTY -and $Host.Name -eq 'ConsoleHost' -and
+    !$env:TMUX -and !$env:PSMUX_SESSION -and !$env:PSMUX_TARGET_SESSION -and
+    !$sshLoginArguments.Count -and ![Console]::IsInputRedirected -and ![Console]::IsOutputRedirected -and
+    (Get-Command psmux.exe -ErrorAction SilentlyContinue)) {
+    dev
+}

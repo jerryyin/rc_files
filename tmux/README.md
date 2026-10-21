@@ -4,6 +4,8 @@ Linux uses tmux and Windows uses native psmux. Both load the shared preferences 
 
 The shared status bar and pane borders use explicit Gruvbox Material dark, hard colors. The terminal supplies the default background and ordinary application colors; SSH clients choose their own terminal palette. Reload the configuration with prefix, then `r` after editing.
 
+Interactive Windows SSH logins automatically attach to `main` (creating it when absent). Detaching returns to PowerShell. Command-only SSH calls and shells already inside psmux do not auto-attach. Windows Terminal still starts at PowerShell; run `tmux` or `dev` there. The SSH client controls its own font and terminal palette.
+
 ## Mobile handling
 
 After connecting over SSH, attach to the existing server session to read agent output and send instructions. A full-screen window per task works well on a phone. The same shortcuts work in tmux and psmux.
