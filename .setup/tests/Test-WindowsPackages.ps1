@@ -34,7 +34,15 @@ try {
     $failed = $false
     try { & (Join-Path $PSScriptRoot '../windows.ps1') -Request $request } catch { $failed=$_.Exception.Message -like '*WinGet failed*17*' }
     if (!$failed) { throw 'A failed package installer must stop setup.' }
-    Write-Output 'PASS native package scopes, one elevation, hidden launch, installer arguments.'
+    $outdated = @{winget='Fixture.Outdated'; command='powershell'; scope='user'; arguments=''; minimum=@(99)}
+    ConvertTo-Json -Depth 5 -InputObject @($outdated) | Set-Content -LiteralPath $request -Encoding UTF8
+    foreach ($code in @(0, -1978335189, -1978335135)) {
+        $global:RcTestInstalls = @()
+        $global:RcTestResult = $code
+        & (Join-Path $PSScriptRoot '../windows.ps1') -Request $request
+        if ($global:RcTestInstalls.Count -ne 1 -or $global:RcTestInstalls[0][0] -ne 'install') { throw "An outdated existing command must be requested through install (exit $code)." }
+    }
+    Write-Output 'PASS native package scopes, one elevation, hidden launch, installer arguments, outdated commands.'
 } finally {
     Get-ChildItem -LiteralPath $fixture -File | Remove-Item -Force
     Remove-Item -LiteralPath $fixture
