@@ -99,7 +99,7 @@ On Linux, packages can share their login files with explicitly supplied private 
 python3 ~/rc_files/.setup credentials --persistent-root /mounted/home --save
 ```
 
-Saving runs only persistence hooks; it does not render vault templates. Windows uses native GitHub and Codex sign-in and does not import Linux login files. See the application guides for credential refresh behavior. `scripts` locates or clones the vault at session startup and then invokes this command; the configuration repository remains usable without it.
+Saving runs only persistence hooks; it does not render vault templates. On Windows, the gh hook stores the same vault tokens in the Windows credential store; Codex sign-in stays manual and Linux login files are not imported. See the application guides for credential refresh behavior. `scripts` locates or clones the vault at session startup and then invokes this command; the configuration repository remains usable without it.
 
 Keeping vault rendering in `scripts` would duplicate application knowledge across the two repositories. Running it during ordinary setup would put credentials into image builds whenever a vault happened to be available. A separate command with package-owned hooks keeps secret access explicit without a central application inventory.
 

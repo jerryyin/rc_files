@@ -1,6 +1,7 @@
 # Linux credential setup seeds these accounts from vault tokens.
 # gh owns active-account state after setup; use credentials --package gh --update
-# only when deliberately resetting it to these defaults. Windows uses native login.
+# only when deliberately resetting it to these defaults. Windows stores the same
+# vault tokens in its credential store instead of rendering this file.
 github.com:
     git_protocol: https
     users:
