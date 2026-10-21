@@ -8,6 +8,10 @@ The template selects `tui.theme = "gruvbox-material"`. The native `.tmTheme` fil
 
 Setup links the dedicated themes directory to `~/.codex/themes`, keeping theme edits in the checkout. On an existing installation, run `/theme` and select the custom theme; setup preserves the existing local `config.toml`. Keep future-machine defaults in `.codex.config.toml.template`. The alternate screen remains disabled.
 
+## Prompt input
+
+Shift+Enter inserts a newline; plain Enter submits. Ctrl+j and Alt+Enter also insert a newline. These preferences use Codex's native editor keymap on both platforms. On an existing installation, copy `[tui.keymap.editor]` from the template into the local `~/.codex/config.toml` and restart Codex to load it.
+
 ## Credentials
 
 For trusted Linux containers, `python3 ~/rc_files/.setup credentials --package codex --persistent-root /mounted/home` shares only `.codex/auth.json`. It does not share preferences, instructions, sessions, plugins or caches. A legacy whole-directory link becomes a local directory with preserved preferences and restored tracked instructions; all original persistent data remains in place.

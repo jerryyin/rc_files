@@ -19,3 +19,6 @@ sandbox_mode = "danger-full-access"
 [tui]
 alternate_screen = "never"
 theme = "gruvbox-material"
+
+[tui.keymap.editor]
+insert_newline = ["shift-enter", "ctrl-j", "alt-enter"]
