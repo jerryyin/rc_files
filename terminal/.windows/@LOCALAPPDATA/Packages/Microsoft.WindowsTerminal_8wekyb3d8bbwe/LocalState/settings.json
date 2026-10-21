@@ -31,7 +31,9 @@
   "defaultProfile": "{66fce70d-f58a-45d6-a538-11c34abff4a8}",
   "disabledProfileSources": [
     "Windows.Terminal.Wsl",
-    "Microsoft.WSL"
+    "Microsoft.WSL",
+    "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc",
+    "CanonicalGroupLimited.Ubuntu24.04LTS_79rhkp1fndgsc"
   ],
   "keybindings": [
     {
