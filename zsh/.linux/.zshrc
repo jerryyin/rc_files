@@ -197,42 +197,10 @@ bindkey -e
 
 export LESS="-XFR"
 
-# Auto-load FFM model environment used by Triton MI450 dev shells.
-# /am-ffm/ffmlite_env.sh is the canonical source; it sets HSA_MODEL_LIB,
-# HSA_MODEL_TOPOLOGY, HSA_KMT_MODEL_GPUVM_BASE, and LD_LIBRARY_PATH for us
-# (zsh-aware via the ${(%):-%x} fallback for BASH_SOURCE).
-function load_ffm_env() {
-  [[ -n "$_TRITON_MODEL_PKG" ]] && return
-  [[ -f /am-ffm/ffmlite_env.sh ]] || return
-
-  source /am-ffm/ffmlite_env.sh
-
-  # Prepend system ROCm so its libamd_smi/libroctx win over the bundled ones.
-  if [[ -d /opt/rocm/lib ]]; then
-    export LD_LIBRARY_PATH="/opt/rocm/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-  fi
-
-  export _TRITON_MODEL_PKG=/am-ffm
-
-  # Auto-inject ffm_teardown pytest plugin to avoid FFM simulator hang on exit.
-  # FFM's 192 simulator threads don't shut down during Py_Finalize; the plugin
-  # calls hipDeviceReset + os._exit after pytest finishes.
-  export PYTHONPATH="${HOME}/scripts/am${PYTHONPATH:+:$PYTHONPATH}"
-  export PYTEST_PLUGINS=ffm_teardown
-}
-load_ffm_env
-
-# The Triton MI450 branch downloads its pinned LLVM from a private GitHub
-# release. GitHub answers unauthenticated requests for private assets with 404,
-# not 403, so the build fails looking like a missing artifact. build_helpers.py
-# switches to the authenticated asset API only when a token is present.
-if [[ -r "$HOME/vault/gh_token_amdeng.txt" ]]; then
-  _gh_amdeng_token="$(<"$HOME/vault/gh_token_amdeng.txt")"
-  export TRITON_MI450_LLVM_DOWNLOAD_GITHUB_TOKEN="${_gh_amdeng_token//[[:space:]]/}"
-  unset _gh_amdeng_token
+# Optional project environments are owned by scripts.
+if [[ -r "${SCRIPTS_ROOT:-$HOME/scripts}/setup/linux/shell.zsh" ]]; then
+  source "${SCRIPTS_ROOT:-$HOME/scripts}/setup/linux/shell.zsh"
 fi
-
-alias dockrun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --name zyin-$(date "+%m%d") -h $(date "+%m%d") -v /data:/data -v $HOME:/zyin'
 
 alias ssh='autossh -M 0'
 
@@ -252,17 +220,6 @@ function sshf() {
 }
 
 export CLICOLOR_FORCE=1
-
-# IREE environment
-export PATH=~/iree/build/model/tracy:$PATH
-export PATH=~/iree/third_party/tracy/csvexport/build:$PATH
-export PATH=~/iree/third_party/llvm-project/build/bin:$PATH
-export PYTHONPATH=~/iree/build/model/compiler/bindings/python:~/iree/build/model/runtime/bindings/python:$PYTHONPATH
-export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=4096
-export PATH=~/iree/build/dbg/tools:$PATH
-
-# Triton environment
-export PYTHONPATH=~/triton-mi450/python:$PYTHONPATH
 
 #zprof
 #
