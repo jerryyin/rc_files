@@ -1,6 +1,5 @@
 from system import Package
 
 DEPENDENCIES = ('node',)
-PACKAGES = [Package('codex', winget='OpenAI.Codex')]
-if PLATFORM == 'windows':
-    PACKAGES += [Package('codex-acp', npm='@agentclientprotocol/codex-acp')]
+PACKAGES = [Package('codex', npm='@openai/codex'),
+            Package('codex-acp', npm='@agentclientprotocol/codex-acp')] if PLATFORM == 'windows' else []

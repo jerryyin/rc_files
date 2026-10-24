@@ -29,6 +29,19 @@ function Test-MachineFont([string]$PreferredFace) {
     return $false
 }
 
+function Test-FontFamily([string[]]$Paths, [string]$PreferredFace) {
+    $collection = New-Object Drawing.Text.PrivateFontCollection
+    $families = @()
+    try {
+        foreach ($path in $Paths) { $collection.AddFontFile($path) }
+        $families = @($collection.Families)
+        return $families.Name -contains $PreferredFace
+    } finally {
+        foreach ($family in $families) { $family.Dispose() }
+        $collection.Dispose()
+    }
+}
+
 function Install-Fonts($Font, [string]$BackupRoot, [string]$PreferredFace) {
     if (Test-MachineFont $PreferredFace) { return $PreferredFace }
     Add-Type -AssemblyName System.Drawing
@@ -46,14 +59,13 @@ public static class DevenvFonts {
     $staging = Join-Path ([IO.Path]::GetTempPath()) ('devenv-font-' + [guid]::NewGuid().ToString('N'))
     try {
         Get-FontFiles $Font $staging
-        $collection = New-Object Drawing.Text.PrivateFontCollection
-        try {
-            foreach ($fontFile in Get-ChildItem -LiteralPath $staging -Filter '*.ttf') { $collection.AddFontFile($fontFile.FullName) }
-            if ($collection.Families.Name -notcontains $PreferredFace) { throw 'Downloaded font does not contain the requested family' }
-        } finally { $collection.Dispose() }
-        foreach ($fontFile in Get-ChildItem -LiteralPath $staging -Filter '*.ttf') {
+        $fontFiles = @(Get-ChildItem -LiteralPath $staging -Filter '*.ttf')
+        if (!(Test-FontFamily @($fontFiles.FullName) $PreferredFace)) { throw 'Downloaded font does not contain the requested family' }
+        foreach ($fontFile in $fontFiles) {
             $file = Join-Path $target $fontFile.Name
-            Copy-Item -LiteralPath $fontFile.FullName -Destination $file -Force
+            if (Test-Path -LiteralPath $file -PathType Leaf) {
+                if (!(Test-FontFamily @($file) $PreferredFace)) { throw "Existing font does not contain the requested family: $file" }
+            } else { Copy-Item -LiteralPath $fontFile.FullName -Destination $file }
             if ([DevenvFonts]::AddFontResourceEx($file, 0, [IntPtr]::Zero) -eq 0) { throw "Font registration failed: $file" }
             [void](New-ItemProperty -Path $key -Name ($PreferredFace + ' (' + $fontFile.BaseName + ') (TrueType)') -Value $fontFile.Name -PropertyType String -Force)
         }
