@@ -13,13 +13,5 @@ if ($machine.Count -and !$administrator) {
     $packages = @($packages | Where-Object scope -ne 'machine')
 }
 if ($Elevated -and !$administrator) { throw 'Machine packages require administrator approval.' }
-# Install also upgrades a package WinGet correlates with the requested id. Correlation is unreliable
-# when another id installed the command (OpenJS.NodeJS.20 versus OpenJS.NodeJS.LTS), so `upgrade`
-# cannot be chosen from the command alone; the caller verifies minimum versions afterwards.
-$current = @(-1978335189, -1978335135)  # UPDATE_NOT_APPLICABLE, PACKAGE_ALREADY_INSTALLED
-foreach ($package in $packages) {
-    $arguments = @('install','--id',$package.winget,'--exact','--scope',$package.scope,'--source','winget','--accept-package-agreements','--accept-source-agreements','--disable-interactivity')
-    if ($package.arguments) { $arguments += @('--custom',$package.arguments) }
-    & winget @arguments
-    if ($LASTEXITCODE -ne 0 -and $current -notcontains $LASTEXITCODE) { throw "WinGet failed for $($package.winget): $LASTEXITCODE" }
-}
+Import-Module (Join-Path $PSScriptRoot 'packages.psm1') -DisableNameChecking
+foreach ($package in $packages) { Install-WindowsPackage $package }

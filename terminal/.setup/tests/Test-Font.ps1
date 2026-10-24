@@ -12,6 +12,22 @@ function Set-FixtureFile($Url, $Value) { & $module { param($v) $script:Archive=$
     function script:Invoke-WebRequest { param($Uri, $OutFile, [switch]$UseBasicParsing) [IO.File]::WriteAllBytes($OutFile, $script:Archive) }
 }
 try {
+    & $module {
+        $script:FontRegistration=[pscustomobject]@{}
+        $script:FontExists=$false
+        function script:Get-ItemProperty {
+            param($LiteralPath)
+            if ($LiteralPath -notlike 'HKLM:*') { throw 'Machine font checks must not accept user registration.' }
+            return $script:FontRegistration
+        }
+        function script:Test-Path { param($LiteralPath, $PathType) return $script:FontExists }
+    }
+    Assert (!(Test-MachineFont 'Fixture Nerd Font')) 'A user-visible font alone does not satisfy machine installation'
+    & $module { $script:FontRegistration=[pscustomobject]@{'Fixture Nerd Font (regular) (TrueType)'='fixture.ttf'} }
+    Assert (!(Test-MachineFont 'Fixture Nerd Font')) 'A font registry entry without its shared file is incomplete'
+    & $module { $script:FontExists=$true }
+    Assert (Test-MachineFont 'Fixture Nerd Font') 'A shared font with registration and file is reused'
+    & $module { Remove-Item Function:Test-Path; Remove-Item Function:Get-ItemProperty }
     # Exercise release discovery and archive handling without OS registration.
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $fontSource = Join-Path $testRoot 'font-source'

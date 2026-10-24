@@ -97,8 +97,8 @@ def main(argv: list[str] | None = None) -> int:
                 system.refresh_path()
                 print(json.dumps([asdict(package) for package in selection.requirements
                                   if (not args.scope or package.scope == args.scope)
-                                  and (package.winget if os.name == 'nt' else package.apt)
-                                  and not system.installed(package)]))
+                                  and ((package.winget or package.npm) if os.name == 'nt' else package.apt)
+                                  and (not system.installed(package) or (package.npm and args.update))]))
                 return 0
             system.install(selection.requirements, scope=args.scope, allow=not args.no_install)
             setup_environment['PATH'] = os.environ['PATH']

@@ -10,6 +10,11 @@ import npm
 
 
 class NpmTests(unittest.TestCase):
+    def setUp(self) -> None:
+        redirected = patch.dict(os.environ, RC_SETUP_REDIRECTED='1')
+        redirected.start()
+        self.addCleanup(redirected.stop)
+
     def test_existing_cli_skips_redundant_installation(self) -> None:
         with patch.dict(os.environ, RC_SETUP_UPDATE='0'), \
                 patch.object(npm.shutil, 'which', return_value='existing-cli'), \
@@ -57,6 +62,23 @@ class NpmTests(unittest.TestCase):
             self.assertEqual(run.call_args_list[0].args[0], ['npm', 'install', '--global', '--prefix', str(prefix), '@fixture/cli@latest'])
             self.assertEqual(run.call_args_list[1].args[0][-1], '--version')
             persist.assert_called_once_with(prefix if os.name == 'nt' else prefix / 'bin')
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows shared npm commands')
+    def test_windows_uses_machine_requirement_even_with_user_command(self) -> None:
+        with patch.dict(os.environ, RC_SETUP_REDIRECTED='0', RC_SETUP_INSTALL='1'), \
+                patch.object(npm.shutil, 'which', return_value='user-cli'), \
+                patch.object(npm, 'installed', return_value=False), \
+                patch.object(npm, 'install_system') as install:
+            npm.install('@fixture/cli', 'fixture')
+            install.assert_called_once_with([npm.Package('fixture', npm='@fixture/cli')], allow=True)
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows shared npm commands')
+    def test_user_configuration_never_updates_an_installed_machine_cli(self) -> None:
+        with patch.dict(os.environ, RC_SETUP_REDIRECTED='0', RC_SETUP_UPDATE='1'), \
+                patch.object(npm, 'installed', return_value=True), \
+                patch.object(npm, 'install_system') as install:
+            npm.install('@fixture/cli', 'fixture')
+            install.assert_not_called()
 
 
 if __name__ == '__main__':

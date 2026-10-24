@@ -5,6 +5,7 @@ $request = Join-Path $fixture 'packages.json'
 $global:RcTestInstalls = @()
 $global:RcTestLaunches = @()
 $global:RcTestResult = 0
+$savedProgramFiles = $env:ProgramFiles
 function winget {
     $global:RcTestInstalls += ,$args
     $global:LASTEXITCODE = $global:RcTestResult
@@ -42,8 +43,56 @@ try {
         & (Join-Path $PSScriptRoot '../windows.ps1') -Request $request
         if ($global:RcTestInstalls.Count -ne 1 -or $global:RcTestInstalls[0][0] -ne 'install') { throw "An outdated existing command must be requested through install (exit $code)." }
     }
-    Write-Output 'PASS native package scopes, one elevation, hidden launch, installer arguments, outdated commands.'
+    $module = Get-Module packages
+    & $module {
+        $script:Calls = @()
+        $script:ListResult = -1978335212
+        $script:InstallResult = 0
+        $script:Provisioned = @()
+        $script:SharedPaths = @()
+        function script:winget {
+            $script:Calls += ,$args
+            $global:LASTEXITCODE = if ($args[0] -eq 'list') { $script:ListResult } else { $script:InstallResult }
+        }
+        function script:Get-AppxProvisionedPackage { param([switch]$Online) return $script:Provisioned }
+        function script:Add-MachinePath($Directory) { $script:SharedPaths += $Directory }
+    }
+    $shared = @{winget='Fixture.Shared'; scope='machine'; installer_type='wix'; search=@()}
+    Install-WindowsPackage $shared
+    $calls = & $module { ,$script:Calls }
+    if ($calls.Count -ne 2 -or $calls[0] -notcontains 'machine' -or $calls[1] -notcontains '--force' -or $calls[1] -notcontains 'wix') { throw 'A user-only package must get a fresh machine installation with its selected installer type.' }
+    & $module { $script:Calls=@(); $script:ListResult=0 }
+    Install-WindowsPackage $shared
+    if ((& $module { $script:Calls[-1] }) -contains '--force') { throw 'An existing machine installation should use its normal upgrade path.' }
+    & $module { $script:ListResult=5 }
+    $failed=$false
+    try { Install-WindowsPackage $shared } catch { $failed=$_.Exception.Message -like '*inventory failed*5*' }
+    if (!$failed) { throw 'Inventory failures cannot be treated as user-only installs.' }
+    & $module { $script:ListResult=0 }
+    $shared.provisioned='Fixture.Terminal'
+    $failed=$false
+    try { Install-WindowsPackage $shared } catch { $failed=$_.Exception.Message -like '*not provisioned*' }
+    if (!$failed) { throw 'A successful installer exit cannot substitute for app provisioning.' }
+    & $module { $script:Provisioned=@(@{DisplayName='Fixture.Terminal'}) }
+    Install-WindowsPackage $shared
+    $env:ProgramFiles=Join-Path $fixture 'Program Files'
+    & $module {
+        function script:npm.cmd {
+            $prefix=$args[[Array]::IndexOf($args, '--prefix') + 1]
+            if ($prefix -ne (Join-Path $env:ProgramFiles 'npm')) { throw 'npm must explicitly select the shared prefix.' }
+            [void][IO.Directory]::CreateDirectory((Join-Path $prefix 'node_modules/@fixture/cli'))
+            [IO.File]::WriteAllText((Join-Path $prefix 'node_modules/@fixture/cli/package.json'), '{"version":"1.0.0"}')
+            [IO.File]::WriteAllText((Join-Path $prefix 'fixture.cmd'), "@echo 1.0.0`r`n@exit /b 0`r`n")
+            $global:LASTEXITCODE=0
+        }
+    }
+    Install-WindowsPackage @{npm='@fixture/cli'; command='fixture'; scope='machine'}
+    if ((& $module { $script:SharedPaths[-1] }) -ne (Join-Path $env:ProgramFiles 'npm')) { throw 'Shared npm commands must be published on the machine PATH.' }
+    Write-Output 'PASS native package scopes, one elevation, installer selection, migration, failures, provisioning and shared npm commands.'
 } finally {
-    Get-ChildItem -LiteralPath $fixture -File | Remove-Item -Force
-    Remove-Item -LiteralPath $fixture
+    $env:ProgramFiles=$savedProgramFiles
+    $resolved=[IO.Path]::GetFullPath($fixture)
+    $tempRoot=[IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'
+    if (!$resolved.StartsWith($tempRoot, [StringComparison]::OrdinalIgnoreCase) -or (Split-Path $resolved -Leaf) -notlike 'rc-package-test-*') { throw 'Unsafe fixture cleanup path' }
+    Remove-Item -LiteralPath $resolved -Recurse -Force
 }

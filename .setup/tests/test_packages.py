@@ -74,7 +74,7 @@ class RequirementTests(unittest.TestCase):
 
     def test_machine_scope_leaves_user_packages_alone(self) -> None:
         machine = system.Package('machine', ('machine',), 'Fixture.Machine', scope='machine')
-        user = system.Package('user', ('user',), 'Fixture.User')
+        user = system.Package('user', ('user',), 'Fixture.User', scope='user')
         with patch.object(system, 'installed', return_value=True) as installed:
             system.install([user, machine], scope='machine')
         self.assertEqual([call.args[0] for call in installed.call_args_list], [machine])
@@ -95,6 +95,34 @@ class RequirementTests(unittest.TestCase):
                 patch.object(system, 'apt') as apt:
             system.install([first, second, first])
         self.assertEqual(apt.call_args_list[1].args[0], ['install', '-y', 'shared', 'one', 'two'])
+
+    @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
+    def test_user_command_does_not_satisfy_machine_requirement(self) -> None:
+        package = system.Package('fixture', winget='Fixture.Tool')
+        missing = subprocess.CompletedProcess([], 0x8a150014, '', '')
+        with patch.dict(os.environ, RC_SETUP_REDIRECTED='0'), \
+                patch.object(system, 'executable', return_value='user-tool.exe') as executable, \
+                patch.object(system.subprocess, 'run', return_value=missing) as run:
+            self.assertFalse(system.installed(package))
+            command = run.call_args.args[0]
+            self.assertEqual(command[command.index('--scope') + 1], 'machine')
+            executable.assert_not_called()
+            run.return_value = subprocess.CompletedProcess([], 0, '', '')
+            self.assertTrue(system.installed(package))
+            run.return_value = subprocess.CompletedProcess([], 5, '', 'access denied')
+            with self.assertRaisesRegex(ValueError, 'WinGet inventory failed'):
+                system.installed(package)
+
+    @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
+    def test_no_install_does_not_refresh_shared_npm_packages(self) -> None:
+        package = system.Package('fixture', npm='@fixture/cli')
+        with patch.dict(os.environ, RC_SETUP_UPDATE='1'), \
+                patch.object(system, 'installed', return_value=True), \
+                patch.object(system, 'windows_install') as install:
+            system.install([package], allow=False)
+            install.assert_not_called()
+            system.install([package])
+            install.assert_called_once_with([package])
 
     @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
     def test_windows_groups_packages_once_and_checks_result(self) -> None:

@@ -7,9 +7,14 @@ import shutil
 import ssl
 import subprocess
 
-from system import persist_path
+from system import Package, install as install_system, persist_path, installed
 
 def install(name: str, command: str) -> None:
+    if os.name == 'nt' and os.environ.get('RC_SETUP_REDIRECTED') != '1':
+        requirement = Package(command, npm=name)
+        if not installed(requirement):
+            install_system([requirement], allow=os.environ.get('RC_SETUP_INSTALL') != '0')
+        return
     prefix = Path(os.environ['APPDATA']) / 'npm' if os.name == 'nt' else Path.home() / '.local'
     directory = prefix if os.name == 'nt' else prefix / 'bin'
     package = prefix / ('node_modules' if os.name == 'nt' else 'lib/node_modules') / name / 'package.json'

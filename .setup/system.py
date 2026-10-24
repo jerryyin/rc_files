@@ -23,18 +23,21 @@ class Package:
     command: str = ''
     apt: tuple[str, ...] = ()
     winget: str = ''
-    scope: str = 'user'
+    scope: str = 'machine'
     arguments: str = ''
     minimum: tuple[int, ...] = ()
     search: tuple[str, ...] = ()
     exclude: str = ''
+    installer_type: str = ''
+    provisioned: str = ''
+    npm: str = ''
 
 
 def refresh_path() -> None:
     paths = os.environ.get('PATH', '').split(os.pathsep)
     paths.insert(0, str(Path.home() / '.local/bin'))
     if os.name == 'nt':
-        paths.insert(0, str(Path(os.environ['APPDATA']) / 'npm'))
+        shared = [str(Path(os.environ['ProgramFiles']) / 'npm')]
         for hive, key in ((winreg.HKEY_LOCAL_MACHINE,
                            r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'),
                           (winreg.HKEY_CURRENT_USER, 'Environment')):
@@ -43,7 +46,9 @@ def refresh_path() -> None:
                     value = winreg.QueryValueEx(handle, 'Path')[0]
                 except FileNotFoundError:
                     continue
-                paths.extend(os.path.expandvars(value).split(os.pathsep))
+                target = shared if hive == winreg.HKEY_LOCAL_MACHINE else paths
+                target.extend(os.path.expandvars(value).split(os.pathsep))
+        paths = shared + paths
     os.environ['PATH'] = os.pathsep.join(dict.fromkeys(path for path in paths if path))
 
 
@@ -63,7 +68,38 @@ def executable(package: Package) -> str | None:
     return found
 
 
+def windows_registered(package: Package) -> bool:
+    if package.npm:
+        prefix = Path(os.environ['ProgramFiles']) / 'npm'
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                            r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment') as key:
+            paths = os.path.expandvars(winreg.QueryValueEx(key, 'Path')[0]).lower().split(';')
+        return ((prefix / 'node_modules' / package.npm / 'package.json').is_file()
+                and (prefix / (package.command + '.cmd')).is_file()
+                and str(prefix).lower() in paths)
+    if package.provisioned:
+        # AppX's installed-user inventory does not describe provisioning for new accounts.
+        key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\InboxApplications'
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key) as handle:
+            names = [winreg.EnumKey(handle, index) for index in range(winreg.QueryInfoKey(handle)[0])]
+        return any(name.startswith(package.provisioned + '_') for name in names)
+    result = subprocess.run(['winget', 'list', '--id', package.winget, '--exact',
+                             '--scope', package.scope, '--source', 'winget',
+                             '--accept-source-agreements', '--disable-interactivity'],
+                            capture_output=True, text=True)
+    if result.returncode & 0xffffffff == 0x8a150014:  # NO_APPLICATIONS_FOUND
+        return False
+    if result.returncode:
+        raise ValueError(f'WinGet inventory failed for {package.winget}: {result.stdout} {result.stderr}')
+    return True
+
+
 def installed(package: Package) -> bool:
+    if (os.name == 'nt' and os.environ.get('RC_SETUP_REDIRECTED') != '1'
+            and (package.winget or package.npm)):
+        registered = windows_registered(package)
+        if not registered or package.provisioned or package.npm:
+            return registered
     if package.command:
         found = executable(package)
         if not found:
@@ -97,8 +133,9 @@ def install(packages: list[Package], *, scope: str = '', allow: bool = True) -> 
     refresh_path()
     selected = [package for package in packages
                 if (not scope or package.scope == scope)
-                and (package.winget if os.name == 'nt' else package.apt)]
-    missing = [package for package in dict.fromkeys(selected) if not installed(package)]
+                and ((package.winget or package.npm) if os.name == 'nt' else package.apt)]
+    missing = [package for package in dict.fromkeys(selected)
+               if not installed(package) or (allow and package.npm and os.environ.get('RC_SETUP_UPDATE') == '1')]
     if not missing:
         return
     if not allow or os.environ.get('RC_SETUP_REDIRECTED') == '1':

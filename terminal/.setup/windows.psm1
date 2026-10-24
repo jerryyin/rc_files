@@ -19,14 +19,22 @@ function Get-FontFiles($Font, [string]$Directory) {
     if (!@(Get-ChildItem -LiteralPath $Directory -Filter '*.ttf').Count) { throw 'Latest font archive contains no TrueType fonts' }
 }
 
+function Test-MachineFont([string]$PreferredFace) {
+    $key = Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+    foreach ($entry in $key.PSObject.Properties) {
+        if (!$entry.Name.StartsWith($PreferredFace + ' (', [StringComparison]::OrdinalIgnoreCase)) { continue }
+        $file = Join-Path $env:SystemRoot ('Fonts/' + [IO.Path]::GetFileName($entry.Value))
+        if (Test-Path -LiteralPath $file -PathType Leaf) { return $true }
+    }
+    return $false
+}
+
 function Install-Fonts($Font, [string]$BackupRoot, [string]$PreferredFace) {
+    if (Test-MachineFont $PreferredFace) { return $PreferredFace }
     Add-Type -AssemblyName System.Drawing
-    $installed = @(New-Object Drawing.Text.InstalledFontCollection).Families.Name
-    if ($installed -contains $PreferredFace) { return $PreferredFace }
-    $target = Join-Path $env:LOCALAPPDATA 'Microsoft/Windows/Fonts'
+    $target = Join-Path $env:SystemRoot 'Fonts'
     [void][IO.Directory]::CreateDirectory($target)
-    $key = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
-    [void](New-Item -Path $key -Force)
+    $key = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
     if (!('DevenvFonts' -as [type])) { Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
@@ -47,7 +55,7 @@ public static class DevenvFonts {
             $file = Join-Path $target $fontFile.Name
             Copy-Item -LiteralPath $fontFile.FullName -Destination $file -Force
             if ([DevenvFonts]::AddFontResourceEx($file, 0, [IntPtr]::Zero) -eq 0) { throw "Font registration failed: $file" }
-            [void](New-ItemProperty -Path $key -Name ($fontFile.BaseName + ' (TrueType)') -Value $file -PropertyType String -Force)
+            [void](New-ItemProperty -Path $key -Name ($PreferredFace + ' (' + $fontFile.BaseName + ') (TrueType)') -Value $fontFile.Name -PropertyType String -Force)
         }
     } finally {
         $resolved = [IO.Path]::GetFullPath($staging)
@@ -57,6 +65,7 @@ public static class DevenvFonts {
     }
     $result = [IntPtr]::Zero
     [void][DevenvFonts]::SendMessageTimeout([IntPtr]0xffff, 0x001D, [IntPtr]::Zero, [IntPtr]::Zero, 2, 1000, [ref]$result)
+    if (!(Test-MachineFont $PreferredFace)) { throw 'Font was not registered for all users' }
     return $PreferredFace
 }
 
