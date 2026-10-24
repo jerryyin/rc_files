@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
+import runpy
 import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import packages
@@ -112,6 +113,53 @@ class RequirementTests(unittest.TestCase):
             run.return_value = subprocess.CompletedProcess([], 5, '', 'access denied')
             with self.assertRaisesRegex(ValueError, 'WinGet inventory failed'):
                 system.installed(package)
+
+    @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
+    def test_machine_vim_requires_its_executable_on_the_machine_path(self) -> None:
+        requirements = Path(__file__).resolve().parents[2] / 'vim/.setup/requirements.py'
+        package = runpy.run_path(str(requirements), init_globals={'PLATFORM': 'windows'})['PACKAGES'][0]
+        shared = self.repo / 'Program Files'
+        vim = shared / 'Vim/vim.exe'
+        vim.parent.mkdir(parents=True)
+        vim.touch()
+        with patch.dict(os.environ, ProgramFiles=str(shared)), \
+                patch.object(system.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)), \
+                patch.object(system.winreg, 'OpenKey'), \
+                patch.object(system.winreg, 'QueryValueEx', return_value=('', 1)) as path:
+            self.assertFalse(system.windows_registered(package))
+            path.return_value = (str(vim.parent), 1)
+            self.assertTrue(system.windows_registered(package))
+            vim.unlink()
+            self.assertFalse(system.windows_registered(package))
+
+    @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
+    def test_provisioned_apps_can_come_from_either_machine_inventory(self) -> None:
+        package = system.Package('wt', winget='Microsoft.WindowsTerminal',
+                                 provisioned='Microsoft.WindowsTerminal')
+        root = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore'
+        inventories = {'InboxApplications': [], 'Applications': []}
+
+        def open_key(hive: int, key: str) -> MagicMock:
+            self.assertEqual(hive, system.winreg.HKEY_LOCAL_MACHINE)
+            name = key.removeprefix(root + '\\')
+            if name not in inventories:
+                raise FileNotFoundError(key)
+            handle = MagicMock()
+            handle.__enter__.return_value = inventories[name]
+            return handle
+
+        with patch.object(system.winreg, 'OpenKey', side_effect=open_key), \
+                patch.object(system.winreg, 'QueryInfoKey', side_effect=lambda names: (len(names), 0, 0)), \
+                patch.object(system.winreg, 'EnumKey', side_effect=lambda names, index: names[index]):
+            self.assertFalse(system.windows_registered(package))
+            for inventory in inventories:
+                inventories[inventory] = ['Microsoft.WindowsTerminal_3001.24.12741.0_neutral_~_8wekyb3d8bbwe']
+                self.assertTrue(system.windows_registered(package))
+                inventories[inventory] = ['Microsoft.WindowsTerminalPreview_1.0_x64__8wekyb3d8bbwe']
+                self.assertFalse(system.windows_registered(package))
+            del inventories['InboxApplications']
+            inventories['Applications'] = ['Microsoft.WindowsTerminal_1.0_x64__8wekyb3d8bbwe']
+            self.assertTrue(system.windows_registered(package))
 
     @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
     def test_no_install_does_not_refresh_shared_npm_packages(self) -> None:

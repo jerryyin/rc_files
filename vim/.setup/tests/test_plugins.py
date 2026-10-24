@@ -56,6 +56,21 @@ class VimSetupTests(unittest.TestCase):
         with patch.object(vim.shutil, 'which', return_value=None):
             self.assertIsNone(vim.executable())
 
+    @unittest.skipUnless(os.name == 'nt', 'Windows PowerShell policy')
+    def test_shortcut_helper_runs_with_process_only_execution_policy(self) -> None:
+        with patch.object(vim, 'executable', return_value=Path('vim.exe')), \
+                patch.object(vim, 'extensions'), patch.object(vim.subprocess, 'run') as run:
+            vim.setup(self.home)
+        command = run.call_args_list[-1].args[0]
+        self.assertEqual(command[:5], ['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File'])
+
+    @unittest.skipUnless(os.name == 'nt' and vim.executable(), 'Native Windows Vim')
+    def test_theme_loads_without_a_console(self) -> None:
+        theme = entry.parents[1] / '.vim/config/theme.vim'
+        result = subprocess.run([str(vim.executable()), '-N', '-u', 'NONE', '-n', '-es',
+                                 '-c', 'source ' + str(theme), '-c', 'qa!'], capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors='replace'))
+
     @unittest.skipUnless(os.name == 'nt', 'Windows executable discovery')
     def test_git_for_windows_vim_is_rejected(self) -> None:
         with patch.object(vim.shutil, 'which', return_value='C:/Program Files/Git/usr/bin/vim.exe'):

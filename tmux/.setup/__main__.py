@@ -32,7 +32,8 @@ def windows_plugins(home: Path, update: bool) -> None:
             subprocess.run([psmux, '-f', str(home / '.psmux.conf'), 'new-session', '-d',
                             '-s', 'plugins', '--', pwsh, '-NoProfile', '-Command', 'Start-Sleep 600'],
                            env=environment, check=True)
-            command = [pwsh, '-NoProfile', '-File', str(Path(__file__).with_name('psmux-plugins.ps1'))]
+            command = [pwsh, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+                       str(Path(__file__).with_name('psmux-plugins.ps1'))]
             if update:
                 command.append('-Update')
             subprocess.run(command, env=environment, check=True)

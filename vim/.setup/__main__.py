@@ -29,7 +29,8 @@ def setup(home: Path) -> None:
     extensions(home)
     if os.name == 'nt':
         script = Path(__file__).with_name('shortcuts.ps1')
-        subprocess.run(['powershell.exe', '-NoProfile', '-File', str(script), '-VimExe', str(vim_exe)], check=True)
+        subprocess.run(['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass',
+                        '-File', str(script), '-VimExe', str(vim_exe)], check=True)
 
 
 def extensions(home: Path) -> None:

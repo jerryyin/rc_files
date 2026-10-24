@@ -1,13 +1,12 @@
 " Theme and color-related settings.
 
 set background=dark
-if has("termguicolors") && (has('win32') || ($TERM =~ "256color" &&
-  \ ($COLORTERM =~ "truecolor" || !empty($TMUX))))
-    " Terminal supports True Color
-    set termguicolors
-else
-    " Fall back to 256 colors
-    set notermguicolors
+if has('termguicolors') && (!has('win32') || has('vcon'))
+    if has('win32') || ($TERM =~ '256color' && ($COLORTERM =~ 'truecolor' || !empty($TMUX)))
+        set termguicolors
+    else
+        set notermguicolors
+    endif
 endif
 
 " ConPTY misreads semicolon-separated underline colors as text attributes.

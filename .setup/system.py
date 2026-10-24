@@ -79,10 +79,16 @@ def windows_registered(package: Package) -> bool:
                 and str(prefix).lower() in paths)
     if package.provisioned:
         # AppX's installed-user inventory does not describe provisioning for new accounts.
-        key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\InboxApplications'
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key) as handle:
-            names = [winreg.EnumKey(handle, index) for index in range(winreg.QueryInfoKey(handle)[0])]
-        return any(name.startswith(package.provisioned + '_') for name in names)
+        root = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore'
+        for inventory in ('InboxApplications', 'Applications'):
+            try:
+                with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, root + '\\' + inventory) as handle:
+                    names = [winreg.EnumKey(handle, index) for index in range(winreg.QueryInfoKey(handle)[0])]
+            except FileNotFoundError:
+                continue
+            if any(name.startswith(package.provisioned + '_') for name in names):
+                return True
+        return False
     result = subprocess.run(['winget', 'list', '--id', package.winget, '--exact',
                              '--scope', package.scope, '--source', 'winget',
                              '--accept-source-agreements', '--disable-interactivity'],
@@ -91,6 +97,13 @@ def windows_registered(package: Package) -> bool:
         return False
     if result.returncode:
         raise ValueError(f'WinGet inventory failed for {package.winget}: {result.stdout} {result.stderr}')
+    if package.scope == 'machine' and package.search:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                            r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment') as key:
+            paths = {Path(os.path.expandvars(path)) for path in winreg.QueryValueEx(key, 'Path')[0].split(';') if path}
+        shared = Path(os.environ['ProgramFiles'])
+        return any(Path(found).is_file() and Path(found).is_relative_to(shared) and Path(found).parent in paths
+                   for pattern in package.search for found in glob.glob(os.path.expandvars(pattern)))
     return True
 
 

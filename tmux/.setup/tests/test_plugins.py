@@ -117,8 +117,8 @@ class MuxSetupTests(unittest.TestCase):
         self.assertEqual(environment['PSMUX_NO_WARM'], '1')
         self.assertNotIn('TMUX', environment)
         helper = self.calls[1][0]
-        self.assertEqual(helper[:3], ['pwsh', '-NoProfile', '-File'])
-        self.assertEqual(Path(helper[3]), entry.with_name('psmux-plugins.ps1'))
+        self.assertEqual(helper[:5], ['pwsh', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File'])
+        self.assertEqual(Path(helper[5]), entry.with_name('psmux-plugins.ps1'))
         self.assertNotIn('-Update', helper)
         self.assertEqual(self.calls[-1][0], ['psmux', 'kill-server'])
         self.assertEqual(self.calls[-1][1]['PSMUX_DATA_DIR'], environment['PSMUX_DATA_DIR'])

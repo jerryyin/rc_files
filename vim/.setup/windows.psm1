@@ -4,7 +4,23 @@ function Set-VimShortcuts([string]$VimExe, [string]$DesktopPath, [string]$Progra
     $launcher = Join-Path $ProgramsPath 'Vim.lnk'
     if (Test-Path -LiteralPath $launcher) {
         $existing = $shell.CreateShortcut($launcher)
-        if ($existing.TargetPath -ine $VimExe -or $existing.Arguments) { throw "Preserve existing custom Vim shortcut: $launcher" }
+        if ($existing.Arguments) { throw "Preserve existing custom Vim shortcut: $launcher" }
+        if ($existing.TargetPath -ine $VimExe) {
+            $roots = @((Join-Path $env:LOCALAPPDATA 'Programs/Vim'), (Join-Path $env:ProgramFiles 'Vim'))
+            $x86 = [Environment]::GetEnvironmentVariable('ProgramFiles(x86)')
+            if ($x86) { $roots += Join-Path $x86 'Vim' }
+            $oldRoot = Split-Path $existing.TargetPath -Parent
+            $known = (Split-Path $existing.TargetPath -Leaf) -ieq 'vim.exe' -and @($roots | Where-Object {
+                $oldRoot -ieq $_ -or ((Split-Path $oldRoot -Parent) -ieq $_ -and
+                    (Split-Path $oldRoot -Leaf) -match '^vim[0-9]+$')
+            }).Count -gt 0
+            if (!$known -or $existing.WorkingDirectory -ine $env:USERPROFILE) { throw "Preserve existing custom Vim shortcut: $launcher" }
+            $backup = Join-Path $BackupRoot 'vim-shortcuts/StartMenu/Vim.lnk'
+            [void][IO.Directory]::CreateDirectory((Split-Path $backup -Parent))
+            Copy-Item -LiteralPath $launcher -Destination $backup
+            $existing.TargetPath = $VimExe
+            $existing.Save()
+        }
     }
     $candidates = @()
     if (Test-Path -LiteralPath $DesktopPath) {

@@ -76,6 +76,12 @@ try {
     & $module { $script:Provisioned=@(@{DisplayName='Fixture.Terminal'}) }
     Install-WindowsPackage $shared
     $env:ProgramFiles=Join-Path $fixture 'Program Files'
+    $vim=Join-Path $env:ProgramFiles 'Vim/vim.exe'
+    [void][IO.Directory]::CreateDirectory((Split-Path $vim))
+    [IO.File]::WriteAllText($vim, '')
+    & $module { $script:InstallResult=-1978335189 }
+    Install-WindowsPackage @{winget='Fixture.Vim'; scope='machine'; search=@('%ProgramFiles%/Vim/vim.exe')}
+    if ((& $module { $script:SharedPaths[-1] }) -ne (Split-Path $vim)) { throw 'An up-to-date machine tool must still repair its missing PATH entry.' }
     & $module {
         function script:npm.cmd {
             $prefix=$args[[Array]::IndexOf($args, '--prefix') + 1]
