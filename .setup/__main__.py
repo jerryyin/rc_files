@@ -28,10 +28,11 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
                         default='windows' if os.name == 'nt' else sys.platform)
     parser.add_argument('--root', action='append', default=[], metavar='NAME=PATH')
     parser.add_argument('--package', action='append', default=[])
+    parser.add_argument('--exclude-package', action='append', default=[], help='omit a package from credential activation')
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--backup', type=Path)
     parser.add_argument('--replace-existing', action='store_true')
-    parser.add_argument('--source', type=Path)
+    parser.add_argument('--source', type=Path, help='source for an explicit link or credential import')
     parser.add_argument('--target', type=Path)
     parser.add_argument('--config-only', action='store_true', help='link configuration without application setup')
     parser.add_argument('--no-install', action='store_true', help='reuse installed tools; skip system package and CLI installation')
@@ -45,12 +46,16 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def credentials(args: argparse.Namespace, tracked: dict[str, str]) -> int:
+    excluded = set(links.package_names(tracked, args.exclude_package)) if args.exclude_package else set()
     settings = environment(args.home, args.update)
     settings.update(PYTHONPATH=str(Path(__file__).resolve().parent), RC_SETUP_INSTALL='0',
                     RC_CREDENTIALS_VAULT=str((args.vault or args.home / 'vault').resolve()),
                     RC_CREDENTIALS_ROOT=str(args.persistent_root.resolve()) if args.persistent_root else '',
+                    RC_CREDENTIALS_SOURCE=str(args.source.resolve()) if args.source else '',
                     RC_CREDENTIALS_SAVE=str(int(args.save)), RC_SETUP_REPO=str(args.repo))
     for package in links.package_names(tracked, args.package):
+        if package in excluded:
+            continue
         name = f'{package}/.setup/credentials.py'
         if name in tracked:
             entry = links.resolve_source(args.repo / name, args.repo, tracked)
@@ -64,6 +69,8 @@ def main(argv: list[str] | None = None) -> int:
     args = arguments(argv)
     args.repo = args.repo.resolve(strict=True)
     args.home = args.home.resolve()
+    if args.exclude_package and args.action != 'credentials':
+        raise ValueError('--exclude-package requires the credentials action')
     if args.action != 'credentials' and (args.vault or args.persistent_root or args.save):
         raise ValueError('--vault, --persistent-root and --save require the credentials action')
     if args.action == 'credentials' and (args.config_only or args.skip_setup or args.scope):

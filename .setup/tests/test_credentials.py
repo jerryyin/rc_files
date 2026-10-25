@@ -65,6 +65,12 @@ class CredentialFixture(unittest.TestCase):
 
 
 class PhaseTests(CredentialFixture):
+    def test_excluded_hook_never_runs_and_unknown_exclusions_fail(self) -> None:
+        self.write('app/.setup/credentials.py', '(lambda: None)()')
+        self.write('once/.setup/credentials.py', 'raise SystemExit(99)')
+        self.ok('--exclude-package', 'once')
+        self.assertNotEqual(self.invoke('--exclude-package', 'missing').returncode, 0)
+
     def test_credentials_only_runs_tracked_selected_hooks_without_installing_or_linking(self) -> None:
         self.write('app/.public', 'public')
         self.write('app/.setup/requirements.py', "raise RuntimeError('must not inspect requirements')")
@@ -107,6 +113,83 @@ assert not (Path.home() / '.public').exists()
         result = self.invoke()
         self.assertEqual(result.returncode, 23)
         self.assertNotIn('Credentials: b', result.stdout)
+
+
+class SshTests(CredentialFixture):
+    def setUp(self) -> None:
+        super().setUp()
+        self.copy_package('ssh')
+        self.source = self.home / 'backup/.ssh'
+        self.source.mkdir(parents=True)
+        subprocess.run(['ssh-keygen', '-q', '-t', 'ed25519', '-N', '',
+                        '-f', str(self.source / 'id_test')], check=True, capture_output=True)
+
+    def test_keys_restore_before_vault_exists_and_keep_linked_configuration(self) -> None:
+        self.vault.rmdir()
+        directory = self.home / '.ssh'
+        directory.mkdir()
+        config = self.repo / 'public-config'
+        config.write_text('Host *\n  AddKeysToAgent yes\n')
+        (directory / 'config').symlink_to(config)
+        (self.source / 'config').write_text('must not be copied')
+        self.ok('--source', str(self.source))
+        key = directory / 'id_test'
+        self.assertEqual(key.read_bytes(), (self.source / 'id_test').read_bytes())
+        self.assertTrue((directory / 'config').is_symlink())
+        self.assertTrue((directory / 'private.conf').is_symlink())
+        self.assertFalse((directory / 'private.conf').exists())
+        before = key.read_bytes(), key.stat().st_mtime_ns
+        (self.source / 'id_test').write_text('different source must not replace local key')
+        self.ok('--source', str(self.source))
+        self.assertEqual((key.read_bytes(), key.stat().st_mtime_ns), before)
+        if os.name != 'nt':
+            self.assertEqual(key.stat().st_mode & 0o777, 0o600)
+
+    def test_private_hosts_are_linked_and_missing_vault_preserves_the_link(self) -> None:
+        source = self.vault / 'ssh/config'
+        source.parent.mkdir()
+        source.write_text('Host private-test\n  HostName 192.0.2.40\n')
+        self.ok()
+        target = self.home / '.ssh/private.conf'
+        self.assertTrue(target.is_symlink())
+        self.assertEqual(target.resolve(), source.resolve())
+        target.write_text('Host edited-through-link\n')
+        self.assertEqual(source.read_text(), 'Host edited-through-link\n')
+        source.unlink()
+        self.ok()
+        self.assertTrue(target.is_symlink())
+
+    def test_private_hosts_conflict_is_preserved(self) -> None:
+        source = self.vault / 'ssh/config'
+        source.parent.mkdir()
+        source.write_text('Host private-test\n')
+        target = self.home / '.ssh/private.conf'
+        target.parent.mkdir()
+        target.write_text('local content to reconcile')
+        self.assertNotEqual(self.invoke().returncode, 0)
+        self.assertEqual(target.read_text(), 'local content to reconcile')
+
+    def test_normal_setup_never_imports_keys_or_private_hosts(self) -> None:
+        (self.vault / 'ssh').mkdir()
+        (self.vault / 'ssh/config').write_text('Host private-test\n')
+        self.ok('--package', 'ssh', '--no-install', action='setup')
+        self.assertTrue((self.home / '.ssh/config').is_symlink())
+        self.assertFalse((self.home / '.ssh/private.conf').exists())
+        self.assertFalse((self.home / '.ssh/id_test').exists())
+
+    def test_existing_default_key_does_not_block_importing_another_key(self) -> None:
+        self.ok('--source', str(self.source))
+        enterprise = self.source / 'id_enterprise'
+        subprocess.run(['ssh-keygen', '-q', '-t', 'ed25519', '-N', '', '-f', str(enterprise)],
+                       check=True, capture_output=True)
+        self.ok('--source', str(self.source))
+        self.assertEqual((self.home / '.ssh/id_enterprise').read_bytes(), enterprise.read_bytes())
+
+    def test_private_key_destination_inside_git_is_rejected(self) -> None:
+        (self.home / '.ssh').symlink_to(self.repo, target_is_directory=True)
+        result = self.invoke('--source', str(self.source))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.repo / 'id_test').exists())
 
 
 class ApplicationTests(CredentialFixture):
