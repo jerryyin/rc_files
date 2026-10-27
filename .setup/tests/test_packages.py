@@ -57,11 +57,15 @@ class RequirementTests(unittest.TestCase):
         result = packages.discover(self.repo, self.tracked, ['editor'], 'linux')
         self.assertEqual(result.requirements, [system.Package('node', ('nodejs',))])
 
-    def test_installed_tools_never_call_package_manager(self) -> None:
+    def test_installed_tools_skip_install_but_clean_duplicates(self) -> None:
         package = system.Package('git', ('git',), 'Git.Git', scope='machine')
-        with patch.object(system, 'installed', return_value=True), patch.object(system.subprocess, 'run') as run:
+        with patch.object(system, 'installed', return_value=True), \
+                patch.object(system, 'windows_cleanup') as cleanup, \
+                patch.object(system.subprocess, 'run') as run:
             system.install([package, package])
             run.assert_not_called()
+            if os.name == 'nt':
+                cleanup.assert_called_once_with([package])
 
     def test_no_install_and_redirected_homes_cannot_change_machine(self) -> None:
         package = system.Package('missing', ('missing',), 'Fixture.Missing')
@@ -76,7 +80,8 @@ class RequirementTests(unittest.TestCase):
     def test_machine_scope_leaves_user_packages_alone(self) -> None:
         machine = system.Package('machine', ('machine',), 'Fixture.Machine', scope='machine')
         user = system.Package('user', ('user',), 'Fixture.User', scope='user')
-        with patch.object(system, 'installed', return_value=True) as installed:
+        with patch.object(system, 'installed', return_value=True) as installed, \
+                patch.object(system, 'windows_cleanup'):
             system.install([user, machine], scope='machine')
         self.assertEqual([call.args[0] for call in installed.call_args_list], [machine])
 
@@ -166,9 +171,11 @@ class RequirementTests(unittest.TestCase):
         package = system.Package('fixture', npm='@fixture/cli')
         with patch.dict(os.environ, RC_SETUP_UPDATE='1'), \
                 patch.object(system, 'installed', return_value=True), \
+                patch.object(system, 'windows_cleanup') as cleanup, \
                 patch.object(system, 'windows_install') as install:
             system.install([package], allow=False)
             install.assert_not_called()
+            cleanup.assert_not_called()
             system.install([package])
             install.assert_called_once_with([package])
 
@@ -177,10 +184,30 @@ class RequirementTests(unittest.TestCase):
         package = system.Package('one', winget='Fixture.One', scope='machine')
         with patch.dict(os.environ, RC_SETUP_REDIRECTED='0'), \
                 patch.object(system, 'installed', side_effect=[False, False]), \
-                patch.object(system, 'windows_install') as install:
+                patch.object(system, 'windows_install') as install, \
+                patch.object(system, 'windows_cleanup') as cleanup:
             with self.assertRaisesRegex(ValueError, 'still missing after installation'):
                 system.install([package, package])
         install.assert_called_once_with([package])
+        cleanup.assert_not_called()
+
+    @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
+    def test_redirected_home_does_not_remove_duplicates(self) -> None:
+        with patch.dict(os.environ, RC_SETUP_REDIRECTED='1'), \
+                patch.object(system, 'installed', return_value=True), \
+                patch.object(system, 'windows_cleanup') as cleanup:
+            system.install([system.Package('fixture', winget='Fixture.Tool')])
+        cleanup.assert_not_called()
+
+    @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
+    def test_cleanup_excludes_user_requirements_and_shared_app_registrations(self) -> None:
+        ordinary = system.Package('fixture', winget='Fixture.Tool')
+        user = system.Package('user', winget='Fixture.User', scope='user')
+        terminal = system.Package('wt', winget='Microsoft.WindowsTerminal', provisioned='Microsoft.WindowsTerminal')
+        with patch.object(system, 'windows_install') as install, \
+                patch.object(system, 'installed', return_value=True):
+            system.windows_cleanup([ordinary, user, terminal])
+        install.assert_called_once_with([ordinary], cleanup_only=True)
 
 
 if __name__ == '__main__':

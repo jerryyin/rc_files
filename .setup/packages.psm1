@@ -48,4 +48,75 @@ function Install-WindowsPackage($package) {
     }
 }
 
+function Assert-WindowsMachinePackage($Package) {
+    if ($Package.npm) {
+        $prefix = Join-Path $env:ProgramFiles 'npm'
+        if (!(Test-Path -LiteralPath (Join-Path $prefix "node_modules/$($Package.npm)/package.json"))) { throw "Missing machine npm package: $($Package.npm)" }
+        & (Join-Path $prefix ($Package.command + '.cmd')) --version | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw "Broken machine npm command: $($Package.command)" }
+        return
+    }
+    & winget list --id $Package.winget --exact --scope machine --source winget --accept-source-agreements --disable-interactivity | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Cannot verify machine package $($Package.winget): $LASTEXITCODE" }
+    if ($Package.command) {
+        $priorPath = $env:PATH
+        try {
+            $env:PATH = [Environment]::GetEnvironmentVariable('Path', 'Machine')
+            $command = Get-Command $Package.command -CommandType Application -ErrorAction Stop | Select-Object -First 1
+            if ($command.Source.StartsWith($env:USERPROFILE.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw "Machine PATH selects a user command: $($command.Source)" }
+            & $command.Source --version | Out-Host
+            if ($LASTEXITCODE -ne 0) { throw "Broken machine command: $($command.Source)" }
+        } finally { $env:PATH = $priorPath }
+    }
+}
+
+function Remove-WindowsUserPackage {
+    param([string]$Id, [string]$Npm, [string[]]$AppxNames = @(), [Parameter(Mandatory)][scriptblock]$VerifyMachine)
+    $homePrefix = [IO.Path]::GetFullPath($env:USERPROFILE).TrimEnd('\') + '\'
+    if ($Npm) {
+        $prefix = Join-Path $env:APPDATA 'npm'
+        $manifest = Join-Path $prefix "node_modules/$Npm/package.json"
+        if (!(Test-Path -LiteralPath $manifest)) { return }
+        & $VerifyMachine
+        & npm.cmd uninstall --global --prefix $prefix $Npm
+        if ($LASTEXITCODE -ne 0 -or (Test-Path -LiteralPath $manifest)) { throw "User npm uninstall failed for $Npm (exit $LASTEXITCODE)" }
+        & $VerifyMachine
+        return
+    }
+    foreach ($name in $AppxNames) {
+        foreach ($app in @(Get-AppxPackage -Name $name -ErrorAction Stop)) {
+            & $VerifyMachine
+            Remove-AppxPackage -Package $app.PackageFullName -ErrorAction Stop
+            & $VerifyMachine
+            if (@(Get-AppxPackage -Name $name -ErrorAction Stop).Count) { throw "Store copy still installed: $name" }
+        }
+    }
+    & winget list --id $Id --exact --scope user --source winget --accept-source-agreements --disable-interactivity | Out-Null
+    $found = $LASTEXITCODE -eq 0
+    if (!$found -and $LASTEXITCODE -ne -1978335212) { throw "User package inventory failed for ${Id}: $LASTEXITCODE" }
+    if ($found) {
+        & $VerifyMachine
+        $locations = @(Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\${Id}_*" -ErrorAction SilentlyContinue | ForEach-Object InstallLocation)
+        & winget uninstall --id $Id --exact --scope user --source winget --silent --disable-interactivity
+        if ($LASTEXITCODE -ne 0) { throw "User package uninstall failed for $Id (exit $LASTEXITCODE)." }
+        & $VerifyMachine
+        & winget list --id $Id --exact --scope user --source winget --accept-source-agreements --disable-interactivity | Out-Null
+        if ($LASTEXITCODE -ne -1978335212) { throw "Could not confirm removal of user package ${Id}: $LASTEXITCODE" }
+        $path = [Environment]::GetEnvironmentVariable('Path', 'User')
+        $remaining = @($path -split ';' | Where-Object {
+            $entry = [Environment]::ExpandEnvironmentVariables($_).TrimEnd('\')
+            $obsolete = $false
+            foreach ($location in $locations) {
+                if (!$location) { continue }
+                $root = [IO.Path]::GetFullPath($location).TrimEnd('\')
+                if ($root.StartsWith($homePrefix, [StringComparison]::OrdinalIgnoreCase) -and
+                    ($entry -ieq $root -or $entry.StartsWith($root + '\', [StringComparison]::OrdinalIgnoreCase)) -and
+                    !(Test-Path -LiteralPath $entry)) { $obsolete = $true }
+            }
+            !$obsolete
+        }) -join ';'
+        if ($remaining -ne $path) { [Environment]::SetEnvironmentVariable('Path', $remaining, 'User') }
+    }
+}
+
 Export-ModuleMember -Function *

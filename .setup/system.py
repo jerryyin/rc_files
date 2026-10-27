@@ -144,12 +144,14 @@ def apt(arguments: list[str]) -> None:
 
 def install(packages: list[Package], *, scope: str = '', allow: bool = True) -> None:
     refresh_path()
-    selected = [package for package in packages
+    selected = [package for package in dict.fromkeys(packages)
                 if (not scope or package.scope == scope)
                 and ((package.winget or package.npm) if os.name == 'nt' else package.apt)]
-    missing = [package for package in dict.fromkeys(selected)
+    missing = [package for package in selected
                if not installed(package) or (allow and package.npm and os.environ.get('RC_SETUP_UPDATE') == '1')]
     if not missing:
+        if os.name == 'nt' and allow and os.environ.get('RC_SETUP_REDIRECTED') != '1':
+            windows_cleanup(selected)
         return
     if not allow or os.environ.get('RC_SETUP_REDIRECTED') == '1':
         names = ', '.join(package.command or '/'.join(package.apt) for package in missing)
@@ -167,17 +169,32 @@ def install(packages: list[Package], *, scope: str = '', allow: bool = True) -> 
     failed = [package.command or '/'.join(package.apt) for package in missing if not installed(package)]
     if failed:
         raise ValueError('Requirements still missing after installation: ' + ', '.join(failed))
+    if os.name == 'nt':
+        windows_cleanup(selected)
 
 
-def windows_install(packages: list[Package]) -> None:
+def windows_install(packages: list[Package], *, cleanup_only: bool = False) -> None:
     if not shutil.which('winget'):
         raise ValueError('Install Windows App Installer (WinGet), then rerun setup')
     helper = Path(__file__).with_name('windows.ps1')
     with tempfile.TemporaryDirectory(prefix='rc-packages-') as temporary:
         request = Path(temporary) / 'packages.json'
         request.write_text(json.dumps([asdict(package) for package in packages]), encoding='utf-8')
-        subprocess.run(['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass',
-                        '-File', str(helper), '-Request', str(request)], check=True)
+        arguments = ['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass',
+                     '-File', str(helper), '-Request', str(request)]
+        if cleanup_only:
+            arguments.append('-CleanupOnly')
+        subprocess.run(arguments, check=True)
+
+
+def windows_cleanup(packages: list[Package]) -> None:
+    selected = [package for package in packages if package.scope == 'machine' and not package.provisioned]
+    if not selected:
+        return
+    windows_install(selected, cleanup_only=True)
+    failed = [package.command for package in selected if not installed(package)]
+    if failed:
+        raise ValueError('Machine requirements missing after user cleanup: ' + ', '.join(failed))
 
 
 def persist_path(directory: Path) -> None:

@@ -1,6 +1,14 @@
-param([Parameter(Mandatory)][string]$Request, [switch]$Elevated)
+param([Parameter(Mandatory)][string]$Request, [switch]$Elevated, [switch]$CleanupOnly)
 $ErrorActionPreference = 'Stop'
 $packages = ConvertFrom-Json ([IO.File]::ReadAllText($Request))
+Import-Module (Join-Path $PSScriptRoot 'packages.psm1') -DisableNameChecking
+if ($CleanupOnly) {
+    foreach ($package in $packages | Where-Object { $_.scope -eq 'machine' -and !$_.provisioned }) {
+        $verify = { Assert-WindowsMachinePackage $package }.GetNewClosure()
+        Remove-WindowsUserPackage -Id $package.winget -Npm $package.npm -VerifyMachine $verify
+    }
+    return
+}
 $administrator = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 $machine = @($packages | Where-Object scope -eq 'machine')
 if ($machine.Count -and !$administrator) {
@@ -13,5 +21,4 @@ if ($machine.Count -and !$administrator) {
     $packages = @($packages | Where-Object scope -ne 'machine')
 }
 if ($Elevated -and !$administrator) { throw 'Machine packages require administrator approval.' }
-Import-Module (Join-Path $PSScriptRoot 'packages.psm1') -DisableNameChecking
 foreach ($package in $packages) { Install-WindowsPackage $package }
