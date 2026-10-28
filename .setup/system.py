@@ -188,6 +188,9 @@ def windows_install(packages: list[Package], *, cleanup_only: bool = False) -> N
 
 
 def windows_cleanup(packages: list[Package]) -> None:
+    # WinGet user uninstalls must run in the unelevated caller after machine setup.
+    if ctypes.windll.shell32.IsUserAnAdmin():
+        return
     selected = [package for package in packages if package.scope == 'machine' and not package.provisioned]
     if not selected:
         return

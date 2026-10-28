@@ -200,11 +200,25 @@ class RequirementTests(unittest.TestCase):
         cleanup.assert_not_called()
 
     @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
+    def test_elevated_install_defers_user_cleanup_to_unelevated_caller(self) -> None:
+        package = system.Package('clangd', winget='LLVM.clangd')
+        with patch.dict(os.environ, RC_SETUP_REDIRECTED='0'), \
+                patch.object(system, 'installed', return_value=True), \
+                patch.object(system.ctypes.windll.shell32, 'IsUserAnAdmin', return_value=1) as administrator, \
+                patch.object(system, 'windows_install') as install:
+            system.install([package])
+            install.assert_not_called()
+            administrator.return_value = 0
+            system.install([package])
+            install.assert_called_once_with([package], cleanup_only=True)
+
+    @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
     def test_cleanup_excludes_user_requirements_and_shared_app_registrations(self) -> None:
         ordinary = system.Package('fixture', winget='Fixture.Tool')
         user = system.Package('user', winget='Fixture.User', scope='user')
         terminal = system.Package('wt', winget='Microsoft.WindowsTerminal', provisioned='Microsoft.WindowsTerminal')
-        with patch.object(system, 'windows_install') as install, \
+        with patch.object(system.ctypes.windll.shell32, 'IsUserAnAdmin', return_value=0), \
+                patch.object(system, 'windows_install') as install, \
                 patch.object(system, 'installed', return_value=True):
             system.windows_cleanup([ordinary, user, terminal])
         install.assert_called_once_with([ordinary], cleanup_only=True)
