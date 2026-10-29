@@ -12,7 +12,12 @@ from system import apt, privileged
 
 
 def setup() -> None:
-    if sys.platform != 'linux' or shutil.which('gh'):
+    found = shutil.which('gh')
+    launcher = Path(__file__).resolve().parents[1] / '.linux/.local/bin/gh'
+    if found and Path(found).resolve() == launcher.resolve():
+        search = os.pathsep.join(p for p in os.get_exec_path() if Path(p).resolve() != Path(found).parent.resolve())
+        found = shutil.which('gh', path=search)
+    if sys.platform != 'linux' or found:
         return
     if os.environ.get('RC_SETUP_INSTALL') == '0' or os.environ.get('RC_SETUP_REDIRECTED') == '1':
         raise ValueError('GitHub CLI is required; install it in the real account first')

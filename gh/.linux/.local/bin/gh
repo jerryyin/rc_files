@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Select a saved repository-owner login without changing gh's active account."""
+
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+
+REPOSITORY_COMMANDS = {'pr', 'issue', 'run', 'workflow', 'release', 'label', 'variable', 'secret', 'cache', 'ruleset'}
+
+
+def native_cli() -> str:
+    own = Path(__file__).resolve()
+    for folder in os.get_exec_path():
+        candidate = Path(folder) / 'gh'
+        if candidate.is_file() and os.access(candidate, os.X_OK) and candidate.resolve() != own:
+            return str(candidate.absolute())
+    raise ValueError('the system GitHub CLI is missing; install gh before using this launcher')
+
+
+def owner(value: str) -> str | None:
+    value = re.sub(r'^(?:https://github\.com/|ssh://git@github\.com/|git@github\.com:|github\.com/)', '', value)
+    match = re.fullmatch(r'([\w.-]+)/[\w.-]+(?:/(?:pull|issues)/\d+)?/?', value)
+    return match[1] if match else None
+
+
+def repository_owner(arguments: list[str], env: dict[str, str]) -> str | None:
+    if not arguments or env.get('GH_HOST', 'github.com') != 'github.com' or any(a == '--hostname' or a.startswith('--hostname=') for a in arguments):
+        return None
+    command = arguments[0]
+    if command == 'api':
+        endpoint = next((a for a in arguments[1:] if a.lstrip('/').startswith('repos/')), '')
+        match = re.match(r'^/?repos/([\w.-]+)/([\w.-]+)(?:/|$)', endpoint)
+        return match[1] if match else None
+    if command not in REPOSITORY_COMMANDS and command != 'repo':
+        return None
+    for index, argument in enumerate(arguments):
+        if argument in ('-R', '--repo') and index + 1 < len(arguments):
+            return owner(arguments[index + 1])
+        if argument.startswith('--repo='):
+            return owner(argument.split('=', 1)[1])
+        if argument.startswith('-R') and len(argument) > 2:
+            return owner(argument[2:])
+    if len(arguments) > 2 and command in ('repo', 'pr', 'issue') and not arguments[2].startswith('-'):
+        if '/' in arguments[2]:
+            return owner(arguments[2])
+    if env.get('GH_REPO'):
+        return owner(env['GH_REPO'])
+    if not shutil.which('git'):
+        return None
+    origin = subprocess.run(['git', 'config', '--get', 'remote.origin.url'], capture_output=True, text=True)
+    if origin.returncode == 0:
+        return owner(origin.stdout.strip())
+    remotes = subprocess.run(['git', 'config', '--get-regexp', r'^remote\..*\.url$'], capture_output=True, text=True)
+    entries = remotes.stdout.splitlines()
+    if remotes.returncode == 0 and len(entries) == 1:
+        return owner(entries[0].split(maxsplit=1)[1])
+    return None
+
+
+def account_environment(executable: str, arguments: list[str], env: dict[str, str]) -> dict[str, str]:
+    if env.get('GH_TOKEN') or env.get('GITHUB_TOKEN'):
+        return env
+    login = repository_owner(arguments, env)
+    if not login:
+        return env
+    query_env = {**env, 'NO_COLOR': '1'}
+    query_env.pop('GH_FORCE_TTY', None)
+    query_env.pop('CLICOLOR_FORCE', None)
+    status = subprocess.run([executable, 'auth', 'status', '--hostname', 'github.com', '--json', 'hosts'],
+                            capture_output=True, text=True, env=query_env)
+    try:
+        accounts = json.loads(status.stdout)['hosts'].get('github.com', [])
+    except (ValueError, KeyError, TypeError):
+        raise ValueError('cannot inspect saved GitHub accounts; run gh auth status') from None
+    if login.casefold() not in {a['login'].casefold() for a in accounts}:
+        return env
+    token = subprocess.run([executable, 'auth', 'token', '--hostname', 'github.com', '--user', login],
+                           capture_output=True, text=True, env=query_env)
+    if token.returncode or not token.stdout.strip():
+        raise ValueError(f'cannot obtain the saved token for {login}; no repository command was sent')
+    return {**env, 'GH_TOKEN': token.stdout.strip()}
+
+
+def main() -> int:
+    try:
+        executable = native_cli()
+        env = account_environment(executable, sys.argv[1:], dict(os.environ))
+    except ValueError as error:
+        print(f'gh account selection: {error}', file=sys.stderr)
+        return 2
+    os.execve(executable, [executable, *sys.argv[1:]], env)
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

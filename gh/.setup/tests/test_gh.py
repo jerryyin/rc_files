@@ -13,6 +13,14 @@ spec.loader.exec_module(gh)
 
 @unittest.skipUnless(sys.platform == 'linux', 'GitHub Linux package feed')
 class GitHubTests(unittest.TestCase):
+    def test_launcher_alone_does_not_count_as_an_installed_native_cli(self) -> None:
+        launcher = Path(gh.__file__).resolve().parents[1] / '.linux/.local/bin/gh'
+        with patch.dict(os.environ, RC_SETUP_INSTALL='1', RC_SETUP_REDIRECTED='1'), \
+                patch.object(gh.shutil, 'which', side_effect=[str(launcher), None]), patch.object(gh, 'apt') as apt:
+            with self.assertRaisesRegex(ValueError, 'install it in the real account'):
+                gh.setup()
+            apt.assert_not_called()
+
     def test_installed_cli_is_reused_without_network_or_installation(self) -> None:
         with patch.object(gh.shutil, 'which', return_value='gh'), patch.object(gh, 'apt') as apt:
             gh.setup()
