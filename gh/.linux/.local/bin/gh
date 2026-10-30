@@ -53,6 +53,15 @@ def repository_owner(arguments: list[str], env: dict[str, str]) -> str | None:
         return owner(env['GH_REPO'])
     if not shutil.which('git'):
         return None
+    defaults = subprocess.run(['git', 'config', '--get-regexp', r'^remote\..*\.gh-resolved$'], capture_output=True, text=True)
+    selected = [parts[0] for line in defaults.stdout.splitlines()
+                if len(parts := line.split(maxsplit=1)) == 2 and parts[1] == 'base']
+    if selected:
+        if len(selected) != 1:
+            return None
+        remote_name = selected[0].removeprefix('remote.').removesuffix('.gh-resolved')
+        preferred = subprocess.run(['git', 'config', '--get', f'remote.{remote_name}.url'], capture_output=True, text=True)
+        return owner(preferred.stdout.strip()) if preferred.returncode == 0 else None
     origin = subprocess.run(['git', 'config', '--get', 'remote.origin.url'], capture_output=True, text=True)
     if origin.returncode == 0:
         return owner(origin.stdout.strip())

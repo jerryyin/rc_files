@@ -35,13 +35,20 @@ class RoutingTests(unittest.TestCase):
             self.assertIsNone(routing.repository_owner(arguments, env))
 
     def test_only_named_remote_works_without_origin(self):
-        responses = [subprocess.CompletedProcess([], 1, '', ''),
+        responses = [subprocess.CompletedProcess([], 1, '', ''), subprocess.CompletedProcess([], 1, '', ''),
                      subprocess.CompletedProcess([], 0, 'remote.private.url git@github.com:personal/repo.git\n', '')]
         with patch.object(routing.subprocess, 'run', side_effect=responses):
             self.assertEqual(routing.repository_owner(['run', 'list'], {}), 'personal')
 
+    def test_explicit_gh_default_fork_wins_over_upstream_origin(self):
+        responses = [subprocess.CompletedProcess([], 0, 'remote.private.gh-resolved base\n', ''),
+                     subprocess.CompletedProcess([], 0, 'git@github.com:personal/repo.git\n', '')]
+        with patch.object(routing.subprocess, 'run', side_effect=responses) as run:
+            self.assertEqual(routing.repository_owner(['run', 'list'], {}), 'personal')
+            self.assertEqual(run.call_args_list[-1].args[0], ['git', 'config', '--get', 'remote.private.url'])
+
     def test_multiple_non_origin_remotes_are_not_guessed(self):
-        responses = [subprocess.CompletedProcess([], 1, '', ''), subprocess.CompletedProcess(
+        responses = [subprocess.CompletedProcess([], 1, '', ''), subprocess.CompletedProcess([], 1, '', ''), subprocess.CompletedProcess(
             [], 0, 'remote.private.url git@github.com:personal/repo.git\nremote.other.url git@github.com:work/repo.git\n', '')]
         with patch.object(routing.subprocess, 'run', side_effect=responses):
             self.assertIsNone(routing.repository_owner(['run', 'list'], {}))
