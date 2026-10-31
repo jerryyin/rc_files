@@ -12,7 +12,7 @@ import subprocess
 import sys
 import tempfile
 
-from vault import owner
+from vault import allowed
 
 
 def run(action: Callable[[], None]) -> None:
@@ -37,7 +37,7 @@ def location(variable: str, default: Path) -> Path:
 
 def secret(variable: str, name: str) -> str | None:
     scope = os.environ.get('RC_CREDENTIALS_SCOPE', 'homelab')
-    if owner(name) != scope:
+    if not allowed(name, scope):
         return None
     vault = Path(os.environ.get('RC_CREDENTIALS_VAULT', str(Path.home() / f'vault-{scope}')))
     path = location(variable, vault / name) if variable in os.environ else vault / name

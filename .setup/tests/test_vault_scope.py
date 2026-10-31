@@ -1,4 +1,4 @@
-"""Credential selection never combines work and home inputs."""
+"""Credential selection shares only explicitly permitted inputs between roles."""
 
 import os
 import unittest
@@ -10,6 +10,21 @@ class VaultScopeTests(CredentialFixture):
     def select(self, scope: str) -> list[str]:
         (self.vault / '.vault-scope').write_text(scope + '\n')
         return ['--vault', str(self.vault), '--vault-scope', scope]
+
+    @unittest.skipIf(os.name == 'nt', 'Linux GitHub account file')
+    def test_work_seeds_both_github_accounts_and_keeps_amd_as_default(self) -> None:
+        self.copy_package('gh')
+        (self.vault / 'gh_token_amdeng.txt').write_text('fixture-enterprise')
+        (self.vault / 'gh_token_jerryyin.txt').write_text('fixture-personal')
+        output = self.ok(*self.select('work'))
+        content = (self.home / '.config/gh/hosts.yml').read_text()
+        self.assertIn('user: zhuoryin_amdeng', content)
+        for login, token in (('jerryyin', 'fixture-personal'), ('zhuoryin_amdeng', 'fixture-enterprise')):
+            self.assertIn(login + ':\n            oauth_token: "' + token + '"', content)
+            self.assertNotIn(token, output)
+        (self.vault / 'gh_token_jerryyin.txt').write_text('fixture-personal-rotated')
+        self.ok(*self.select('work'))
+        self.assertIn('fixture-personal-rotated', (self.home / '.config/gh/hosts.yml').read_text())
 
     @unittest.skipIf(os.name == 'nt', 'Linux GitHub account file')
     def test_each_scope_renders_only_its_github_account(self) -> None:

@@ -5,11 +5,12 @@ from pathlib import Path
 SCOPES = ('work', 'homelab')
 WORK_FILES = frozenset({'gh_token_amdeng.txt', 'claude_key.txt',
                         'atlartifactory_token.txt', 'docker_mkmhub_auth.txt'})
+SHARED_FILES = frozenset({'gh_token_jerryyin.txt'})
 METADATA = frozenset({'.git', '.gitattributes', '.gitignore', '.vault-scope', 'README.md', 'ssh'})
 
 
-def owner(name: str) -> str:
-    return 'work' if name in WORK_FILES else 'homelab'
+def allowed(name: str, scope: str) -> bool:
+    return scope in SCOPES and (name in SHARED_FILES or scope == ('work' if name in WORK_FILES else 'homelab'))
 
 
 def validate(path: Path, scope: str) -> None:
@@ -23,5 +24,5 @@ def validate(path: Path, scope: str) -> None:
     if marker.read_text(encoding='utf-8').strip() != scope:
         raise ValueError(f'Vault scope mismatch: expected {scope} at {path}')
     for entry in path.iterdir():
-        if entry.name not in METADATA and owner(entry.name) != scope:
+        if entry.name not in METADATA and not allowed(entry.name, scope):
             raise ValueError(f'{entry.name} does not belong in {scope}')

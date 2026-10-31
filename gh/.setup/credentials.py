@@ -44,34 +44,46 @@ def windows(tokens: dict[str, str]) -> None:
             raise ValueError(f'GitHub CLI could not activate {active}')
 
 
+def linux(tokens: dict[str, str]) -> None:
+    login = ACTIVE if ACTIVE in tokens else next(iter(tokens))
+    placeholders = {account: '__GH_TOKEN_' + str(index) + '__' for index, account in enumerate(tokens)}
+    template = (Path(__file__).resolve().parents[1] / '.config/gh/hosts.yml.template').read_text()
+    users = '\n'.join('        ' + account + ':\n            oauth_token: ' + placeholder
+                      for account, placeholder in placeholders.items())
+    template = template.replace('__GH_USERS__', users).replace('__GH_LOGIN__', login)
+    template = template.replace('__GH_TOKEN__', placeholders[login])
+    path = location('GH_CONFIG_DIR', Path.home() / '.config/gh') / 'hosts.yml'
+    previous = path.read_text() if path.exists() else ''
+    pattern = re.escape(template)
+    for placeholder in placeholders.values():
+        pattern = pattern.replace(re.escape(placeholder), r'[^\r\n]+')
+    if previous and not re.fullmatch(pattern, previous) and os.environ.get('RC_SETUP_UPDATE') != '1':
+        if os.environ.get('RC_CREDENTIALS_SCOPE', 'homelab') == 'homelab' and re.search(
+                r'^\s*(?:user:\s*' + ACTIVE + r'\s*$|' + ACTIVE + r':)', previous, re.M):
+            raise ValueError('GitHub configuration contains a work account; use a separate home or explicitly reseed with --update')
+        print('SKIP gh: preserving local account state; credentials --package gh --update explicitly reseeds it')
+        return
+    desired = template
+    for account, placeholder in placeholders.items():
+        desired = desired.replace(placeholder, json.dumps(tokens[account]))
+    write(path, desired)
+
+
 def setup() -> None:
     if os.environ.get('RC_CREDENTIALS_SAVE') == '1':
         return
-    work = os.environ.get('RC_CREDENTIALS_SCOPE', 'homelab') == 'work'
-    login = ACTIVE if work else 'jerryyin'
-    token = secret('GH_AMDENG_KEY_FILE' if work else 'GH_JERRYYIN_KEY_FILE',
-                   'gh_token_amdeng.txt' if work else 'gh_token_jerryyin.txt')
-    if token is None:
+    personal = secret('GH_JERRYYIN_KEY_FILE', 'gh_token_jerryyin.txt')
+    work = secret('GH_AMDENG_KEY_FILE', 'gh_token_amdeng.txt')
+    tokens = {login: token for login, token in (('jerryyin', personal), (ACTIVE, work)) if token is not None}
+    if not tokens:
         return
     if os.name == 'nt':
         if os.environ.get('RC_SETUP_REDIRECTED') == '1':
             print('SKIP gh: the Windows credential store belongs to the live account')
             return
-        windows({login: token})
-        return
-    template = (Path(__file__).resolve().parents[1] / '.config/gh/hosts.yml.template').read_text()
-    path = location('GH_CONFIG_DIR', Path.home() / '.config/gh') / 'hosts.yml'
-    previous = path.read_text() if path.exists() else ''
-    template = template.replace('__GH_LOGIN__', login)
-    pattern = re.escape(template).replace(re.escape('__GH_TOKEN__'), r'[^\r\n]+')
-    if previous and not re.fullmatch(pattern, previous) and os.environ.get('RC_SETUP_UPDATE') != '1':
-        other = 'jerryyin' if work else ACTIVE
-        if re.search(r'^\s*(?:user:\s*' + re.escape(other) + r'\s*$|' + re.escape(other) + r':)', previous, re.M):
-            raise ValueError('GitHub configuration contains the other vault account; use a separate home or explicitly reseed with --update')
-        print('SKIP gh: preserving local account state; credentials --package gh --update explicitly reseeds it')
-        return
-    desired = template.replace('__GH_TOKEN__', json.dumps(token))
-    write(path, desired)
+        windows(tokens)
+    else:
+        linux(tokens)
 
 
 if __name__ == '__main__':
