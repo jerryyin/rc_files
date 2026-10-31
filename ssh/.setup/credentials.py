@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from keys import load_agent, prepare_keys, protect
-from private import run
+from private import run, write
 
 
 def setup() -> None:
@@ -18,10 +18,22 @@ def setup() -> None:
         source = None
     directory = home / '.ssh'
     keys = prepare_keys(directory, source)
-    vault = Path(os.environ.get('RC_CREDENTIALS_VAULT', str(home / 'vault')))
+    scope = os.environ.get('RC_CREDENTIALS_SCOPE', 'homelab')
+    vault = Path(os.environ.get('RC_CREDENTIALS_VAULT', str(home / f'vault-{scope}')))
     hosts = vault / 'ssh/config'
     target = directory / 'private.conf'
     linked = target.is_symlink() and target.resolve() == hosts.resolve()
+    if root:
+        if hosts.exists() and not hosts.is_file():
+            raise ValueError('SSH host inventory must be a file')
+        if target.is_symlink() and not linked:
+            raise ValueError('Reconcile the existing SSH private configuration before replacing it')
+        if hosts.is_file():
+            if linked:
+                target.unlink()
+            write(target, hosts.read_text(encoding='utf-8-sig'))
+        load_agent(keys)
+        return
     if os.path.lexists(target) and not linked:
         raise ValueError('Reconcile the existing SSH private configuration before linking it')
     if os.name == 'nt' and os.environ.get('RC_SETUP_REDIRECTED') != '1' and not linked:

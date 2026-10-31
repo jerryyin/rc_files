@@ -1,5 +1,5 @@
 param([switch]$PrepareAgent, [switch]$Protect, [switch]$Check, [switch]$ReadyOnly, [switch]$Elevated,
-      [string]$VaultPath = (Join-Path $env:USERPROFILE 'vault'))
+      [string]$VaultPath = (Join-Path $env:USERPROFILE 'vault-homelab'))
 $ErrorActionPreference = 'Stop'
 if ($PrepareAgent -or $Check) {
     $agent = Get-Service ssh-agent -ErrorAction SilentlyContinue

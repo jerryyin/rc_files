@@ -16,6 +16,7 @@ from context import environment, prepare
 import links
 import packages
 import system
+import vault
 
 
 def arguments(argv: list[str] | None = None) -> argparse.Namespace:
@@ -40,6 +41,7 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument('--skip-setup', action='append', default=[], metavar='PACKAGE', help='link a package but skip its application setup entry')
     parser.add_argument('--update', action='store_true', help='ask selected packages to update installed dependencies')
     parser.add_argument('--vault', type=Path, help='existing vault for the explicit credentials phase')
+    parser.add_argument('--vault-scope', choices=vault.SCOPES, help='work or homelab credentials; defaults to VAULT_SCOPE or homelab')
     parser.add_argument('--persistent-root', type=Path, help='existing private storage for login persistence')
     parser.add_argument('--save', action='store_true', help='save local logins to persistent storage (credentials only)')
     return parser.parse_args(argv)
@@ -47,9 +49,12 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
 
 def credentials(args: argparse.Namespace, tracked: dict[str, str]) -> int:
     excluded = set(links.package_names(tracked, args.exclude_package)) if args.exclude_package else set()
+    scope = args.vault_scope or os.environ.get('VAULT_SCOPE', 'homelab')
+    selected = (args.vault or args.home / f'vault-{scope}').resolve()
+    vault.validate(selected, scope)
     settings = environment(args.home, args.update)
     settings.update(PYTHONPATH=str(Path(__file__).resolve().parent), RC_SETUP_INSTALL='0',
-                    RC_CREDENTIALS_VAULT=str((args.vault or args.home / 'vault').resolve()),
+                    RC_CREDENTIALS_VAULT=str(selected), RC_CREDENTIALS_SCOPE=scope,
                     RC_CREDENTIALS_ROOT=str(args.persistent_root.resolve()) if args.persistent_root else '',
                     RC_CREDENTIALS_SOURCE=str(args.source.resolve()) if args.source else '',
                     RC_CREDENTIALS_SAVE=str(int(args.save)), RC_SETUP_REPO=str(args.repo))
@@ -71,8 +76,8 @@ def main(argv: list[str] | None = None) -> int:
     args.home = args.home.resolve()
     if args.exclude_package and args.action != 'credentials':
         raise ValueError('--exclude-package requires the credentials action')
-    if args.action != 'credentials' and (args.vault or args.persistent_root or args.save):
-        raise ValueError('--vault, --persistent-root and --save require the credentials action')
+    if args.action != 'credentials' and (args.vault or args.vault_scope or args.persistent_root or args.save):
+        raise ValueError('--vault, --vault-scope, --persistent-root and --save require the credentials action')
     if args.action == 'credentials' and (args.config_only or args.skip_setup or args.scope):
         raise ValueError('Credentials cannot be combined with configuration or installation options')
     if args.save and not args.persistent_root:

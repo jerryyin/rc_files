@@ -90,12 +90,12 @@ Normal setup never invokes credential hooks or reads vault files, even when a va
 
 ```sh
 python3 ~/rc_files/.setup credentials
-python3 ~/rc_files/.setup credentials --vault /path/to/vault
-python3 ~/rc_files/.setup credentials --package claude
-python3 ~/rc_files/.setup credentials --persistent-root /mounted/home
+python3 ~/rc_files/.setup credentials --vault-scope work --vault /path/to/vault-work
+python3 ~/rc_files/.setup credentials --vault-scope work --package claude
+python3 ~/rc_files/.setup credentials --vault-scope homelab --persistent-root /mounted/homelab
 ```
 
-The credential command discovers tracked `<package>/.setup/credentials.py` entries, without evaluating requirements, installing dependencies, linking ordinary configuration or running application setup. It uses the same home and package selection conventions; `--exclude-package NAME` omits selected hooks. `--vault` defaults to the selected home's `vault` directory; it never clones that directory. `--source` supplies an explicit import source to hooks that support one. Missing entries preserve existing credentials. Invalid input stops the affected hook without printing secret values. Packages own secret names, destination formats and platform behavior; shared private file helpers reject Git destinations and use restricted, atomic file writes. See [SSH](../ssh/README.md) for key activation and linked private host configuration.
+The credential command discovers tracked `<package>/.setup/credentials.py` entries, without evaluating requirements, installing dependencies, linking ordinary configuration or running application setup. It uses the same home and package selection conventions; `--exclude-package NAME` omits selected hooks. `--vault-scope` selects `work` or `homelab`, defaulting to `VAULT_SCOPE` or `homelab`. `--vault` defaults to the selected home's `vault-<scope>` directory; it never clones that directory or falls back to the old mixed vault. An existing vault must have a matching `.vault-scope` marker and contain only that role's files. `--source` supplies an explicit import source to hooks that support one. Missing entries preserve existing credentials. Invalid input stops before exposing secret values. Packages own destination formats and platform behavior; `vault.py` classifies work-only filenames so the shared token reader also rejects opposite-role environment overrides. Shared private file helpers reject Git destinations and use restricted, atomic file writes. See [SSH](../ssh/README.md) for key activation and linked private host configuration.
 
 On Linux, packages can share their login files with explicitly supplied private storage. Differing local logins are preserved. To save a new login or refreshed file after an application replaces its installed link, use:
 

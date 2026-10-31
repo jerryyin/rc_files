@@ -1,13 +1,11 @@
-# Linux credential setup seeds these accounts from vault tokens.
+# Linux credential setup seeds one account from the selected vault.
 # gh owns active-account state after setup; use credentials --package gh --update
 # only when deliberately resetting it to these defaults. Windows stores the same
 # vault tokens in its credential store instead of rendering this file.
 github.com:
     git_protocol: https
     users:
-        jerryyin:
-            oauth_token: __GH_TOKEN_JERRYYIN__
-        zhuoryin_amdeng:
-            oauth_token: __GH_TOKEN_AMDENG__
-    user: zhuoryin_amdeng
-    oauth_token: __GH_TOKEN_AMDENG__
+        __GH_LOGIN__:
+            oauth_token: __GH_TOKEN__
+    user: __GH_LOGIN__
+    oauth_token: __GH_TOKEN__

@@ -22,13 +22,13 @@ class SettingsFixture(unittest.TestCase):
         self.home = self.root / "Someone's home"
         self.home.mkdir()
         self.settings = self.home / '.claude/settings.json'
-        self.key = self.home / 'vault/claude_key.txt'
+        self.key = self.home / 'vault-work/claude_key.txt'
         self.key.parent.mkdir()
         self.secret = 'private-' + self.root.name
         self.key.write_text(self.secret + '\n')
         self.state = self.home / '.claude.json'
         self.state.write_text('{"projects":{"keep":{}},"machineID":"keep"}')
-        self.environment = dict(os.environ, HOME=str(self.home), USERPROFILE=str(self.home),
+        self.environment = dict(os.environ, RC_CREDENTIALS_SCOPE='work', HOME=str(self.home), USERPROFILE=str(self.home),
                                 GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1',
                                 RC_SETUP_REPO=str(self.repo),
                                 PYTHONPATH=str(self.checkout / '.setup'))
@@ -239,7 +239,9 @@ class DeploymentTests(SettingsFixture):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertTrue(self.settings.is_file())
             self.assertFalse(self.settings.is_symlink())
-        self.assertEqual(list(self.settings.parent.iterdir()), [self.settings])
+        self.assertEqual({path.name for path in self.settings.parent.iterdir()}, {'settings.json', 'themes'})
+        self.assertEqual((self.settings.parent / 'themes/gruvbox-material.json').resolve(),
+                         self.repo / 'claude/.claude.links/themes/gruvbox-material.json')
         self.assertFalse((self.home / 'README.md').exists())
         self.assertFalse((self.home / '.setup').exists())
         self.assertEqual(self.state.read_text(), '{"projects":{"keep":{}},"machineID":"keep"}')

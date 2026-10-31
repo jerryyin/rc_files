@@ -21,10 +21,10 @@ Fresh setup seeds the template preferences. Ordinary reruns preserve existing pr
 Normal setup never reads the vault. After making the vault available or replacing its key, apply credentials explicitly:
 
 ```sh
-python3 ~/rc_files/.setup credentials --package claude
+python3 ~/rc_files/.setup credentials --vault-scope work --package claude
 ```
 
-This reads `~/vault/claude_key.txt` and updates only its subscription header, preserving other custom headers and preferences. `--vault PATH` or `CLAUDE_KEY_FILE` selects another source. Missing keys leave the local settings unchanged. Windows credential setup and Linux container startup call the same credential phase after preparing the vault; it runs no installers. An invalid key or settings file stops the hook without changing the settings file or printing the key.
+This reads `~/vault-work/claude_key.txt` and updates only its subscription header, preserving other custom headers and preferences. `--vault PATH` or `CLAUDE_KEY_FILE` selects another source. Missing keys leave the local settings unchanged. Windows credential setup and Linux container startup call the same credential phase after preparing the vault; it runs no installers. An invalid key or settings file stops the hook without changing the settings file or printing the key.
 
 Claude owns its separate `.claude.json` state, onboarding, login and project information. Setup leaves that file alone. Existing source-owned settings links become ordinary files; unrelated links require reconciliation. Full configuration migration retires obsolete launcher and template links.
 

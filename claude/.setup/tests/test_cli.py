@@ -61,9 +61,9 @@ class InstalledCliTests(unittest.TestCase):
                 projects={'existing': {}},
                 env=dict(ANTHROPIC_CUSTOM_HEADERS='Ocp-Apim-Subscription-Key: fixture-obsolete'))))
             settings = home / '.claude/settings.json'
-            key = home / 'vault/claude_key.txt'
+            key = home / 'vault-work/claude_key.txt'
             key.parent.mkdir()
-            environment = dict(os.environ, HOME=str(home), USERPROFILE=str(home),
+            environment = dict(os.environ, RC_CREDENTIALS_SCOPE='work', HOME=str(home), USERPROFILE=str(home),
                                CLAUDE_CONFIG_DIR=str(settings.parent), CLAUDE_KEY_FILE=str(key),
                                CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL='1',
                                RC_SETUP_REDIRECTED='0', RC_SETUP_UPDATE='0')

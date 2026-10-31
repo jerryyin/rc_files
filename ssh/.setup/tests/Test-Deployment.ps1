@@ -27,6 +27,7 @@ try {
     & $python -3 -B (Join-Path $RcRoot '.setup') credentials --package ssh --home $env:USERPROFILE --vault $vault
     if ($LASTEXITCODE) { throw 'Credential activation must work before the vault exists.' }
     [void][IO.Directory]::CreateDirectory((Join-Path $vault 'ssh'))
+    [IO.File]::WriteAllText((Join-Path $vault '.vault-scope'), "homelab`n")
     $source = Join-Path $vault 'ssh/config'
     [IO.File]::WriteAllText($source, "Host fixture`n  HostName 192.0.2.40`n")
     foreach ($run in 1..2) {

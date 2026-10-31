@@ -23,8 +23,9 @@ class CredentialFixture(unittest.TestCase):
         self.home = self.root / "Someone's home"
         self.home.mkdir()
         self.repo.mkdir()
-        self.vault = self.home / 'vault'
+        self.vault = self.home / 'vault-work'
         self.vault.mkdir()
+        (self.vault / '.vault-scope').write_text('work\n')
         self.checkout = Path(__file__).resolve().parents[2]
         self.environment = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1',
                                 HOME=str(self.home), USERPROFILE=str(self.home))
@@ -54,6 +55,8 @@ class CredentialFixture(unittest.TestCase):
         self.git('add', '-f', '--', name)
 
     def invoke(self, *arguments: str, action: str = 'credentials') -> subprocess.CompletedProcess[str]:
+        if action == 'credentials' and '--vault-scope' not in arguments:
+            arguments = ('--vault-scope', 'work', *arguments)
         return subprocess.run([sys.executable, '-B', str(self.checkout / '.setup'), action,
                                '--repo', str(self.repo), '--home', str(self.home), *arguments],
                               env=self.environment, text=True, capture_output=True)
@@ -125,6 +128,7 @@ class SshTests(CredentialFixture):
                         '-f', str(self.source / 'id_test')], check=True, capture_output=True)
 
     def test_keys_restore_before_vault_exists_and_keep_linked_configuration(self) -> None:
+        (self.vault / '.vault-scope').unlink()
         self.vault.rmdir()
         directory = self.home / '.ssh'
         directory.mkdir()
@@ -191,11 +195,33 @@ class SshTests(CredentialFixture):
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse((self.repo / 'id_test').exists())
 
+    @unittest.skipIf(os.name == 'nt', 'Read-only Linux container vault')
+    def test_mounted_vault_hosts_are_copied_without_changing_the_source(self) -> None:
+        hosts = self.vault / 'ssh/config'
+        hosts.parent.mkdir()
+        hosts.write_text('Host work-fixture\n  HostName 192.0.2.40\n')
+        hosts.chmod(0o444)
+        storage = self.home / 'storage'
+        storage.mkdir()
+        self.ok('--persistent-root', str(storage))
+        target = self.home / '.ssh/private.conf'
+        self.assertFalse(target.is_symlink())
+        self.assertEqual(target.read_bytes(), hosts.read_bytes())
+        self.assertEqual(hosts.stat().st_mode & 0o777, 0o444)
+        self.assertEqual(target.stat().st_mode & 0o777, 0o600)
+        hosts.chmod(0o600)
+        hosts.write_text('Host work-fixture\n  HostName 192.0.2.41\n')
+        hosts.chmod(0o444)
+        self.ok('--persistent-root', str(storage))
+        self.assertEqual(target.read_bytes(), hosts.read_bytes())
+        self.assertEqual(hosts.stat().st_mode & 0o777, 0o444)
+
 
 class ApplicationTests(CredentialFixture):
     def test_missing_vault_changes_nothing_and_never_installs(self) -> None:
         for name in ('claude', 'docker', 'gh', 'gist', 'artifactory', 'codex', 'vim', 'git'):
             self.copy_package(name)
+        (self.vault / '.vault-scope').unlink()
         self.vault.rmdir()
         self.ok()
         self.assertEqual(list(self.home.iterdir()), [])
@@ -245,7 +271,6 @@ class ApplicationTests(CredentialFixture):
     @unittest.skipIf(os.name == 'nt', 'Windows uses native GitHub login')
     def test_github_rotation_and_account_state(self) -> None:
         self.copy_package('gh')
-        (self.vault / 'gh_token_jerryyin.txt').write_text('fixture-personal')
         secret = self.vault / 'gh_token_amdeng.txt'
         secret.write_text('fixture-work')
         self.ok()
@@ -253,7 +278,7 @@ class ApplicationTests(CredentialFixture):
         secret.write_text('fixture-rotated')
         self.ok()
         self.assertIn('fixture-rotated', path.read_text())
-        path.write_text(path.read_text().replace('user: zhuoryin_amdeng', 'user: jerryyin'))
+        path.write_text(path.read_text().replace('git_protocol: https', 'git_protocol: ssh'))
         before = path.read_bytes(), path.stat().st_mtime_ns
         secret.write_text('fixture-newest')
         self.assertIn('preserving local account state', self.ok())
@@ -262,16 +287,13 @@ class ApplicationTests(CredentialFixture):
         self.assertIn('fixture-newest', path.read_text())
 
     @unittest.skipIf(os.name == 'nt', 'Linux container persistence')
-    def test_gist_and_netrc_rotation_preserve_other_hosts_and_permissions(self) -> None:
-        self.copy_package('gist')
+    def test_netrc_rotation_preserves_other_hosts_and_permissions(self) -> None:
         self.copy_package('artifactory')
         netrc = self.home / '.netrc'
         netrc.write_text('machine other login keep password keep\n')
         for token in ('fixture-first', 'fixture-second'):
-            (self.vault / 'gh_token_jerryyin.txt').write_text(token)
             (self.vault / 'atlartifactory_token.txt').write_text(token)
             self.assertNotIn(token, self.ok())
-            self.assertEqual((self.home / '.gist').read_text(), token + '\n')
             self.assertIn('machine other login keep password keep\n', netrc.read_text())
             self.assertEqual(netrc.read_text().count('# >>> vault:'), 1)
             self.assertIn('password ' + token, netrc.read_text())

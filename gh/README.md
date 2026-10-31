@@ -4,7 +4,7 @@ Linux setup installs a small `~/.local/bin/gh` launcher ahead of the system CLI.
 
 Authentication/configuration commands pass through to the real CLI. Organization-owned repositories and non-GitHub hosts retain the CLI's normal selection because an organization name cannot establish the intended user. Use an explicitly scoped token for those when the default account is unsuitable. Native Windows does not install this Linux launcher; agents must check identity and select a per-process credential there. No token or account cache is added to this checkout, and no global account switch occurs.
 
-Normal setup deploys the launcher with `python3 .setup --config-only --package gh`. Credential setup remains separate: `python3 .setup credentials --package gh`. The latter preserves local account state unless explicitly reseeded with `--update`.
+Normal setup deploys the launcher with `python3 .setup --config-only --package gh`. Credential setup remains separate: `python3 .setup credentials --package gh --vault-scope homelab` seeds jerryyin; `--vault-scope work` seeds zhuoryin_amdeng. Each Linux environment receives only its selected account. Existing state for that account is preserved unless explicitly reseeded with `--update`; the opposite account requires a separate home or explicit reseeding. Native Windows retains existing credential-store accounts on the host.
 
 ## Alternatives Considered
 

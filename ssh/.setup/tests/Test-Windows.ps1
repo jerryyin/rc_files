@@ -10,7 +10,7 @@ function Get-Item { param($LiteralPath, [switch]$Force, $ErrorAction) return $nu
 if (& $entry -Check) { throw 'A missing private config link must require normal SSH setup, even with a ready agent.' }
 function Get-Item {
     param($LiteralPath, [switch]$Force, $ErrorAction)
-    return @{ LinkType='SymbolicLink'; Target=(Join-Path $env:USERPROFILE 'vault/ssh/config') }
+    return @{ LinkType='SymbolicLink'; Target=(Join-Path $env:USERPROFILE 'vault-homelab/ssh/config') }
 }
 & $entry -PrepareAgent -ReadyOnly
 Write-Output 'PASS SSH readiness never changes services or requests elevation.'

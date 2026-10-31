@@ -31,42 +31,46 @@ def windows(tokens: dict[str, str]) -> None:
         result = command([executable, 'auth', 'login', '--hostname', 'github.com',
                           '--git-protocol', 'https', '--with-token'], token)
         if result.returncode:
-            reason = result.stderr.strip().splitlines()[-1] if result.stderr.strip() else 'no reason given'
-            print(f'SKIP gh {login}: GitHub rejected the vault token here ({reason})')
+            print(f'SKIP gh {login}: GitHub rejected the vault token on this network')
             signed_in.discard(login)
         else:
             signed_in.add(login)
-    if not signed_in:
+    if not signed_in.intersection(tokens):
         raise ValueError('GitHub CLI accepted none of the vault tokens')
-    if (update or not present) and ACTIVE in signed_in:
-        result = command([executable, 'auth', 'switch', '--hostname', 'github.com', '--user', ACTIVE], '')
+    active = ACTIVE if ACTIVE in tokens else next(iter(tokens))
+    if (update or not present) and active in signed_in:
+        result = command([executable, 'auth', 'switch', '--hostname', 'github.com', '--user', active], '')
         if result.returncode:
-            raise ValueError(f'GitHub CLI could not activate {ACTIVE}')
+            raise ValueError(f'GitHub CLI could not activate {active}')
 
 
 def setup() -> None:
     if os.environ.get('RC_CREDENTIALS_SAVE') == '1':
         return
-    first = secret('GH_JERRYYIN_KEY_FILE', 'gh_token_jerryyin.txt')
-    second = secret('GH_AMDENG_KEY_FILE', 'gh_token_amdeng.txt')
-    if first is None or second is None:
+    work = os.environ.get('RC_CREDENTIALS_SCOPE', 'homelab') == 'work'
+    login = ACTIVE if work else 'jerryyin'
+    token = secret('GH_AMDENG_KEY_FILE' if work else 'GH_JERRYYIN_KEY_FILE',
+                   'gh_token_amdeng.txt' if work else 'gh_token_jerryyin.txt')
+    if token is None:
         return
     if os.name == 'nt':
         if os.environ.get('RC_SETUP_REDIRECTED') == '1':
             print('SKIP gh: the Windows credential store belongs to the live account')
             return
-        windows({'jerryyin': first, 'zhuoryin_amdeng': second})
+        windows({login: token})
         return
     template = (Path(__file__).resolve().parents[1] / '.config/gh/hosts.yml.template').read_text()
     path = location('GH_CONFIG_DIR', Path.home() / '.config/gh') / 'hosts.yml'
     previous = path.read_text() if path.exists() else ''
-    pattern = re.escape(template)
-    for name in ('__GH_TOKEN_JERRYYIN__', '__GH_TOKEN_AMDENG__'):
-        pattern = pattern.replace(re.escape(name), r'[^\r\n]+')
+    template = template.replace('__GH_LOGIN__', login)
+    pattern = re.escape(template).replace(re.escape('__GH_TOKEN__'), r'[^\r\n]+')
     if previous and not re.fullmatch(pattern, previous) and os.environ.get('RC_SETUP_UPDATE') != '1':
+        other = 'jerryyin' if work else ACTIVE
+        if re.search(r'^\s*(?:user:\s*' + re.escape(other) + r'\s*$|' + re.escape(other) + r':)', previous, re.M):
+            raise ValueError('GitHub configuration contains the other vault account; use a separate home or explicitly reseed with --update')
         print('SKIP gh: preserving local account state; credentials --package gh --update explicitly reseeds it')
         return
-    desired = template.replace('__GH_TOKEN_JERRYYIN__', json.dumps(first)).replace('__GH_TOKEN_AMDENG__', json.dumps(second))
+    desired = template.replace('__GH_TOKEN__', json.dumps(token))
     write(path, desired)
 
 
