@@ -22,9 +22,23 @@ class GitHubTests(unittest.TestCase):
             apt.assert_not_called()
 
     def test_installed_cli_is_reused_without_network_or_installation(self) -> None:
-        with patch.object(gh.shutil, 'which', return_value='gh'), patch.object(gh, 'apt') as apt:
+        with patch.object(gh.shutil, 'which', return_value='gh'), \
+                patch.object(gh.subprocess, 'check_output', return_value='gh version 2.81.0\n'), \
+                patch.object(gh, 'apt') as apt:
             gh.setup()
             apt.assert_not_called()
+
+    def test_old_cli_is_upgraded_for_account_status_json(self) -> None:
+        with patch.dict(os.environ, RC_SETUP_INSTALL='1', RC_SETUP_REDIRECTED='0'), \
+                patch.object(gh.shutil, 'which', return_value='/usr/bin/gh'), \
+                patch.object(gh, 'privileged', return_value=[]), patch.object(gh, 'apt') as apt, \
+                patch.object(gh.urllib.request, 'urlretrieve'), \
+                patch.object(gh.subprocess, 'check_output', side_effect=[
+                    'gh version 2.45.0\n', 'amd64\n', 'gh version 2.81.0\n']), \
+                patch.object(gh.subprocess, 'run'):
+            gh.setup()
+        apt.assert_called()
+        self.assertEqual(apt.call_args_list[-1].args[0], ['install', '-y', 'gh'])
 
     def test_redirected_home_cannot_install_a_missing_cli(self) -> None:
         with patch.dict(os.environ, RC_SETUP_INSTALL='1', RC_SETUP_REDIRECTED='1'), \
@@ -44,7 +58,7 @@ class GitHubTests(unittest.TestCase):
                 patch.object(gh.shutil, 'which', side_effect=[None, 'gh']), \
                 patch.object(gh, 'privileged', return_value=[]), patch.object(gh, 'apt') as apt, \
                 patch.object(gh.urllib.request, 'urlretrieve'), \
-                patch.object(gh.subprocess, 'check_output', return_value='amd64\n'), \
+                patch.object(gh.subprocess, 'check_output', side_effect=['amd64\n', 'gh version 2.81.0\n']), \
                 patch.object(gh.subprocess, 'run', side_effect=run):
             gh.setup()
         self.assertIn('https://cli.github.com/packages stable main', sources[0])

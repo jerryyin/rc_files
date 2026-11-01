@@ -1,4 +1,4 @@
-"""Install a missing Linux GitHub CLI from its publisher's apt repository."""
+"""Install or upgrade Linux GitHub CLI from its publisher's apt repository."""
 
 import os
 from pathlib import Path
@@ -8,19 +8,24 @@ import sys
 import tempfile
 import urllib.request
 
-from system import apt, privileged
+from system import Package, apt, installed, privileged
+
+# Account selection uses `gh auth status --json`, introduced in 2.81.
+MINIMUM = (2, 81, 0)
 
 
 def setup() -> None:
+    if sys.platform != 'linux':
+        return
     found = shutil.which('gh')
     launcher = Path(__file__).resolve().parents[1] / '.linux/.local/bin/gh'
     if found and Path(found).resolve() == launcher.resolve():
         search = os.pathsep.join(p for p in os.get_exec_path() if Path(p).resolve() != Path(found).parent.resolve())
         found = shutil.which('gh', path=search)
-    if sys.platform != 'linux' or found:
+    if found and installed(Package(found, minimum=MINIMUM)):
         return
     if os.environ.get('RC_SETUP_INSTALL') == '0' or os.environ.get('RC_SETUP_REDIRECTED') == '1':
-        raise ValueError('GitHub CLI is required; install it in the real account first')
+        raise ValueError('GitHub CLI 2.81 or newer is required; install it in the real account first')
     prefix = privileged()
     keyring = '/usr/share/keyrings/githubcli-archive-keyring.gpg'
     architecture = subprocess.check_output(['dpkg', '--print-architecture'], text=True).strip()
@@ -33,8 +38,8 @@ def setup() -> None:
         subprocess.run([*prefix, 'install', '-m', '644', str(source), '/etc/apt/sources.list.d/github-cli.list'], check=True)
     apt(['update'])
     apt(['install', '-y', 'gh'])
-    if not shutil.which('gh'):
-        raise ValueError('GitHub CLI is still missing after installation')
+    if not installed(Package('gh', minimum=MINIMUM)):
+        raise ValueError('GitHub CLI 2.81 or newer is still missing after installation')
     subprocess.run(['gh', '--version'], check=True)
 
 
