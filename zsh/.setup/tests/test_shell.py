@@ -1,6 +1,8 @@
 import importlib.util
 import os
 from pathlib import Path
+import shutil
+import subprocess
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -46,3 +48,29 @@ class LoginShellTests(unittest.TestCase):
         self.assertEqual(bashrc.stat().st_mtime_ns, before)
         self.assertTrue(bashrc.read_text().startswith('# personal settings\n'))
         self.assertEqual(bashrc.read_text().count('auto-exec zsh (chsh unavailable) >>>'), 1)
+
+
+@unittest.skipUnless(shutil.which('zsh'), 'Zsh PATH filtering')
+class WslPathTests(unittest.TestCase):
+    def path_after(self, entries: list[str], distro: str) -> list[str]:
+        script = Path(__file__).resolve().parents[2] / '.linux/.config/zsh/wsl-path.zsh'
+        result = subprocess.run([shutil.which('zsh'), '-f', '-c', 'source "$1"; print -rl -- $path', 'zsh', str(script)],
+                                env={'PATH': ':'.join(entries), 'WSL_DISTRO_NAME': distro},
+                                capture_output=True, text=True, check=True)
+        return result.stdout.splitlines()
+
+    def test_wsl_keeps_only_windows_tools_used_from_linux(self) -> None:
+        entries = ['/usr/bin', '/mnt/c/WINDOWS/system32', '/mnt/c/WINDOWS', '/mnt/c/WINDOWS/System32/Wbem',
+                   '/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/', '/mnt/c/Program Files/PowerShell/7/',
+                   '/mnt/c/Program Files/nodejs/', '/mnt/c/Program Files/npm', '/mnt/c/WINDOWS/system32',
+                   '/mnt/c/Program Files/cursor/resources/app/bin', '/home/fixture/.local/bin',
+                   '/mnt/c/Users/fixture/AppData/Local/Programs/Microsoft VS Code/bin', '/mnt/c/Program Files/PowerShell/7']
+        self.assertEqual(self.path_after(entries, 'Ubuntu'), [
+            '/usr/bin', '/home/fixture/.local/bin', '/mnt/c/WINDOWS/system32', '/mnt/c/WINDOWS',
+            '/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0', '/mnt/c/Program Files/PowerShell/7',
+            '/mnt/c/Program Files/cursor/resources/app/bin',
+            '/mnt/c/Users/fixture/AppData/Local/Programs/Microsoft VS Code/bin'])
+
+    def test_other_linux_hosts_keep_their_path(self) -> None:
+        entries = ['/usr/bin', '/mnt/c/Program Files/npm', '/mnt/data/tools/bin']
+        self.assertEqual(self.path_after(entries, ''), entries)

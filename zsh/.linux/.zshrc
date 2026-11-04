@@ -15,6 +15,9 @@ export TZ=America/New_York
 # Node/npm CA trust through corporate TLS-inspecting proxies.
 [[ -f "$HOME/.config/node/ca-cert.sh" ]] && source "$HOME/.config/node/ca-cert.sh"
 
+# Before tmux starts, so its server and panes inherit the shorter WSL PATH.
+[[ -r "$HOME/.config/zsh/wsl-path.zsh" ]] && source "$HOME/.config/zsh/wsl-path.zsh"
+
 # TMUX: auto-attach one base session per user on interactive shells. On by
 # default so a freshly provisioned client host (a fresh rc_files checkout,
 # no extra setup) gets this for free. This is the same .zshrc on every
