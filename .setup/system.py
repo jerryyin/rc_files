@@ -138,8 +138,11 @@ def privileged() -> list[str]:
 
 
 def apt(arguments: list[str]) -> None:
+    # One broken unrelated source, such as a stale mirror pin or a missing signing key, makes
+    # `apt-get update` exit non-zero while the other indices still refresh. The install that
+    # follows decides success, so a failed update must not stop it.
     subprocess.run([*privileged(), 'env', 'DEBIAN_FRONTEND=noninteractive', 'apt-get',
-                    '-o', 'DPkg::Lock::Timeout=300', *arguments], check=True)
+                    '-o', 'DPkg::Lock::Timeout=300', *arguments], check=arguments[0] != 'update')
 
 
 def install(packages: list[Package], *, scope: str = '', allow: bool = True) -> None:

@@ -102,6 +102,17 @@ class RequirementTests(unittest.TestCase):
             system.install([first, second, first])
         self.assertEqual(apt.call_args_list[1].args[0], ['install', '-y', 'shared', 'one', 'two'])
 
+    @unittest.skipUnless(sys.platform == 'linux', 'apt installation')
+    def test_unrelated_broken_source_fails_only_the_install(self) -> None:
+        fake = self.repo / 'apt-get'
+        fake.write_text('#!/bin/sh\necho "E: Failed to fetch stale-mirror 404" >&2\nexit 100\n')
+        fake.chmod(0o755)
+        path = f'{self.repo}{os.pathsep}{os.environ["PATH"]}'
+        with patch.dict(os.environ, PATH=path), patch.object(system, 'privileged', return_value=[]):
+            system.apt(['update'])
+            with self.assertRaises(subprocess.CalledProcessError):
+                system.apt(['install', '-y', 'fixture'])
+
     @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
     def test_user_command_does_not_satisfy_machine_requirement(self) -> None:
         package = system.Package('fixture', winget='Fixture.Tool')
