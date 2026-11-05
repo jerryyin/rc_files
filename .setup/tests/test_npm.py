@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -7,6 +8,10 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import npm
+
+
+def installations(run) -> list[list[str]]:
+    return [call.args[0] for call in run.call_args_list if call.args[0][1:2] == ['install']]
 
 
 class NpmTests(unittest.TestCase):
@@ -18,9 +23,9 @@ class NpmTests(unittest.TestCase):
     def test_existing_cli_skips_redundant_installation(self) -> None:
         with patch.dict(os.environ, RC_SETUP_UPDATE='0'), \
                 patch.object(npm.shutil, 'which', return_value='existing-cli'), \
-                patch.object(npm.subprocess, 'run') as run:
+                patch.object(npm.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)) as run:
             npm.install('@fixture/cli', 'fixture')
-            run.assert_not_called()
+            self.assertEqual(installations(run), [])
 
     def test_no_install_never_installs_or_updates_a_cli(self) -> None:
         with patch.dict(os.environ, RC_SETUP_INSTALL='0', RC_SETUP_UPDATE='1'), \
@@ -35,9 +40,36 @@ class NpmTests(unittest.TestCase):
     def test_existing_cli_from_another_installer_keeps_its_own_updater(self) -> None:
         with patch.dict(os.environ, RC_SETUP_UPDATE='1'), \
                 patch.object(npm.shutil, 'which', return_value='/another/installer/cli'), \
-                patch.object(npm.subprocess, 'run') as run:
+                patch.object(npm.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)) as run:
             npm.install('@fixture/cli', 'fixture')
-            run.assert_not_called()
+            self.assertEqual(installations(run), [])
+
+    def test_unusable_cli_from_another_installer_is_replaced_by_a_managed_copy(self) -> None:
+        with tempfile.TemporaryDirectory(prefix='rc-npm-') as temporary:
+            home = Path(temporary).resolve()
+            prefix = home / 'npm' if os.name == 'nt' else home / '.local'
+            unusable = str(home / 'shared/bin/fixture')
+
+            def run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess:
+                if command[0] == unusable:
+                    return subprocess.CompletedProcess(command, 126)
+                if command[-1] != '--version':
+                    package = prefix / ('node_modules' if os.name == 'nt' else 'lib/node_modules') / '@fixture/cli/package.json'
+                    package.parent.mkdir(parents=True)
+                    package.write_text('{"version":"1.2.3"}')
+                    executable = prefix / 'fixture.cmd' if os.name == 'nt' else prefix / 'bin/fixture'
+                    executable.parent.mkdir(parents=True, exist_ok=True)
+                    executable.touch()
+                return subprocess.CompletedProcess(command, 0)
+
+            with patch.dict(os.environ, HOME=str(home), USERPROFILE=str(home), APPDATA=str(home),
+                            RC_SETUP_INSTALL='1', RC_SETUP_UPDATE='0'), \
+                    patch.object(npm.shutil, 'which', side_effect=[unusable, 'npm']), \
+                    patch.object(npm, 'persist_path'), \
+                    patch.object(npm.subprocess, 'run', side_effect=run) as calls:
+                npm.install('@fixture/cli', 'fixture')
+            self.assertEqual(installations(calls),
+                             [['npm', 'install', '--global', '--prefix', str(prefix), '@fixture/cli@latest']])
 
     def test_missing_cli_installs_latest_into_the_selected_home_and_verifies_files(self) -> None:
         with tempfile.TemporaryDirectory(prefix='rc-npm-') as temporary:

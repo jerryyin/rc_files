@@ -9,6 +9,13 @@ import subprocess
 
 from system import Package, install as install_system, persist_path, installed
 
+def usable(executable: str) -> bool:
+    try:
+        return subprocess.run([executable, '--version'], stdin=subprocess.DEVNULL,
+                              capture_output=True, timeout=60).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
 def install(name: str, command: str) -> None:
     if os.name == 'nt' and os.environ.get('RC_SETUP_REDIRECTED') != '1':
         requirement = Package(command, npm=name)
@@ -20,7 +27,10 @@ def install(name: str, command: str) -> None:
     package = prefix / ('node_modules' if os.name == 'nt' else 'lib/node_modules') / name / 'package.json'
     existing = shutil.which(command)
     managed = existing and Path(existing).parent == directory and package.exists()
-    if existing and (not managed or os.environ.get('RC_SETUP_UPDATE') != '1' or os.environ.get('RC_SETUP_INSTALL') == '0'):
+    # A shared wrapper may resolve into another account's home and fail for this user.
+    if existing and (os.environ.get('RC_SETUP_INSTALL') == '0'
+                     or (managed and os.environ.get('RC_SETUP_UPDATE') != '1')
+                     or (not managed and usable(existing))):
         return
     if os.environ.get('RC_SETUP_INSTALL') == '0':
         raise ValueError(f'{command} is missing; --no-install cannot install it')
