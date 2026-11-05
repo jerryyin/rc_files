@@ -10,7 +10,7 @@
   },
   "attribution": {"commit": "", "pr": ""},
   "permissions": {
-    "allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)"],
+    "allow": ["Bash(*)", "Read", "Write", "Edit"],
     "defaultMode": "bypassPermissions"
   },
   "enabledPlugins": {"clangd-lsp@claude-plugins-official": true},
