@@ -44,13 +44,20 @@ def extensions(home: Path) -> None:
     if package.exists():
         choices.extend(json.loads(package.read_text(encoding='utf-8-sig')).get('dependencies', {}))
     directory.mkdir(parents=True, exist_ok=True)
+    # Extensions such as coc-pyright load their dependencies from their own node_modules only.
+    # A flat tree from an earlier install has top-level packages nobody chose; npm keeps it, so rebuild.
+    modules = directory / 'node_modules'
+    chosen = {name.split('/')[0] for name in choices}
+    if modules.is_dir() and any(entry.name not in chosen for entry in modules.iterdir()
+                                if not entry.name.startswith('.')):
+        shutil.rmtree(modules)
     print('CoC extensions: checking latest versions (existing choices are retained).', flush=True)
     environment = dict(os.environ)
     if not environment.get('NODE_EXTRA_CA_CERTS'):
         bundle = ssl.get_default_verify_paths().cafile
         if bundle:
             environment['NODE_EXTRA_CA_CERTS'] = bundle
-    subprocess.run([npm, 'install', '--save', '--no-package-lock',
+    subprocess.run([npm, 'install', '--save', '--no-package-lock', '--install-strategy=nested',
                     *[name + '@latest' for name in dict.fromkeys(choices)]],
                    cwd=directory, env=environment, check=True)
 

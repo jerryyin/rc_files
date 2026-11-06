@@ -131,11 +131,23 @@ command! -nargs=* PlugUpdate call InstallFixture('update')
         with patch.object(vim.shutil, 'which', return_value='npm'), patch.object(vim.subprocess, 'run') as run:
             vim.extensions(self.home)
         self.assertEqual(run.call_args.args[0], [
-            'npm', 'install', '--save', '--no-package-lock', 'coc-json@latest', 'coc-personal@latest',
+            'npm', 'install', '--save', '--no-package-lock', '--install-strategy=nested',
+            'coc-json@latest', 'coc-personal@latest',
         ])
         self.assertEqual(run.call_args.kwargs['cwd'], package.parent)
         self.assertTrue(run.call_args_list[0].kwargs['check'])
         self.assertEqual(package.read_bytes(), before)
+
+    def test_npm_rebuilds_a_flat_tree_and_keeps_a_nested_one(self) -> None:
+        modules = self.home / '.config/coc/extensions/node_modules'
+        for extra, kept in (('pyright', False), ('.bin', True)):
+            with self.subTest(extra=extra):
+                (modules / 'coc-json').mkdir(parents=True, exist_ok=True)
+                (modules / extra).mkdir(exist_ok=True)
+                with patch.object(vim.shutil, 'which', return_value='npm'), patch.object(vim.subprocess, 'run'):
+                    vim.extensions(self.home)
+                self.assertEqual((modules / 'coc-json').is_dir(), kept)
+                shutil.rmtree(modules, ignore_errors=True)
 
     def test_npm_creates_a_fresh_runtime_directory(self) -> None:
         with patch.object(vim.shutil, 'which', return_value='npm'), patch.object(vim.subprocess, 'run') as run:
