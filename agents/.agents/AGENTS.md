@@ -74,6 +74,7 @@ Additional personal guidance lives in `~/.agents/rules/`. Before substantive wor
 
 - Check the tools available in the current session before following a tool-specific step. Use scheduling and delegation only when supported and authorized. If a required capability is absent, report the missing step rather than claim it was completed.
 - Establish where a command must run: native Windows, WSL, a container, or a remote host. Discover paths and prerequisites on that host. Linux hardware workflows may run remotely without being translated into PowerShell.
+- In a development container, install Python projects into the system Python, not a virtual environment: the container is disposable, and editors and language servers find packages through the default interpreter. Install editable packages with `--config-settings editable_mode=compat`, because the default import-hook mode is invisible to static tools such as Pyright. Before writing an install recipe, look in the `scripts` checkout (usually `~/scripts`, e.g. `tokenspeed/install.sh`) and put new reusable installers there.
 - A local installation does not establish remote or cloud availability. Deploy this collection in the actual execution environment and confirm its instruction and skill discovery there. Report a missing shared instruction file instead of silently assuming its content.
 
 ## Design Documentation
