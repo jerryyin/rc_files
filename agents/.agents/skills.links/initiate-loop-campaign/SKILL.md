@@ -2,7 +2,7 @@
 name: initiate-loop-campaign
 description: >-
   Stand up or arm a campaign on the local round loop — the supervisor-driven
-  arrangement where `orchestration/local-round-loop.py` publishes immutable
+  arrangement where `orchestration/local/local-round-loop.py` publishes immutable
   rounds, launches a fresh manager per round, and publishes each next round from
   the previous manager's result. Use on "start a new looped investigation", "set
   up another campaign on the loop", "arm the next run", "run this overnight on
@@ -13,7 +13,7 @@ description: >-
 # Initiate a local-loop campaign
 
 **The procedure lives in the repository, not here:**
-`orchestration/docs/NEW-CAMPAIGN.md`. Read it — it is short, it sits beside the
+`orchestration/local/docs/NEW-CAMPAIGN.md`. Read it — it is short, it sits beside the
 driver it describes, and it changes in the same commit as the driver's CLI. This
 file exists to route you there and to establish the few things you must pin down
 before following it.
@@ -43,7 +43,7 @@ Read the repository procedure on the host running the supervisor. The process-in
 Two values, and getting either wrong is silent rather than loud:
 
 - **Campaign root** — `investigations/<campaign>/`. Never discovered. There is no
-  singleton lookup on this route; `orchestration/campaign-paths.sh` belongs to
+  singleton lookup on this route; `orchestration/onboard/campaign-paths.sh` belongs to
   the other arrangement and will not find a loop campaign at all.
 - **State root** — use the driver's reported `--state` path or its documented default on the execution host. Per
   *run*, not per campaign. A fresh-run recovery abandons the previous root in a
@@ -93,7 +93,14 @@ here because two copies would drift and both would keep reading as authoritative
 ## Afterwards
 
 There is nothing to schedule and no wake loop to arm. `wait` blocks until the run
-is terminal; `status` answers where it is now. Promoting a verified result into
-Git is archival review work, not delivery — `publish-round` already delivered the
-orders — so it goes through normal staging and review rather than under any
-standing push authorization.
+is terminal; `status` answers where it is now.
+
+A terminal run is *accepted* (its results validated), not yet *admitted* into the
+campaign's report. Admission waits for promotion, which only you can do: no loop
+role can write the toolkit. Follow "Promote after every run" in `NEW-CAMPAIGN.md`
+— integrate each `tools_created` entry the results need into `~/scripts` or the
+shared repository, commit, bump the environment lock, rewrite the run note's
+`## Reproduce` to the promoted commits and re-run it on the run's inputs while the
+host has them. That work, like any Git change, goes through normal staging and
+review rather than under a standing push authorization; `publish-round` already
+delivered the orders.
