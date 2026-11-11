@@ -108,7 +108,38 @@ nnoremap <leader>gp :Git pull --rebase<CR>
 nnoremap <leader>gl :Gclog<CR>
 nnoremap <leader>g? :help fugitive-maps<CR>
 nnoremap <leader>gw :Gwrite<CR>
-nnoremap <leader>gr :Gread<CR>
+
+" \gr: list the files of the commit being viewed (else HEAD) in quickfix.
+" Pass `rev^ rev` rather than `rev^!`: Fugitive rewrites `^!` so the newer
+" side becomes the work tree file.
+function! s:CommitFiles() abort
+  let l:rev = matchstr(FugitiveParse(expand('%'))[0], '^\x\{7,}$')
+  let l:rev = empty(l:rev) ? 'HEAD' : l:rev
+  execute 'Git difftool --name-status ' . l:rev . '^ ' . l:rev
+endfunction
+nnoremap <silent> <leader>gr :call <SID>CommitFiles()<CR>
+" ]d / [d: close this comparison, go to the next/previous file, compare it.
+" Close first: once the file changes, Fugitive turns diff off in the old
+" pane and DiffClose no longer closes it.
+nnoremap <silent> ]d :call fugitive#DiffClose()<Bar>cnext<Bar>keepalt Gvdiffsplit!<CR>
+nnoremap <silent> [d :call fugitive#DiffClose()<Bar>cprevious<Bar>keepalt Gvdiffsplit!<CR>
+" Enter in a `:Git difftool` quickfix list opens that file's comparison;
+" other lists keep the default Enter.
+function! s:IsDifftoolList() abort
+  return !getwininfo(win_getid())[0].loclist
+        \ && getqflist({'title': 0}).title =~# '^:Git\>.*\<difftool\>'
+endfunction
+function! s:OpenListedDiff(idx) abort
+  wincmd p
+  call fugitive#DiffClose()
+  execute 'cc ' . a:idx
+  keepalt Gvdiffsplit!
+endfunction
+augroup difftoolEnter
+  autocmd!
+  autocmd FileType qf nnoremap <buffer><silent><expr> <CR> <SID>IsDifftoolList()
+        \ ? ":\<C-U>call <SID>OpenListedDiff(line('.'))\<CR>" : "\<CR>"
+augroup END
 
 nmap <leader>yy <Plug>OSCYankOperator
 vmap <leader>y <Plug>OSCYankVisual

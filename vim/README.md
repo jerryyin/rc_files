@@ -27,6 +27,14 @@ Diff views retain normal line wrapping on both sides, including staged files and
 
 Remember **d**iff **q**uit, **C**ommit, then `]/` for the next file. These are Normal-mode keys without a leader prefix.
 
+To keep the list of changed files in view while reviewing, press `\gr` in a commit overview (or anywhere, for `HEAD`). It loads that commit's changed files into the quickfix list, one line per file.
+
+- `dv` compares the current file with its parent commit.
+- `]d` and `[d` close the comparison and open the next or previous file's. Enter on any line of the list does the same for that file, so you can review in any order.
+- `:colder` returns to the commit history list from `\gl`, and `:cnewer` comes back to the files.
+
+`\gr` reviews one commit. For a range, `:Git difftool -y HEAD~2` opens each changed file in its own tab with the comparison.
+
 `\g?` opens Fugitive's mapping help from any buffer. Inside a Fugitive buffer, `g?` shows general help and `d?` shows diff help. `:help fugitive-maps` opens the same reference directly.
 
 Quickfix lists use their normal syntax. For a buffer containing ANSI-colored output, `\ea` explicitly toggles ANSI rendering.
