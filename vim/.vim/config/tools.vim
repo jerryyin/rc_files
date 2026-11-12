@@ -246,8 +246,9 @@ let g:termdebug_config['map_K'] = v:false
 " ============================================================================
 " Prerequisite: Claude Code or Codex running in a tmux split.
 " Usage:
-"   - Visual mode: Select code, hit \c  -> sends selection with context
-"   - Normal mode: Hit \c               -> sends entire buffer with line numbers
+"   - Visual mode: Select code, hit \cc -> sends selection with context
+"   - Normal mode: Hit \cc              -> sends path:line of the cursor
+" Either way, focus then moves to the agent pane, after the pasted text.
 " The target pane is detected by what it runs (claude/codex in its process
 " tree), not by tmux focus history, so it works with >2 panes.
 " ============================================================================
@@ -313,10 +314,19 @@ function! s:PasteToClaudeTmux(text)
         return ''
     endif
     let temp = tempname()
-    call writefile(split(a:text, "\n", 1), temp)
+    " Binary mode omits the final newline, which tmux would paste as Enter.
+    call writefile(split(a:text, "\n", 1), temp, 'b')
     call system(s:mux . ' load-buffer ' . shellescape(temp))
     call system(s:mux . ' paste-buffer -t ' . shellescape(target))
     call delete(temp)
+    " Focus the agent pane, whose input cursor now sits after the pasted text.
+    " The pane may be in another window or, on Linux, another session.
+    let session = trim(system(s:mux . ' display-message -p -t ' . shellescape(target) . ' ' . shellescape('#{session_id}')))
+    if session !=# trim(system(s:mux . ' display-message -p ' . shellescape('#{session_id}')))
+        call system(s:mux . ' switch-client -t ' . shellescape(target))
+    endif
+    call system(s:mux . ' select-window -t ' . shellescape(target))
+    call system(s:mux . ' select-pane -t ' . shellescape(target))
     return target
 endfunction
 
