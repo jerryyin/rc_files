@@ -26,6 +26,45 @@ def merge(base: dict[str, Json], overrides: dict[str, Json]) -> dict[str, Json]:
     return result
 
 
+def seed_state(directory: Path, home: Path, api_key: Json) -> None:
+    """Add the answers to Claude's first-run questions to its untracked state file.
+
+    Marks onboarding and the auto-mode offer as seen, approves the template's placeholder
+    API key unless it was rejected, and trusts `home`. Other state is kept. An unreadable
+    state file is reported and left for Claude to recover.
+    """
+    target = directory / '.claude.json' if 'CLAUDE_CONFIG_DIR' in os.environ else home / '.claude.json'
+    try:
+        existing = read_json(target)
+    except ValueError as error:
+        print(f'SKIP: {error}')
+        return
+    state = json.loads(json.dumps(existing))
+    responses = state.setdefault('customApiKeyResponses', {'approved': [], 'rejected': []})
+    projects = state.setdefault('projects', {})
+    if not (isinstance(responses, dict) and isinstance(projects, dict)
+            and all(isinstance(responses.get(name, []), list) for name in ('approved', 'rejected'))):
+        print(f'SKIP: unexpected structure in {target}; file preserved')
+        return
+    state['hasCompletedOnboarding'] = True
+    state['hasSeenAutoDefaultNudge'] = True  # Keeps the template's bypass default.
+    if isinstance(api_key, str) and api_key.strip():
+        # Claude records approval by the key's last 20 characters.
+        truncated = api_key.strip()[-20:]
+        approved = responses.setdefault('approved', [])
+        if truncated not in approved and truncated not in responses.setdefault('rejected', []):
+            approved.append(truncated)
+    # Claude stops looking for trusted parents at a Git root, so checkouts below
+    # home still ask once. New project entries default to false, which is not a refusal.
+    project = projects.setdefault(home.resolve().as_posix(), {})
+    if isinstance(project, dict):
+        project['hasTrustDialogAccepted'] = True
+    if state == existing:
+        return
+    write(target, json.dumps(state, indent=2, ensure_ascii=False) + '\n')
+    print(f'Claude first-run state prepared: {target}')
+
+
 def setup(home: Path, *, credentials: bool = False) -> None:
     directory = Path(os.environ.get('CLAUDE_CONFIG_DIR', str(home / '.claude'))).expanduser().resolve()
     repo = Path(__file__).resolve().parents[2]
@@ -42,6 +81,7 @@ def setup(home: Path, *, credentials: bool = False) -> None:
     settings = merge(existing, template) if os.environ.get('RC_SETUP_UPDATE') == '1' else merge(template, existing)
     environment = settings['env']
     assert isinstance(environment, dict)
+    seed_state(directory, home, environment.get('ANTHROPIC_API_KEY'))
     key = secret('CLAUDE_KEY_FILE', 'claude_key.txt') if credentials else None
     if credentials and key is None:
         return

@@ -52,6 +52,12 @@ class SettingsFixture(unittest.TestCase):
         self.assertNotIn(self.secret, result.stdout + result.stderr)
         return json.loads(self.settings.read_text())
 
+    def assert_state_kept(self) -> dict[str, object]:
+        state = json.loads(self.state.read_text())
+        self.assertEqual(state['machineID'], 'keep')
+        self.assertEqual(state['projects']['keep'], {})
+        return state
+
     def write_settings(self, settings: dict[str, object]) -> None:
         self.settings.parent.mkdir(exist_ok=True)
         self.settings.write_text(json.dumps(settings), encoding='utf-8')
@@ -85,15 +91,14 @@ def install(package, command):
                 self.assertEqual(self.settings.exists(), fail == '0')
                 self.assertNotIn(self.secret, result.stdout + result.stderr)
 
-    def test_fresh_setup_generates_private_settings_and_leaves_state_and_sources_unchanged(self) -> None:
-        before = self.state.read_bytes(), self.state.stat().st_mtime_ns
+    def test_fresh_setup_generates_private_settings_and_leaves_sources_unchanged(self) -> None:
         template = self.entry / 'settings.json.template'
         source = template.read_bytes()
         settings = self.prepared()
         self.assertEqual(settings['env']['ANTHROPIC_CUSTOM_HEADERS'], 'Ocp-Apim-Subscription-Key: ' + self.secret)
         self.assertEqual(settings['env']['ANTHROPIC_API_KEY'], 'dummy')
         self.assertFalse(self.settings.is_symlink())
-        self.assertEqual((self.state.read_bytes(), self.state.stat().st_mtime_ns), before)
+        self.assert_state_kept()
         self.assertEqual(template.read_bytes(), source)
         self.assertFalse(any(self.secret.encode() in path.read_bytes() for path in self.repo.rglob('*') if path.is_file()))
 
@@ -198,6 +203,43 @@ def install(package, command):
         self.prepared()
         self.assertTrue(self.settings.is_file())
 
+    def test_first_run_questions_are_answered_in_a_fresh_state_file(self) -> None:
+        self.state.unlink()
+        (self.home / 'project/.git').mkdir(parents=True)
+        self.assertEqual(self.setup_claude(credentials=False).returncode, 0)
+        state = json.loads(self.state.read_text())
+        self.assertIs(state['hasCompletedOnboarding'], True)
+        self.assertIs(state['hasSeenAutoDefaultNudge'], True)
+        self.assertEqual(state['customApiKeyResponses'], {'approved': ['dummy'], 'rejected': []})
+        trusted = {Path(path).relative_to(self.home).as_posix()
+                   for path, project in state['projects'].items() if project['hasTrustDialogAccepted']}
+        self.assertEqual(trusted, {'.'})
+        if os.name != 'nt':
+            self.assertEqual(stat.S_IMODE(self.state.stat().st_mode), 0o600)
+
+    def test_state_seeding_keeps_choices_and_rewrites_only_when_needed(self) -> None:
+        home = self.home.resolve().as_posix()
+        self.state.write_text(json.dumps({
+            'machineID': 'keep', 'customApiKeyResponses': {'approved': [], 'rejected': ['dummy']},
+            'projects': {'keep': {}, home: {'hasTrustDialogAccepted': False, 'allowedTools': ['kept']}}}))
+        self.prepared()
+        state = self.assert_state_kept()
+        self.assertEqual(state['customApiKeyResponses'], {'approved': [], 'rejected': ['dummy']})
+        self.assertEqual(state['projects'][home], {'hasTrustDialogAccepted': True, 'allowedTools': ['kept']})
+        before = self.state.read_bytes(), self.state.stat().st_mtime_ns
+        self.prepared()
+        self.assertEqual((self.state.read_bytes(), self.state.stat().st_mtime_ns), before)
+
+    def test_unreadable_state_is_preserved_and_settings_are_still_prepared(self) -> None:
+        for value in ('{broken', '[]', '{"projects":[]}'):
+            with self.subTest(value=value):
+                self.state.write_text(value)
+                result = self.setup_claude()
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn('SKIP', result.stdout)
+                self.assertEqual(self.state.read_text(), value)
+                self.assertTrue(self.settings.is_file())
+
     def test_generated_file_permissions_are_private(self) -> None:
         self.prepared()
         if os.name == 'nt':
@@ -244,7 +286,7 @@ class DeploymentTests(SettingsFixture):
                          self.repo / 'claude/.claude.links/themes/gruvbox-material.json')
         self.assertFalse((self.home / 'README.md').exists())
         self.assertFalse((self.home / '.setup').exists())
-        self.assertEqual(self.state.read_text(), '{"projects":{"keep":{}},"machineID":"keep"}')
+        self.assertIs(self.assert_state_kept()['hasCompletedOnboarding'], True)
 
     def test_redirected_setup_refuses_paths_outside_its_home(self) -> None:
         self.environment.update(RC_SETUP_REDIRECTED='1', CLAUDE_KEY_FILE=str(self.root / 'outside-key'))

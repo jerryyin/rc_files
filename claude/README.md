@@ -26,7 +26,18 @@ python3 ~/rc_files/.setup credentials --vault-scope work --package claude
 
 This reads `~/vault-work/claude_key.txt` and updates only its subscription header, preserving other custom headers and preferences. `--vault PATH` or `CLAUDE_KEY_FILE` selects another source. Missing keys leave the local settings unchanged. Windows credential setup and Linux container startup call the same credential phase after preparing the vault; it runs no installers. An invalid key or settings file stops the hook without changing the settings file or printing the key.
 
-Claude owns its separate `.claude.json` state, onboarding, login and project information. Setup leaves that file alone. Existing source-owned settings links become ordinary files; unrelated links require reconciliation. Full configuration migration retires obsolete launcher and template links.
+Existing source-owned settings links become ordinary files; unrelated links require reconciliation. Full configuration migration retires obsolete launcher and template links.
+
+## First-run state
+
+Claude records first-run answers in its own `~/.claude.json` (`$CLAUDE_CONFIG_DIR/.claude.json` when set), not in `settings.json`. Both setup and the credential phase add only the missing answers, so a new container opens straight to the prompt:
+
+- `hasCompletedOnboarding` skips the welcome and theme picker; the theme comes from the template.
+- `hasSeenAutoDefaultNudge` skips the offer to replace the template's bypass default with auto mode.
+- `customApiKeyResponses.approved` gains the last 20 characters of the template's placeholder `ANTHROPIC_API_KEY`, unless that key was rejected.
+- `projects[path].hasTrustDialogAccepted` trusts the home directory and plain folders below it. Claude stops looking for trusted parents at a repository root, so each Git checkout still asks once and Claude records that answer itself.
+
+Everything else in the file stays Claude's: login, history, counters and per-project data are preserved. The file is generated, never tracked, because Claude rewrites it on every run. An unreadable state file is reported and left for Claude to recover.
 
 ## Appearance
 
@@ -40,8 +51,10 @@ Setup links the whole dedicated themes directory to `~/.claude/themes`, so edits
 python3 -B -m unittest discover -s claude/.setup/tests
 ```
 
-Tests use temporary homes and fake credentials. They cover setup, key replacement, existing preferences and state, file ownership and deployment reruns. Set `RC_CLAUDE_CLI_TEST=1` to include the installed CLI check against a fake localhost gateway. No test contacts the AMD gateway.
+Tests use temporary homes and fake credentials. They cover setup, key replacement, existing preferences, first-run state, file ownership and deployment reruns. Set `RC_CLAUDE_CLI_TEST=1` to include the installed CLI check against a fake localhost gateway. No test contacts the AMD gateway.
 
 ## Alternatives considered
 
 A launch wrapper requires shell integration and process handling on every invocation. A native credential helper adds a runtime callback and uses different authentication headers from the current gateway configuration. Seeding public defaults during setup and applying secrets only in the credential phase keeps the normal CLI invocation and gives credentials an explicit local owner.
+
+Tracking a copy of `.claude.json` would put Claude's constantly rewritten counters and history under version control. Seeding only the answers into the untracked file keeps the checkout clean. Replacing the placeholder API key with an `apiKeyHelper` might avoid the key question without touching the state file, but it is untested against the gateway and would not remove the onboarding or trust questions.
