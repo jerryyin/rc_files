@@ -67,8 +67,15 @@ skip the mock run to save time on a campaign you just authored — it is where a
 malformed schema surfaces, and the alternative is finding out with a paid manager
 already running.
 
+When authoring, fill the owners table in the campaign `AGENTS.md` before the
+first science round ("Name the owners before the first science round" in
+`NEW-CAMPAIGN.md`): read the toolkit and every team repository the campaign will
+use, by job, and pin them. Workers can only extend owners they are told about;
+an owner discovered after a run arrives with a parallel tool already written.
+
 If the directory exists and you are only arming the next run, start at `doctor`
-in that same file.
+in that same file; check that the owners table still covers what the next
+orders need.
 
 Either way the state is established by reading, not by recall: current
 `status`, whether a supervisor is already live, and the publication generation
@@ -98,8 +105,9 @@ is terminal; `status` answers where it is now.
 A terminal run is *accepted* (its results validated), not yet *admitted* into the
 campaign's report. Admission waits for promotion, which only you can do: no loop
 role can write the toolkit. Follow "Promote after every run" in `NEW-CAMPAIGN.md`
-— integrate each `tools_created` entry the results need into `~/scripts` or the
-shared repository, commit, bump the environment lock, rewrite the run note's
+— integrate each `tools_created` entry the results need where its `kind` sends it
+(an extension into its owner's repository, as a branch through that repository's
+review; a new tool into `~/scripts`), commit, bump the environment lock, rewrite the run note's
 `## Reproduce` to the promoted commits and re-run it on the run's inputs while the
 host has them. That work, like any Git change, goes through normal staging and
 review rather than under a standing push authorization; `publish-round` already

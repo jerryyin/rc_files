@@ -4,6 +4,8 @@ Applies when: Preparing a reusable script, rule, skill, or document, looking for
 
 Before creating a reusable tool or document, look for an existing owner and extend it when the purpose matches. Inspect the actual checkout on the execution host; personal scripts may be organized under `setup`, `numerics`, project directories or other purpose-specific locations.
 
+One owner per job: decide by the job a tool does, not by whether it already does what you need. When the owner falls short, change the owner (in a team repository, on a branch through its review) instead of writing a parallel tool in `scripts` or a campaign; configuration an owner defines, such as a server's flags, belongs to it too. A personal copy of a team tool is a pending branch of that tool, not its new home. The looped-campaign form of this rule, with what workers record, is "Tools behind a result" in triton-investigations' `orchestration/local/prompts/worker.md`.
+
 Use `rg --files` and content searches to find candidates, then read their usage and prerequisites before invoking them. A tool installed on the local Windows account may be absent from WSL, a container or a remote host. Installing `rc_files` does not require a separate `scripts` checkout.
 
 Keep reusable tools generic: discover volatile paths and versions on the target host, and fix the owning configuration or script when a connection is wrong. Keep current usage beside the tool rather than maintaining a duplicate inventory in agent instructions.
