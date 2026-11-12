@@ -4,6 +4,13 @@
   "actions": [
     {
       "command": {
+        "action": "sendInput",
+        "input": "\n"
+      },
+      "id": "User.sendInput.ShiftEnterNewline"
+    },
+    {
+      "command": {
         "action": "copy",
         "singleLine": false
       },
@@ -36,6 +43,10 @@
     "CanonicalGroupLimited.Ubuntu24.04LTS_79rhkp1fndgsc"
   ],
   "keybindings": [
+    {
+      "id": "User.sendInput.ShiftEnterNewline",
+      "keys": "shift+enter"
+    },
     {
       "id": "User.find",
       "keys": "ctrl+shift+f"
