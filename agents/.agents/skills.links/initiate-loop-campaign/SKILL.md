@@ -110,7 +110,8 @@ do: follow "Promote after every run" in `NEW-CAMPAIGN.md` — integrate each `to
 entry the results need where its `kind` sends it (an extension into its owner's repository,
 as a branch through that repository's review; a new tool into `~/scripts`), commit, bump
 the environment lock, and re-run the recipe on the run's inputs while the host has them.
-Then export the run notes with `export-evidence.py` into the campaign's `evidence/`:
+Then export one ledger per round with `export-evidence.py` into the campaign's `evidence/`
+(the report links each result to its ledger and worker):
 the state roots are not kept, so anything not exported, committed or pushed is lost.
 That work, like any Git change, goes through normal staging and review rather than under
 a standing push authorization; `publish-round` already delivered the orders.
