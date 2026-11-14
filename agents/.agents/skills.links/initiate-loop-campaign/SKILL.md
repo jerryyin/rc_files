@@ -103,12 +103,18 @@ There is nothing to schedule and no wake loop to arm. `wait` blocks until the ru
 is terminal; `status` answers where it is now.
 
 A terminal run is *accepted* (its results validated), not yet *admitted* into the
-campaign's report. Admission waits for promotion, which only you can do: no loop
-role can write the toolkit. Follow "Promote after every run" in `NEW-CAMPAIGN.md`
-— integrate each `tools_created` entry the results need where its `kind` sends it
-(an extension into its owner's repository, as a branch through that repository's
-review; a new tool into `~/scripts`), commit, bump the environment lock, rewrite the run note's
-`## Reproduce` to the promoted commits and re-run it on the run's inputs while the
-host has them. That work, like any Git change, goes through normal staging and
-review rather than under a standing push authorization; `publish-round` already
-delivered the orders.
+campaign's report. Owners listed as `writable_repositories` in `campaign.toml` already
+hold the workers' commits (each with its `Campaign-Request` trailer); push their branches
+and the `refs/campaign/*` pointers. Anything else waits for promotion, which only you can
+do: follow "Promote after every run" in `NEW-CAMPAIGN.md` — integrate each `tools_created`
+entry the results need where its `kind` sends it (an extension into its owner's repository,
+as a branch through that repository's review; a new tool into `~/scripts`), commit, bump
+the environment lock, and re-run the recipe on the run's inputs while the host has them.
+Then export the run notes with `export-evidence.py` into the campaign's `evidence/`:
+the state roots are not kept, so anything not exported, committed or pushed is lost.
+That work, like any Git change, goes through normal staging and review rather than under
+a standing push authorization; `publish-round` already delivered the orders.
+
+To change a running campaign's rules, use `stop-now` and `continue-run` ("Changing a
+run's rules" in `NEW-CAMPAIGN.md`) rather than killing processes and rewriting orders by
+hand.
