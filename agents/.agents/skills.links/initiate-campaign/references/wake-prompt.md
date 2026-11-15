@@ -91,7 +91,7 @@ conversation):
   1. [heartbeat file] -- what is in flight, and its timestamp. Flag if older than [the
      standing order's interval]. Flag any two status fields of different vintage.
   2. [blocked-on-operator file] -- quote only content new since the last sweep.
-  3. `bash orchestration/send-message.sh --check` -- UNACKED_COUNT and any unacked ids
+  3. `bash orchestration/onboard/send-message.sh --check` -- UNACKED_COUNT and any unacked ids
      verbatim. UNACKED_UNKNOWN is NOT zero. [Where a question has a PERSISTENT KNOWN FALSE
      POSITIVE, name the exact id or signature and say what count is nominal WITH it present.
      Do not leave it to be rediscovered each wake: an anomaly that every sweep reports and

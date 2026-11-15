@@ -17,7 +17,7 @@ description: >-
 
 **Scope: bringing a round into existence and getting the board working on it.** Everything afterwards — the sweep, its questions, the wake prompt's own text, decision authority, escalation — is `~/.agents/rules/unattended-campaign.md`, which governs every wake. This file hands over at step 9 and does not take control back until a round ends. Do not answer "how is the campaign doing" from here; read the rule.
 
-Not duplicated here: `orchestration/docs/NIGHTLY-RUN.md` (watchdog arming, morning triage, signatures worth recognising), `orchestration/CHECKS.md` (which gates are proven versus never-fired), `handoff-work` (when state must cross sessions).
+Not duplicated here: `orchestration/onboard/docs/NIGHTLY-RUN.md` (watchdog arming, morning triage, signatures worth recognising), `orchestration/onboard/CHECKS.md` (which gates are proven versus never-fired), `handoff-work` (when state must cross sessions).
 
 ## Discover, never hardcode
 
@@ -25,11 +25,11 @@ Encode the lookup, not the literal — a skill naming last month's container is 
 
 | Value | How to find it |
 |---|---|
-| Campaign directory | `orchestration/campaign-paths.sh` — the single campaign under `investigations/*/campaign` with both `rulings/` and `messages/` |
+| Campaign directory | `orchestration/onboard/campaign-paths.sh` — `$CAMPAIGN_DIR`, else the single campaign under `investigations/*/campaign` with both `rulings/` and `messages/` |
 | Ruling files | `$CAMPAIGN_DIR/rulings/standing-orders.txt` and `current-round.txt`, symlinked into the container |
-| Container / board access | `HELIOSR_CONTAINER` and `$HOME/bin/heliosr`, as used by `orchestration/send-message.sh` |
-| Agent runtime paths | `orchestration/agent-runtime.sh` (`AGENT_BIN`, session glob, proc pattern) |
-| Watchdog config | `orchestration/systemd/heliosr-watchdog.service` |
+| Container / board access | `HELIOSR_CONTAINER` and the board identity, set by the campaign's `campaign/board/board.env`; `$HOME/bin/heliosr` |
+| Agent runtime paths | `orchestration/onboard/agent-runtime.sh` (`AGENT_BIN`, session glob, proc pattern) |
+| Watchdog config | `orchestration/onboard/systemd/heliosr-watchdog.service` |
 
 If a lookup fails, fix the wiring rather than routing around it. A stale symlink will fail again next round; a workaround in your head will not survive compaction.
 
