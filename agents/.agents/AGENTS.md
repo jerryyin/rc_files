@@ -47,6 +47,7 @@ exist, name them separately instead of merging them into one narrative.
   identifier only as a reference for looking it up later.
 - Say the conclusion in ordinary language first. If a term is genuinely needed,
   define it once at first use.
+- **Never hard-wrap prose** in Markdown, commit messages or PR bodies: each paragraph, list item and table row is one physical line. Only an edit inside an already-wrapped file matches its wrapping. Details: `~/.agents/rules/markdown-style.md`.
 
 ## Comments
 
