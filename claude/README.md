@@ -41,7 +41,7 @@ Everything else in the file stays Claude's: login, history, counters and per-pro
 
 ## Appearance
 
-The public template selects `custom:gruvbox-material`. The native JSON theme in `.claude.links/themes/` supplies the Gruvbox Material dark, hard palette for interface accents and subtle diff backgrounds. Syntax highlighting stays enabled, and the existing scrolling renderer stays selected. See [Claude's native theme support](https://code.claude.com/docs/en/terminal-config#create-a-custom-theme).
+The public template selects `custom:gruvbox-material`. The native JSON theme in `.claude.links/themes/` supplies the Gruvbox Material dark, hard palette for interface accents and subtle diff backgrounds. Syntax highlighting stays enabled, and the existing scrolling renderer stays selected. See [Claude's native theme support](https://code.claude.com/docs/en/terminal-config#create-a-custom-theme). Inside tmux, Claude clamps to 256 colors unless `CLAUDE_CODE_TMUX_TRUECOLOR` is set and `COLORTERM` is `truecolor`; the Linux tmux configuration sets both for every pane, so the theme renders with its exact colors.
 
 Setup links the whole dedicated themes directory to `~/.claude/themes`, so edits and newly created themes stay in the checkout even when Claude replaces a theme file while saving. Edit the source or use `/theme` to preview and edit it. New theme files still need explicit staging. Theme selection itself is a local preference; update `.setup/settings.json.template` to carry a different default to future machines. Restart Claude after first deploying the directory; subsequent theme-file edits reload automatically.
 
