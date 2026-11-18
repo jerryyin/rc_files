@@ -6,8 +6,8 @@ PACKAGES = [
             arguments='/console=1 /desktop=0 /startmenu=0 /editwith=0 /vimrc=0 /launcher=0',
             search=('%ProgramFiles%/Vim/vim.exe', '%ProgramFiles%/Vim/vim*/vim.exe'),
             exclude='/Git/'),
-    Package('rg', winget='BurntSushi.ripgrep.MSVC'),
+    Package('rg', ('ripgrep',), winget='BurntSushi.ripgrep.MSVC'),
 ]
 if PLATFORM == 'linux':
     PACKAGES += [Package('nvim', ('neovim',)),
-                 Package(apt=('gcc', 'python3-dev', 'python3-setuptools', 'silversearcher-ag'))]
+                 Package(apt=('gcc', 'python3-dev', 'python3-setuptools'))]

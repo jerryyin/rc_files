@@ -3,16 +3,12 @@
 import argparse
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 
 
 def untracked_files(directory: Path) -> list[str]:
-    if shutil.which('rg'):
-        command = ['rg', '--files', '--null', '--path-separator', '/', '--glob', '!build/**']
-    else:
-        command = ['ag', '-g', '.', '--null', '--nocolor', '--ignore', '/build/']
+    command = ['rg', '--files', '--null', '--path-separator', '/', '--glob', '!build/**']
     result = subprocess.run(command, cwd=directory, stdin=subprocess.DEVNULL,
                             stdout=subprocess.PIPE)
     if result.returncode != 1:

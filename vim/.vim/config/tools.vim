@@ -43,27 +43,18 @@ let g:Lf_ExternalCommand = s:python . ' ' . shellescape(expand('<sfile>:p:h') . 
 
 " Grepper
 let g:grepper = {}
-let s:grep_tool = has('win32') ? 'rg' : 'ag'
-let g:grepper.tools = [s:grep_tool, 'git', 'grep']
+let g:grepper.tools = ['rg', 'git', 'grep']
 let g:grepper.repo = ['.git', '.hg', '.svn']
 let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
 let g:grepper.prompt_mapping_tool = '<leader>g'
-" Copied from grepper.vim
-" I amended the grepprg by adding --ignore-dir build
-"let g:grepper.ag.grepprg .= ' --ignore-dir build'
-let g:grepper.ag = {
-    \ 'grepprg':    'ag --vimgrep --ignore-dir build',
-    \ 'grepformat': '%f:%l:%c:%m,%f:%l:%m,%f',
-    \ 'escape':     '\^$.*+?()[]{}|' }
-
 let g:grepper.rg = {
     \ 'grepprg': 'rg --vimgrep --glob !build/**',
     \ 'grepformat': '%f:%l:%c:%m' }
 
-execute 'nnoremap <leader>ss :Grepper -tool ' . s:grep_tool . '<CR>'
+nnoremap <leader>ss :Grepper -tool rg<CR>
 nnoremap <leader>sg :Grepper -tool git -cword -noprompt<cr>
-execute 'nnoremap <leader>sa :Grepper -tool ' . s:grep_tool . ' -cword -noprompt<CR>'
+nnoremap <leader>sa :Grepper -tool rg -cword -noprompt<CR>
 
 " Copy to tmux clipboard and paste from tmux clipboard
 let s:mux = has('win32') ? 'psmux' : 'tmux'

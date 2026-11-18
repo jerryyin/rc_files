@@ -41,7 +41,7 @@ Quickfix lists use their normal syntax. For a buffer containing ANSI-colored out
 
 ## Installation and updates
 
-Native Vim, Node/npm and clangd are installed by this package and its dependencies. Linux also installs Neovim, ag and the build tools needed by LeaderF. Windows installs ripgrep and console Vim and maintains one terminal shortcut; the terminal package owns fonts. Existing installations are reused.
+Native Vim, Node/npm and clangd are installed by this package and its dependencies. Both platforms install ripgrep, which Vim uses for project search. Linux also installs Neovim and the build tools needed by LeaderF. Windows installs console Vim and maintains one terminal shortcut; the terminal package owns fonts. Existing installations are reused.
 
 Run the shared installer from the repository root. On Windows use `py -3` in place of `python3`.
 
