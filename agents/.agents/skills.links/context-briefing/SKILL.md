@@ -1,60 +1,54 @@
 ---
 name: context-briefing
 description: >-
-  Explain one codebase spot, behavior, error, concept, test, or design choice so a reader who does not share the project's vocabulary understands it in one pass, or deliver an evidence-backed verdict on one technical claim. Use when the user asks "explain this", "what is this doing", "walk me through", "I don't understand X", "give me the context around Y", or "why X instead of Y"; also use when they challenge truth or causality with "is this true", "confirm/refute", "prove this", "I'm not convinced", "what changed and why", or "push this to assembly/runtime".
+  Explain one codebase spot, behavior, error, concept, test, design choice, or how several pieces fit together and when each runs, so a reader who does not share the project's vocabulary understands it in one pass, or deliver an evidence-backed verdict on one technical claim. Use when the user asks "explain this", "what is this doing", "walk me through", "how does this fit together", "I don't understand X", "give me the context around Y", or "why X instead of Y"; also use when they challenge truth or causality with "is this true", "confirm/refute", "prove this", "I'm not convinced", "what changed and why", or "push this to assembly/runtime".
 ---
 
 # Context Briefing
 
-An explanation succeeds when the reader needs no follow-up question to understand it. Follow-up rounds come from three gaps: the answer starts somewhere other than what the reader is looking at, it relies on a concept the reader was never given, or it spreads across code that does not decide the behavior. This workflow closes each gap before writing.
+An explanation succeeds when a first-time reader can follow it in one pass and needs no follow-up question. Two things break that: detail arriving before the reader has a frame to hang it on, and a frame that never reaches what the reader actually asked. So build the frame first, the flow of the code at the level of its main functions, then go exactly as deep as the question needs.
 
-Apply `investigate-dont-assert` for every claim: it owns evidence, citation, and observed / inferred / unknown labels. This skill owns what to explain, in what order, and in what words.
+Apply `investigate-dont-assert` for every claim: it owns evidence and citation. Label an inferred or unverified claim where it is made, `(inferred)`, rather than in a separate section. This skill owns what to explain, in what order, and at what depth.
 
 ## Workflow
 
-1. **Anchor on the reader's artifact.** Identify the exact thing the reader is looking at (a line, test, output, error, diff, or term) and restate their question in their own words. Every identifier, expression, language or framework construct, and special value (zero, empty, a limit) in the part of the artifact the question touches will need a plain meaning in the answer. Done when you can quote that artifact and list those names and values.
-2. **Trace to the decision site.** Follow the data or control from that artifact to the place where the behavior in question is actually decided. Keep only the hops that carry the value; name each with `file:line`. Done when every hop between the artifact and the decision is accounted for and nothing off the path is included.
-3. **Build the prerequisite ladder.** List every concept the answer will use: domain ideas, hardware or platform facts, project terms, and how the code is run (launcher, process layout, environment, configuration). Count a concept as known only if the reader stated or demonstrated it; otherwise treat it as unknown. A project's own name or abbreviation for something the reader knows under another name is unknown until mapped to the reader's term. Order the unknowns so each relies only on earlier rungs or on known ground, and note for each what it does for this answer, not just what it is. Done when every term the answer needs is either known or on the ladder with its role.
-4. **Gather the evidence** at the decision site and along the path, as `investigate-dont-assert` requires. State each claim only as strongly as the code read or the output observed supports it.
-5. **Write in the chosen shape** (below). Teach the ladder before the mechanism, and follow one concrete instance with real values from the artifact to the decision. For each mechanism on the path, say what it is for; when it divides work, resources, or responsibility, say what every part does and what the division trades off.
-6. **Reread as the reader.** Every term is defined before first use, in plain words. Every code citation is a decision site or a hop to it. No sentence depends on knowledge outside the ladder. Comparisons and conclusions match the evidence's strength. Then ask what this reader would ask next, and answer it or say why it is out of scope. Fix the draft until no next question remains that the answer should have settled.
+1. **Anchor on the question.** Restate it in the reader's words and note any specific thing it names: a line, a value, a behavior, a claim. Done when you know what the direct answer must reach.
+2. **Map the flow.** Split the behavior into phases by when they run (process start, per request, per call, at capture versus replay, ...). For each phase pick its one main function: the function the surrounding system calls into for that phase, not the deepest interesting one. Done when the reader could narrate the phases in order from the list alone.
+3. **Find each main function's decisions.** List the choices it makes at its own level, as a short list rather than nested steps, and name the callees it hands off to. Step into a callee only when it makes a decision the question is about, or one without which the phase cannot be understood. Done when every phase has its decisions and nothing below that level appears without that reason.
+4. **Pick the terms.** Keep only the terms needed to read the summary and the flow, each in a sentence or two of plain words without code citations; map project names to the reader's own terms. Define anything else in place, at first use.
+5. **Gather the evidence** for each decision and for the direct answer.
+6. **Write in the shape below.** Cite `file:line` once per phase, at its main function, and at the code that decides the direct answer; name every other function without a location. Follow one concrete instance through the phases, giving its real values at the decisions only; derive or tabulate beyond it only when asked.
+7. **Reread as a first-time reader.** Every paragraph adds one level of detail at most beyond what came before it. If the question named something specific, the answer reaches it directly and fully. Then name what the reader would likely want next and offer it, instead of writing it unasked.
 
-## Choose the shape
-
-- **Explanation**: the reader asks what, how, or why.
-- **Comparison**: the reader asks why one choice was made over another. It is an explanation whose mechanism is the smallest model in which the alternatives behave differently.
-- **Verdict**: the reader asks whether a claim is true, to confirm or refute it, says they are not convinced, asks what changed, or asks to go to a lower artifact. The first non-empty line is `**Verdict**`.
-
-Mode changes only the answer's shape; the workflow above applies to all three.
-
-### Explanation
+## Shape
 
 ```markdown
-**Essence.** <written last: the answer in words the reader already has, claiming nothing the body does not establish; if that is impossible before the ladder, say what the answer will establish>
+<summary: at most four sentences: the phases in order, what each does, and the direct answer when the question asked for one>
 
-**What you need first**
-<first, what each name, construct, and special value in the reader's artifact means; then the unknown rungs, bottom-up, each in one or two plain sentences saying what it is and why it matters here, with a concrete instance>
+**Terms**
+<only those needed to read the summary and the flow>
 
-**Walk-through**
-<one concrete instance followed from the reader's artifact to the decision, with real values at each hop>
+**<Phase>: <when it runs>**
+<its main function, `file:line`; what it does and the decisions it makes, at its own level; the callee walked through only when it makes a decision the question is about>
 
-**Where it is decided**
-<file:line and the minimal excerpt for each decision site; how to find it (the search command), and why navigation tools cannot follow the path when they cannot>
+<one block per phase>
 
-**Look-alikes & traps**
-<similar names, concepts, or layers likely to cause the next question>
+**<The reader's question, in their words>**
+<when the question named a specific line, value, or behavior: the direct answer, going as deep as it needs, with `file:line` at the deciding code; add to the summary rather than repeat it>
 
-**Limits**
-<what is observed, inferred, or unknown; what this answer deliberately does not cover>
+**Going deeper**
+<one or two lines naming what can be expanded on request, and how to find it when navigation tools cannot follow the path>
 ```
 
-Omit **What you need first** only when the artifact's names are self-evident to the reader and the ladder has no unknown rungs.
+The flow orients the reader; it never replaces the direct answer. Omit the question block only when the flow itself is the answer, and **Terms** when the reader already has them.
 
 ### Comparison
 
-Use the explanation shape. In **Walk-through**, build the smallest model in which the alternatives produce different outcomes, then show a table of what each alternative triggers along that axis and what each gives up. Argue only in terms the model introduced. If the alternatives differ less than the question assumes, say so first.
+When the reader asks why one choice was made over another, build the smallest model in which the alternatives produce different outcomes, then show a table of what each alternative triggers along that axis and what each gives up. Argue only in terms the model introduced. If the alternatives differ less than the question assumes, say so first.
 
 ### Verdict
+
+When the reader asks whether a claim is true, to confirm or refute it, says they are not convinced, asks what changed, or asks to go to a lower artifact, lead with the verdict:
 
 ```markdown
 **Verdict**
@@ -78,23 +72,14 @@ Inferred: ...
 Unknown / not tested: ...
 ```
 
-Use every heading, even for short answers. If the claim is not causal, replace A/B with the smallest decisive observation and say why it is enough. When the reader lacks vocabulary the verdict depends on, add the ladder as a short primer under **Mechanism**.
-
-## Scope
-
-- Quote code only at decision sites and the hops that reach them. Mention other code by path, without explaining it.
-- Stay at the layer the question lives at. Go lower only when the reader challenges that layer or the decision is made there.
-- Prefer one complete, concrete instance over several partial ones.
+If the claim is not causal, replace A/B with the smallest decisive observation and say why it is enough. When the reader lacks the vocabulary or the flow the verdict depends on, put a short summary and flow under **Mechanism**.
 
 ## Completion check
 
-- [ ] The answer starts from the reader's artifact and reaches the decision site.
-- [ ] Every name, construct, and special value in the artifact that the question touches has a plain meaning in the answer.
-- [ ] Every unknown concept is taught, in plain words and in dependency order, before it is used; project synonyms are mapped to the reader's terms.
-- [ ] Each mechanism on the path states its purpose, and any division of work states what every part does.
-- [ ] Code citations are limited to decision sites and the path to them, each with `file:line` and a way to find it.
-- [ ] A comparison rests on a model where the alternatives actually differ.
-- [ ] A verdict starts with `**Verdict**` and keeps every verdict heading.
-- [ ] Claims carry the evidence and labels `investigate-dont-assert` requires, and none is stronger than its evidence.
-- [ ] The Essence claims nothing the body does not establish.
-- [ ] The reader's likely next question is answered or explicitly scoped out.
+- [ ] The summary alone gives the phases in order and, when one was asked for, the direct answer.
+- [ ] Each phase names its main function with `file:line` and says when it runs; other functions appear by name only.
+- [ ] Nothing below a main function's level appears unless it makes a decision the question is about.
+- [ ] A specific question gets its direct, complete answer; the flow does not stand in for it.
+- [ ] Every term is in plain words, defined before or at first use.
+- [ ] Inferred claims are labeled where they are made, and none is stronger than its evidence.
+- [ ] The likely next question is offered, not written out unasked.
