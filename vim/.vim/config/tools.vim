@@ -49,7 +49,7 @@ let g:grepper.dir = 'repo'
 let g:grepper.highlight = 1
 let g:grepper.prompt_mapping_tool = '<leader>g'
 let g:grepper.rg = {
-    \ 'grepprg': 'rg --vimgrep --glob !build/**',
+    \ 'grepprg': 'rg --vimgrep --smart-case --max-columns 500 --max-columns-preview --glob !build/**',
     \ 'grepformat': '%f:%l:%c:%m' }
 
 nnoremap <leader>ss :Grepper -tool rg<CR>
