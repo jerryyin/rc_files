@@ -27,6 +27,6 @@ To reload changes in an existing session, press the currently active prefix foll
 
 ## Resizing panes
 
-Prefix, then `t` enters resize mode, and the status bar shows `RESIZE`. In resize mode, `h`, `j`, `k`, and `l` move the pane edge by 5 cells, and `H`, `J`, `K`, and `L` move it by 1. Press Escape, Enter, or `q` to leave. Resize mode has no timeout, unlike the repeatable prefix `H`/`J`/`K`/`L` shortcuts.
+Prefix, then `t` enters resize mode, and the status bar shows `RESIZE`. In resize mode, `h`, `j`, `k`, and `l` move the pane edge in larger steps. Use `H`, `J`, `K`, and `L` for finer adjustments. Press Escape, Enter, or `q` to leave.
 
-On Linux, prefix then `=` gives the side-by-side columns equal widths without changing any pane heights; `=` does the same inside resize mode. It replaces tmux's paste-buffer chooser on that key. psmux keeps its default `=`, because the command is a POSIX shell pipeline.
+Press the prefix, then `=` to equalize the top-row columns while preserving stacked panes and their heights. In resize mode, press `=` on its own and continue resizing. To open the paste-buffer chooser, use the prefix, then `:` and enter `choose-buffer`.
