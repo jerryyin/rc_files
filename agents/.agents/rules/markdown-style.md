@@ -1,10 +1,10 @@
 # Markdown / Prose Output Style
 
-Applies when: Writing or editing Markdown or prose in documentation, reports, reviews, tickets, and comments.
+Applies when: Writing or editing Markdown or prose in documentation, reports, reviews, tickets, and PR or issue comments. Code comments follow the surrounding code (shared AGENTS.md, Comments).
 
 ## No hard line breaks in prose (proseWrap: never)
 
-When you write or edit Markdown or long-form text — docs, READMEs, reports, tickets, design notes, PR/commit bodies, and prose comments — do NOT insert hard line breaks inside a block. Write each paragraph as one continuous physical line and let the editor soft-wrap it. This applies generically to any Markdown you produce, in any project. Do not wrap prose at 80/100 columns.
+When you write or edit Markdown or long-form text — docs, READMEs, reports, tickets, design notes, and PR/commit bodies — do NOT insert hard line breaks inside a block. Write each paragraph as one continuous physical line and let the editor soft-wrap it. This applies generically to any Markdown you produce, in any project. Do not wrap prose at 80/100 columns.
 
 - One paragraph = one physical line. Likewise, each list item, each table row, each blockquote line, and each footnote is a single line, however long.
 - "No line break" means no break *within* a block, not merging blocks. Keep the blank line between paragraphs, and keep list items as separate lines/items.

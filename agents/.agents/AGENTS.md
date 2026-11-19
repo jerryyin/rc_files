@@ -1,5 +1,12 @@
 # User Preferences
 
+## When Instructions Disagree
+
+- The project decides how its work looks and runs: code style, comments, docs, tests, build, PR and commit format, and where to push. Its `AGENTS.md`, `AGENTS.local.md`, contributing docs, templates, and surrounding code take precedence over personal rules and skills.
+- These personal instructions decide authority and communication in every project: when to commit or push, what counts as destructive, and how to explain and report. The Python environment choice below also holds in every project.
+- Within personal instructions, this file holds the defaults. A rule or skill may narrow them for its own task or output format without restating them.
+- If instructions at the same level still disagree, say so instead of silently picking one.
+
 ## Git Workflow
 
 This section is the single Git policy; rules and skills defer to it.
@@ -28,7 +35,9 @@ exist, name them separately instead of merging them into one narrative.
 
 ## Concrete First
 
-- Show the thing, don't describe it: print the actual value, walk the real data flow with real names and `file:line`, quote the real output. A rule the reader still has to apply themselves is not the same as the applied result — give the result. Abstractions and summaries come after the example, never instead of it.
+- Order: the conclusion in one or two plain sentences, then the concrete example, then any generalization — after the example, never instead of it.
+- Show the thing, don't describe it: print the actual value, quote the real output. A rule the reader still has to apply themselves is not the same as the applied result — give the result.
+- Pick the one scene that decides the answer and walk it with real names and values, in as much detail as it needs. Reason from first principles: what the mechanism must do and why. Leave out surrounding context and `file:line` references the reader did not ask for.
 - Use the smallest instance where the point is visible; production-scale values usually hide it.
 
 ## Communication Style
@@ -43,13 +52,13 @@ exist, name them separately instead of merging them into one narrative.
 - Project-internal shorthand — rule numbers, gate names, amendment letters, run ids,
   code names — is not self-explanatory. Say what the thing *is*, and attach the
   identifier only as a reference for looking it up later.
-- Say the conclusion in ordinary language first. If a term is genuinely needed,
-  define it once at first use.
+- If a term is genuinely needed, define it once at first use.
 - **Never hard-wrap prose** in Markdown, commit messages or PR bodies: each paragraph, list item and table row is one physical line. Only an edit inside an already-wrapped file matches its wrapping. Details: `~/.agents/rules/markdown-style.md`.
 
 ## Comments
 
-- Match comment and docstring density to the surrounding file; when there is no precedent, err sparse.
+- Match comment and docstring density, and comment line wrapping, to the surrounding code; when there is no precedent, err sparse.
+- Remove redundant comments — ones that restate what the code visibly does — in the code a change writes or touches.
 - A docstring states the contract: what the caller passes, what comes back, and what is not obvious from the signature. Mechanism and motivation belong in the PR description or in a comment at the line where the behaviour happens.
 
 ## Build & Test
@@ -74,7 +83,7 @@ Additional personal guidance lives in `~/.agents/rules/`. Before substantive wor
 - Check the tools available in the current session before following a tool-specific step. Use scheduling and delegation only when supported and authorized. If a required capability is absent, report the missing step rather than claim it was completed.
 - Establish where a command must run: native Windows, WSL, a container, or a remote host. Discover paths and prerequisites on that host. Linux hardware workflows may run remotely without being translated into PowerShell.
 - Look in the `scripts` checkout (usually `~/scripts`; its README maps subjects to directories) for an existing tool before improvising infrastructure; for example, run GPU jobs on a shared host without a GPU lock through its `board/gpu-queue` instead of choosing GPUs yourself.
-- In a development container, install Python projects into the system Python, not a virtual environment: the container is disposable, and editors and language servers find packages through the default interpreter. Install editable packages with `--config-settings editable_mode=compat`, because the default import-hook mode is invisible to static tools such as Pyright. Before writing an install recipe, look in the `scripts` checkout (usually `~/scripts`, e.g. `tokenspeed/install.sh`) and put new reusable installers there.
+- Python environment: inside a Docker container (`/.dockerenv` exists), always install into the system Python, even where a project asks for a virtual environment: the container is disposable, and editors and language servers find packages through the default interpreter. Elsewhere, use a virtual environment. Install editable packages with `--config-settings editable_mode=compat`, because the default import-hook mode is invisible to static tools such as Pyright. Before writing an install recipe, look in the `scripts` checkout (usually `~/scripts`, e.g. `tokenspeed/install.sh`) and put new reusable installers there.
 - A local installation does not establish remote or cloud availability. Deploy this collection in the actual execution environment and confirm its instruction and skill discovery there. Report a missing shared instruction file instead of silently assuming its content.
 
 ## Design Documentation

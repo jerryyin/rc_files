@@ -44,7 +44,7 @@ git diff --cached --stat
 git diff --stat
 ```
 
-Suggest a PR commit message:
+When the repository has no PR template or message convention, suggest a PR commit message:
 ```
 <Short summary>
 

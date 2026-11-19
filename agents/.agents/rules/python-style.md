@@ -1,6 +1,6 @@
 # Python Style Guide
 
-Applies when: Reading, writing, generating, or reviewing Python code in any project.
+Applies when: Reading, writing, generating, or reviewing Python code in any project. These are defaults: the project's own conventions take precedence.
 
 ## Core Principles
 

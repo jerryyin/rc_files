@@ -60,7 +60,7 @@ For a new abstraction, apply the deletion test: if removing it only removes indi
 - Cover behavior at the cheapest faithful seam; use a unit/pass/IR test instead of end-to-end coverage when it proves the same contract.
 - Verify the test would fail on the bug or missing behavior and that expected results come from an independent oracle.
 - Reuse existing positive coverage; add representative negative cases for distinct branches without duplicating layers.
-- Keep comments to brief intent and non-obvious rationale. Remove narration of visible code.
+- Comments follow the shared AGENTS.md Comments section: match the surrounding density and remove redundant ones.
 - A comment must explain how the assertion detects what it claims, not merely restate the defect. If the reader cannot get from the asserted expression to the property being protected, the missing step belongs in the code or on the type — not in a comment about consequences.
 - Test the same abstraction level as the surrounding tests and the code under change; never a layer below. A case that exercises the diff's own test helper, fixture, or hand-built input reads as coverage while catching nothing shipped code could break. Ask which shipped component fails if this assertion is wrong — if only the helper does, drop the test and keep its guard inline.
 

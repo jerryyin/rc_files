@@ -60,7 +60,7 @@ subagent shells miss the `.zshrc` autoload):
 
 ```bash
 source <ffmlite_env.sh>; export LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH
-TRITON_ALWAYS_COMPILE=1 python3 <driver>    # GPU runs under: flock /data/lock/amd-gpu.lock
+TRITON_ALWAYS_COMPILE=1 python3 <driver>    # on a shared host, wrap GPU runs with ~/scripts/board (see its README)
 ```
 
 Gotchas: an FFM run keeps sim threads alive and overruns a 2-min Bash timeout (a
