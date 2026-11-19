@@ -61,6 +61,14 @@ set backspace=indent,eol,start
 " Auto reload file on disk
 set autoread
 
+" Keep swap files out of working trees; the trailing // encodes the full path in the name.
+let s:swap_dir = expand('~/.vim/swap')
+if !isdirectory(s:swap_dir)
+  call mkdir(s:swap_dir, 'p', 0700)
+endif
+let &directory = s:swap_dir . '//'
+unlet s:swap_dir
+
 " It hides buffers instead of closing them. This means that you can have unwritten changes
 " to a file and open a new file using :e, without being forced to write or undo your changes first.
 set hidden
