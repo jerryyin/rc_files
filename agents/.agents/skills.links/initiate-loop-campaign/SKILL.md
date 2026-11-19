@@ -114,7 +114,7 @@ Then export one ledger per round with `export-evidence.py` into the campaign's `
 each ledger is named by its round's conclusion and holds the round's recipe, and the report
 holds only findings, linking each result to its ledger and worker. The state roots are not
 kept, so anything not exported, committed or pushed is lost.
-That work, like any Git change, goes through normal staging and review rather than under
+That work, like any Git change, follows the Git policy in the shared AGENTS.md rather than
 a standing push authorization; `publish-round` already delivered the orders.
 
 To change a running campaign's rules, use `stop-now` and `continue-run` ("Changing a

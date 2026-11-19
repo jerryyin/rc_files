@@ -41,7 +41,7 @@ Run the loop on the exact failing state. For a suspected regression, establish t
 
 Reduce input, configuration, callers, and steps one variable at a time, keeping only elements that carry the failure. For timing-sensitive or nondeterministic bugs, prioritize a robust high-rate reproducer over the smallest one; use the minimal case later for explanation or handoff.
 
-If only good and bad endpoints are known, offer to turn the feedback command into an automated range bisection. Start only with explicit Git-write authorization and confirmation for repeated long builds; isolate the run, record skipped commits, and leave bisect state only when the user wants it preserved.
+If only good and bad endpoints are known, offer to turn the feedback command into an automated range bisection. Start only with confirmation for repeated long builds; isolate the run, record skipped commits, and leave bisect state only when the user wants it preserved.
 
 Stay on a fixed experimental state while diagnosing. Do not pull, rebase, cherry-pick, or switch baselines mid-investigation unless deliberately creating an isolated comparison.
 
@@ -79,7 +79,7 @@ If `test-driven-change` finds no faithful test seam, carry that architectural fi
 
 Remove all tagged instrumentation and throwaway harnesses unless the user wants a durable reproducer. Ask what condition allowed the bug—missing invariant, weak seam, absent validation, or misleading tool feedback—and record only a concrete preventive follow-up.
 
-Use `pr-ready-self-review` for an implemented diff or `ship-external-artifact` for an upstream report/reproducer. Defer history surgery until the fix is verified and explicitly authorized.
+Use `pr-ready-self-review` for an implemented diff or `ship-external-artifact` for an upstream report/reproducer. Defer history surgery until the fix is verified; follow the Git policy in the shared AGENTS.md.
 
 ## Completion check
 

@@ -6,7 +6,7 @@ description: >-
   after a solution works but before opening a PR, or when asked to finalize,
   clean up, harden, polish, or self-review a branch or working-tree change.
   Pins the exact tip and comparison base, minimizes scope, audits test quality,
-  and runs targeted verification without committing or pushing implicitly.
+  and runs targeted verification without pushing to a PR implicitly.
 ---
 
 # PR-Ready Self-Review
@@ -84,4 +84,4 @@ Present:
 - [ ] Abstractions reduce policy duplication rather than add forwarding layers.
 - [ ] Tests use faithful seams and independent expected results, at the abstraction level under change rather than a layer below.
 - [ ] Targeted validation passes; broader checks are authorized and proportionate.
-- [ ] No commit or push occurred without current-turn authorization.
+- [ ] No publishing push occurred without current-turn authorization.

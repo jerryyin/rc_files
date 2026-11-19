@@ -61,7 +61,7 @@ Predeclaring the criteria is what makes the next report a result rather than an 
 
 **4. Retire the legacy.** Move obsolete rulings into `rulings/superseded/`; leave `rulings/` holding exactly what the agent is told to read. Amend in place with a dated `AMENDMENT` section rather than editing history — the agent hashes the file and will notice, and an amendment landing after it has read the file needs an explicit "re-read section N" message.
 
-**5. Prepare the campaign record for publication.** Follow the shared AGENTS.md Git authority: commit and push only when explicitly requested in the current user turn. A campaign record does not grant itself standing permission. Finish and review the files before requesting missing publication authority. If Git publication is authorized, discover the actual target branch; fetch and reconcile concurrent changes through the authorized workflow. Preserve unrelated edits, and never force-push or rewrite published history to deliver a ruling.
+**5. Prepare the campaign record for publication.** Follow the Git policy in the shared AGENTS.md; a campaign record does not grant itself any further permission. Finish and review the files before pushing. Discover the actual target branch; fetch and reconcile concurrent changes before pushing. Preserve unrelated edits, and never force-push or rewrite published history to deliver a ruling.
 
 **6. Deliver, and prove delivery.** Each step has an independent failure mode:
 

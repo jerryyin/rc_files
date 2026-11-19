@@ -2,17 +2,15 @@
 
 ## Git Workflow
 
-- Never `git push` without explicit authorization
-- Never amend commits without explicit authorization
-- Stage changes and ask for reviews before committing
-- Branch naming: `users/<username>/<short-description>`
-- Use short form issue references (#NNNN) instead of full URLs
+This section is the single Git policy; rules and skills defer to it.
 
-### Git Action Gate
-
-Editing is not permission to commit or push. Only commit, amend, push,
-force-push, stash, or reset when explicitly requested in the current user turn.
-Before any git write, summarize the intended action and affected files.
+- **Commits:** commit without asking, one commit per finished, self-contained change. Do not commit intermediate steps of a change in progress; fold any that slipped in into the change's commit before pushing. Amend, squash, or reorder commits freely while they are unpushed.
+- **Publishing pushes** need an explicit request in the current user turn. A push publishes when (a) the branch is the head of an open or draft PR, (b) the action opens, updates, or comments on a PR, or (c) the branch is the default branch of a repository other people commit to. Before such a push, name the remote, branch, and the commits it adds.
+- **Other pushes** are free as fast-forwards: a branch with no PR, or the default branch of a repository only the user commits to (public or private). When a fast-forward is rejected, rebase onto the remote if nothing conflicts; ask otherwise.
+- **PR check:** `gh pr list --repo <target> --head <branch> --state open`, where the target is the repository the PR would merge into (the upstream for a fork). If the check cannot run or cannot see the repository, treat the push as publishing.
+- **Pushed commits are never rewritten without asking** (no force-push): the user pushes from more than one machine. Also ask before discarding uncommitted work or deleting a branch.
+- Branch naming for branches that will become PRs: `users/<username>/<short-description>`.
+- Use short form issue references (#NNNN) instead of full URLs.
 
 ## Complex Task Contract
 
@@ -68,7 +66,7 @@ Additional personal guidance lives in `~/.agents/rules/`. Before substantive wor
 ## Personal Configuration Ownership
 
 - Resolve `~/.agents/AGENTS.md` to find the Git-owned personal configuration directory. Author new personal rules in its `rules/` directory and new skills in `skills.links/<name>/`; each skill has a `SKILL.md` with its own name, description, and supporting resources.
-- Resolve installed file links before editing personal configuration and edit the Git source. A new sibling directory in an installed skills root is not automatically owned by the repository. Use the existing Python setup to deploy newly tracked content, and stage only intended authored files for review.
+- Resolve installed file links before editing personal configuration and edit the Git source. A new sibling directory in an installed skills root is not automatically owned by the repository. Use the existing Python setup to deploy newly tracked content, and commit only intended authored files.
 - Keep project instructions in the project's own `AGENTS.md`. Application-managed skills, plugin code, caches, credentials, and session state keep their application ownership. Record wanted integration choices in the application's tracked settings.
 
 ## Tools and Execution Hosts

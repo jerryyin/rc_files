@@ -1,16 +1,16 @@
 # Code Review Workflow
 
-Applies when: Preparing or processing staged code review, inline RVW/RVWY feedback, or an explicitly authorized commit stack.
+Applies when: Preparing or processing staged code review, inline RVW/RVWY feedback, or shaping a commit stack.
 
 ## Commit Stack Workflow
 
-Prepare changes for staged review. Create WIP commits, squash, amend, or publish a stack only when that Git action is authorized in the current user turn under the shared AGENTS.md. An instruction to process review feedback authorizes the described edits, not an automatic commit.
+Prepare changes for staged review. For commits, squashing, amending, and publishing a stack, follow the Git policy in the shared AGENTS.md.
 
 ### Two Review Modes
 
 | Mode | When | Diff |
 |------|------|------|
-| **Incremental** | After each AI batch | Staged and unstaged changes; use commit ranges only for an authorized committed batch |
+| **Incremental** | After each AI batch | Staged and unstaged changes, plus the batch's commit range |
 | **Milestone** | Before PR/squash | Merge-base diff against the actual target branch, plus staged and unstaged changes |
 
 ## Review Comment Format

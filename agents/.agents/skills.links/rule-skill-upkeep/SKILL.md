@@ -13,7 +13,7 @@ description: >-
 
 Rules and skills are executable context. Optimize for reliable retrieval, correct behavior, and low maintenance cost—not completeness.
 
-Apply `investigate-dont-assert` when auditing claims. Obey the current turn's Git and mutation authority. Before a Git write, summarize the intended action and affected files; editing never implies permission to commit or push.
+Apply `investigate-dont-assert` when auditing claims. Follow the Git policy in the shared AGENTS.md and the current turn's mutation authority.
 
 ## Choose the home
 
@@ -62,7 +62,7 @@ Audit retrieval and structure too:
 
 ## Finish
 
-Run targeted validation, inspect the final diff, and confirm the live configuration resolves to the edited source. Summarize what was merged, added, omitted, and why. If the repository workflow calls for staging before review, state the exact files and stage only the task changes. Commit or push only when explicitly authorized in the current user turn.
+Run targeted validation, inspect the final diff, and confirm the live configuration resolves to the edited source. Summarize what was merged, added, omitted, and why. Commit only the task changes, and push following the Git policy in the shared AGENTS.md.
 
 ## Completion check
 
@@ -71,4 +71,4 @@ Run targeted validation, inspect the final diff, and confirm the live configurat
 - [ ] New skills cover distinct, recurring workflows.
 - [ ] Environment-specific claims were verified or labeled unverified.
 - [ ] Changed skills validate and contain no template residue.
-- [ ] Git and external actions stayed within current-turn authority.
+- [ ] Git and external actions followed the shared Git policy and current-turn authority.

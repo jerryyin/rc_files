@@ -18,17 +18,17 @@ lost, nothing throwaway is kept.
 Apply `investigate-dont-assert`: identify what produced each change/file and
 whether it is already tracked before deciding its fate. Cite the evidence.
 
-**Produce a categorized plan first, then act.** Commits, pushes, and deletions
-are consequential — present the plan and get approval before executing the
-destructive or outward-facing parts. Never silently revert, delete, or commit a
-state you do not understand.
+**Produce a categorized plan first, then act.** Deletions and publishing pushes
+are consequential — present the plan and get approval before executing them;
+commits and other pushes follow the Git policy in the shared AGENTS.md. Never
+silently revert, delete, or commit a state you do not understand.
 
 ## Sweep 1 — Tracked folders (commit the keepers, flag the wrong state)
 
 For every tracked repo you may have touched (dotfiles, scripts, vault, project
 checkouts), run `git status` and check for unpushed commits. Classify each change:
 
-- **Intentional and worth keeping** → stage in logical splits for review. Commit and push only when those actions are explicitly authorized in the current user turn under the shared AGENTS.md. Do not bundle unrelated changes.
+- **Intentional and worth keeping** → commit in logical splits and push, following the Git policy in the shared AGENTS.md. Do not bundle unrelated changes.
 - **Wrong / anomalous state** → stop and diagnose before touching. A typechange,
   an unexpected symlink, a generated file showing as tracked, or a secret about to
   land in a non-secret file all signal something upstream is mis-wired. Find who
@@ -74,10 +74,10 @@ right place.
 
 ## Checklist
 - [ ] Every tracked repo: `git status` reviewed and unpushed commits checked.
-- [ ] Keepers committed in logical splits and pushed (after approval).
+- [ ] Keepers committed in logical splits and pushed per the shared Git policy.
 - [ ] Wrong state diagnosed to its source and fixed only with permission.
 - [ ] Ownership boundaries intact: secrets vs non-secret config in the right home.
 - [ ] No junk committed: debug artifacts, build output, or generated/secret files kept out of repos.
 - [ ] Every loose file classified: deleted, or refactored-and-placed.
 - [ ] Intentionally-untracked / active / user-pinned files left alone.
-- [ ] Plan presented before any push or deletion.
+- [ ] Plan presented before any publishing push or deletion.

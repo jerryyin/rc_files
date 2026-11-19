@@ -23,7 +23,7 @@ A handoff is a continuation interface, not a transcript or retrospective. Includ
 
 1. **Name the continuation.** State the next session's goal, completion criteria, and immediate next action. Tailor the rest to that purpose.
 2. **Pin current state.** Record the repository path, branch and tip SHA, relevant worktree state, build directory, run/job identifiers, and whether evidence came from the current tip or an older attempt.
-3. **Carry authority and constraints.** Record the task contract, user decisions, scope boundaries, and whether commit, push, destructive actions, long builds, or external writes are authorized. Never infer authority from work already performed.
+3. **Carry authority and constraints.** Record the task contract, user decisions, scope boundaries, and any publishing push, destructive action, long build, or external write the user authorized beyond the shared Git policy. Never infer authority from work already performed.
 4. **Separate knowledge.** List established facts with their evidence, current hypotheses, and unknowns. Include exact reproducer/test commands, inputs, flags, meaningful output, and artifact paths.
 5. **Link instead of copying.** Point to specs, plans, ledgers, ADRs, issues, commits, diffs, traces, and reports already stored durably. Summarize only the fact the receiver needs from each.
 6. **Preserve the search frontier.** Record dead ends and why they failed, unresolved choices, risks, and the next experiment most likely to change the current belief.

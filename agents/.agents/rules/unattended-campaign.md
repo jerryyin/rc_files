@@ -59,12 +59,12 @@ That includes the awkward case where your own ruling contradicts itself or sets 
 - What to do first, and what to do while blocked — there is always off-hardware work.
 - Whether a result needs an extra comparison run before you accept what it claims.
 - Which pre-written outcome a result counts as, and therefore what may now be said.
-- How to prepare routine files for review. The shared AGENTS.md governs Git actions; commit or push still requires explicit authorization in the current user turn.
+- How to prepare routine files for review. Git actions follow the Git policy in the shared AGENTS.md.
 - How much to run at once: cap parallelism, build sequentially, report feasibility first.
 
 **Act within the current task contract** — this rule grants no additional Git, recovery, or resource authority:
 
-- **Prepare the campaign record.** Stage and review rulings, amendments, results, logs, and breadcrumbs. Commit or push only when explicitly requested in the current user turn. If publication is required for delivery and authority is absent, report that boundary after preparing the concrete result.
+- **Prepare the campaign record.** Review rulings, amendments, results, logs, and breadcrumbs, then commit and push them following the Git policy in the shared AGENTS.md. If a needed push counts as publishing there and was not requested, report that boundary after preparing the concrete result.
 - **When explicitly authorized, power cycle if the boot itself is the problem** — a wedged queue that ignores SIGKILL, a driver that will not reload. Not merely because the board is unreachable: this link fails intermittently, so retry first and get positive evidence the box is down. Cycle *before* spending rows, never after, so nothing measured is stranded on a boot you then discard. The board is shared and a cycle evicts every neighbour's work along with the fault.
 - **Use the authorized time and resources.** Keep working on admitted tasks; confirm long builds or additional resource use when the current task contract requires it.
 - **Report a root cause that leads outside the agreed scope.** Continue independent in-scope work and obtain the needed scope or resource decision before consequential new work.
