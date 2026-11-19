@@ -56,6 +56,11 @@ if [[ ! -f $ZINIT_BIN_DIR/zinit.zsh ]]; then
 fi
 if [[ -f $ZINIT_BIN_DIR/zinit.zsh ]]; then
     source "$ZINIT_BIN_DIR/zinit.zsh"
+    # Skip compaudit when the dump exists: its exemption for user-private-group
+    # dirs needs a group lookup that goes to OS Login on cloud hosts and can
+    # hang or fail, which pops the "insecure directories" prompt. New completion
+    # files need `rm ~/.zcompdump` (or `zinit cclear`) to be picked up.
+    ZINIT[COMPINIT_OPTS]=-C
 else
     print -u2 "zinit: bootstrap failed (no $ZINIT_BIN_DIR/zinit.zsh)"
     return 1
