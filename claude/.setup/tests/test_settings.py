@@ -230,6 +230,15 @@ def install(package, command):
         self.prepared()
         self.assertEqual((self.state.read_bytes(), self.state.stat().st_mtime_ns), before)
 
+    def test_saved_console_key_equal_to_the_placeholder_is_dropped(self) -> None:
+        for saved, kept in (('dummy', False), ('real-console-key', True)):
+            with self.subTest(saved=saved):
+                self.state.write_text(json.dumps({'machineID': 'keep', 'projects': {'keep': {}}, 'primaryApiKey': saved}))
+                self.prepared()
+                state = self.assert_state_kept()
+                self.assertEqual('primaryApiKey' in state, kept)
+                self.assertEqual(state['customApiKeyResponses']['approved'], ['dummy'])
+
     def test_unreadable_state_is_preserved_and_settings_are_still_prepared(self) -> None:
         for value in ('{broken', '[]', '{"projects":[]}'):
             with self.subTest(value=value):

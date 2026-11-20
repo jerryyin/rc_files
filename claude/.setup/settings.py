@@ -30,8 +30,9 @@ def seed_state(directory: Path, home: Path, api_key: Json) -> None:
     """Add the answers to Claude's first-run questions to its untracked state file.
 
     Marks onboarding and the auto-mode offer as seen, approves the template's placeholder
-    API key unless it was rejected, and trusts `home`. Other state is kept. An unreadable
-    state file is reported and left for Claude to recover.
+    API key unless it was rejected, drops a saved Console key equal to that placeholder, and
+    trusts `home`. Other state is kept. An unreadable state file is reported and left for
+    Claude to recover.
     """
     target = directory / '.claude.json' if 'CLAUDE_CONFIG_DIR' in os.environ else home / '.claude.json'
     try:
@@ -54,6 +55,9 @@ def seed_state(directory: Path, home: Path, api_key: Json) -> None:
         approved = responses.setdefault('approved', [])
         if truncated not in approved and truncated not in responses.setdefault('rejected', []):
             approved.append(truncated)
+        # Claude warns on every start when the env key overrides a saved Console key.
+        if state.get('primaryApiKey') == api_key.strip():
+            del state['primaryApiKey']
     # Claude stops looking for trusted parents at a Git root, so checkouts below
     # home still ask once. New project entries default to false, which is not a refusal.
     project = projects.setdefault(home.resolve().as_posix(), {})

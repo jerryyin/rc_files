@@ -35,6 +35,7 @@ Claude records first-run answers in its own `~/.claude.json` (`$CLAUDE_CONFIG_DI
 - `hasCompletedOnboarding` skips the welcome and theme picker; the theme comes from the template.
 - `hasSeenAutoDefaultNudge` skips the offer to replace the template's bypass default with auto mode.
 - `customApiKeyResponses.approved` gains the last 20 characters of the template's placeholder `ANTHROPIC_API_KEY`, unless that key was rejected.
+- `primaryApiKey` is removed when it equals that placeholder; Claude otherwise warns on every start that the environment key overrides the saved Console key. A different saved key is kept.
 - `projects[path].hasTrustDialogAccepted` trusts the home directory and plain folders below it. Claude stops looking for trusted parents at a repository root, so each Git checkout still asks once and Claude records that answer itself.
 
 Everything else in the file stays Claude's: login, history, counters and per-project data are preserved. The file is generated, never tracked, because Claude rewrites it on every run. An unreadable state file is reported and left for Claude to recover.
