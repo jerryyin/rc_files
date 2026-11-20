@@ -111,28 +111,10 @@ cmd_open() {
   fi
 }
 
-cmd_run() {
-  local agent=$1 tool=$2 sid=$3 cwd=$4 sel=$5
-  local dim=$'\e[2m' bold=$'\e[1m' off=$'\e[0m'
-  local out="$state/answer-${agent#%}.txt" err="$state/error-${agent#%}.txt"
-  trap "tmux select-pane -t '$agent' 2>/dev/null" EXIT
-  printf '%s%s session %s%s\n\n' "$dim" "$tool" "${sid:0:8}" "$off"
-  local lines
-  lines=$(wc -l <"$sel")
-  head -n 12 "$sel" | sed "s/^/${dim}│ /;s/\$/${off}/"
-  [ "$lines" -gt 12 ] && printf '%s│ … (%d more lines)%s\n' "$dim" $((lines - 12)) "$off"
-  echo
-  local question
-  # \001 and \002 tell readline the colour codes take no width; without them
-  # it misplaces the cursor once the question wraps and the text seems to vanish.
-  read -r -e -p $'\001'"$bold"$'\002Question>\001'"$off"$'\002 ' question || exit 0
-  [ -n "$question" ] || exit 0
-
-  local prompt
-  prompt=$(printf '%s\n\n<passage>\n%s\n</passage>\n\nQuestion: %s' \
-    "This is a side question about a passage from the conversation above, which the user selected in the terminal. Answer only the question, concisely and in plain words. Do not continue the main task and do not change any files." \
-    "$(cat "$sel")" "$question")
-
+# Ask one question in a fresh throwaway fork; the answer lands in $out.
+ask() {
+  local tool=$1 sid=$2 cwd=$3 prompt=$4 out=$5 err=$6
+  local dim=$'\e[2m' off=$'\e[0m'
   : >"$out"
   (
     # The session's directory may have been deleted since it started. Resuming
@@ -156,15 +138,46 @@ cmd_run() {
   wait "$job"
   local status=$?
   printf '\r\e[K'
-  if [ "$status" -ne 0 ] || [ ! -s "$out" ]; then
-    printf '%s failed (exit %d):\n' "$tool" "$status"
-    tail -n 20 "$err"
-    read -r -n 1 -p "Press any key to close."
-    exit 1
-  fi
-  { printf '%sQ: %s%s\n\n' "$bold" "$question" "$off"; cat "$out"; } >"$out.view"
-  # Ignore $LESS: its quit-if-one-screen option would close short answers at once.
-  LESS= less -R -P 'ask-agent — q closes' "$out.view"
+  [ "$status" -eq 0 ] && [ -s "$out" ]
+}
+
+cmd_run() {
+  local agent=$1 tool=$2 sid=$3 cwd=$4 sel=$5
+  local dim=$'\e[2m' bold=$'\e[1m' off=$'\e[0m'
+  local out="$state/answer-${agent#%}.txt" err="$state/error-${agent#%}.txt"
+  trap "tmux select-pane -t '$agent' 2>/dev/null" EXIT
+  set -o history  # Up recalls earlier questions in this pane.
+  printf '%s%s session %s · empty line closes%s\n\n' "$dim" "$tool" "${sid:0:8}" "$off"
+  local lines
+  lines=$(wc -l <"$sel")
+  head -n 12 "$sel" | sed "s/^/${dim}│ /;s/\$/${off}/"
+  [ "$lines" -gt 12 ] && printf '%s│ … (%d more lines)%s\n' "$dim" $((lines - 12)) "$off"
+
+  # Every question is a new fork of the unchanged main session, so a follow-up
+  # sees the earlier side questions only through this transcript.
+  local label=Question question prompt thread=''
+  while :; do
+    echo
+    # \001 and \002 tell readline the colour codes take no width; without them
+    # it misplaces the cursor once the question wraps and the text seems to vanish.
+    read -r -e -p $'\001'"$bold"$'\002'"$label>"$'\001'"$off"$'\002 ' question || exit 0
+    [ -n "$question" ] || exit 0
+    history -s -- "$question"
+    prompt=$(printf '%s\n\n<passage>\n%s\n</passage>\n' \
+      "This is a side question about a passage from the conversation above, which the user selected in the terminal. Answer only the question, concisely and in plain words. Do not continue the main task and do not change any files." \
+      "$(cat "$sel")")
+    [ -n "$thread" ] && prompt+=$'\n'"Earlier side questions about this passage, with your answers:"$'\n'"$thread"
+    prompt+=$'\n'"Question: $question"
+    echo
+    if ask "$tool" "$sid" "$cwd" "$prompt" "$out" "$err"; then
+      cat "$out"
+      thread+=$'\n'"<question>$question</question>"$'\n'"<answer>$(cat "$out")</answer>"$'\n'
+      label=Follow-up
+    else
+      printf '%s%s failed:%s\n' "$bold" "$tool" "$off"
+      tail -n 20 "$err"
+    fi
+  done
 }
 
 case ${1:-} in
