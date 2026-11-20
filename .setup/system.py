@@ -42,6 +42,11 @@ def refresh_path() -> None:
                            r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'),
                           (winreg.HKEY_CURRENT_USER, 'Environment')):
             with winreg.OpenKey(hive, key) as handle:
+                if hive == winreg.HKEY_LOCAL_MACHINE:
+                    try:
+                        os.environ['NPM_CONFIG_PREFIX'] = winreg.QueryValueEx(handle, 'NPM_CONFIG_PREFIX')[0]
+                    except FileNotFoundError:
+                        pass
                 try:
                     value = winreg.QueryValueEx(handle, 'Path')[0]
                 except FileNotFoundError:
@@ -74,8 +79,13 @@ def windows_registered(package: Package) -> bool:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
                             r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment') as key:
             paths = os.path.expandvars(winreg.QueryValueEx(key, 'Path')[0]).lower().split(';')
+            try:
+                default = Path(winreg.QueryValueEx(key, 'NPM_CONFIG_PREFIX')[0])
+            except FileNotFoundError:
+                return False
         return ((prefix / 'node_modules' / package.npm / 'package.json').is_file()
                 and (prefix / (package.command + '.cmd')).is_file()
+                and default == prefix
                 and str(prefix).lower() in paths)
     if package.provisioned:
         # AppX's installed-user inventory does not describe provisioning for new accounts.

@@ -114,6 +114,8 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             system.install(selection.requirements, scope=args.scope, allow=not args.no_install)
             setup_environment['PATH'] = os.environ['PATH']
+            if os.name == 'nt' and 'NPM_CONFIG_PREFIX' in os.environ:
+                setup_environment['NPM_CONFIG_PREFIX'] = os.environ['NPM_CONFIG_PREFIX']
         finally:
             os.environ.clear()
             os.environ.update(with_environment)

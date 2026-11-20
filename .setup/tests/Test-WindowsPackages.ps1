@@ -6,6 +6,7 @@ $global:RcTestInstalls = @()
 $global:RcTestLaunches = @()
 $global:RcTestResult = 0
 $savedProgramFiles = $env:ProgramFiles
+$savedNpmPrefix = $env:NPM_CONFIG_PREFIX
 function winget {
     $global:RcTestInstalls += ,$args
     $global:LASTEXITCODE = $global:RcTestResult
@@ -56,6 +57,7 @@ try {
         }
         function script:Get-AppxProvisionedPackage { param([switch]$Online) return $script:Provisioned }
         function script:Add-MachinePath($Directory) { $script:SharedPaths += $Directory }
+        function script:Set-MachineNpmPrefix($Directory) { $env:NPM_CONFIG_PREFIX = $Directory }
     }
     $shared = @{winget='Fixture.Shared'; scope='machine'; installer_type='wix'; search=@()}
     Install-WindowsPackage $shared
@@ -97,6 +99,7 @@ try {
     Write-Output 'PASS native package scopes, one elevation, installer selection, migration, failures, provisioning and shared npm commands.'
 } finally {
     $env:ProgramFiles=$savedProgramFiles
+    $env:NPM_CONFIG_PREFIX=$savedNpmPrefix
     $resolved=[IO.Path]::GetFullPath($fixture)
     $tempRoot=[IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'
     if (!$resolved.StartsWith($tempRoot, [StringComparison]::OrdinalIgnoreCase) -or (Split-Path $resolved -Leaf) -notlike 'rc-package-test-*') { throw 'Unsafe fixture cleanup path' }

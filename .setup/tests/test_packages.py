@@ -178,6 +178,43 @@ class RequirementTests(unittest.TestCase):
             self.assertTrue(system.windows_registered(package))
 
     @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
+    def test_shared_npm_requires_matching_machine_default(self) -> None:
+        prefix = self.repo / 'npm'
+        manifest = prefix / 'node_modules/@fixture/cli/package.json'
+        manifest.parent.mkdir(parents=True)
+        manifest.write_text('{}')
+        (prefix / 'fixture.cmd').touch()
+        values = {'Path': str(prefix)}
+
+        def query(handle: object, name: str) -> tuple[str, int]:
+            if name not in values:
+                raise FileNotFoundError(name)
+            return values[name], 1
+
+        with patch.dict(os.environ, ProgramFiles=str(self.repo)), \
+                patch.object(system.winreg, 'OpenKey'), \
+                patch.object(system.winreg, 'QueryValueEx', side_effect=query):
+            package = system.Package('fixture', npm='@fixture/cli')
+            self.assertFalse(system.windows_registered(package))
+            values['NPM_CONFIG_PREFIX'] = str(self.repo / 'user-npm')
+            self.assertFalse(system.windows_registered(package))
+            values['NPM_CONFIG_PREFIX'] = str(prefix)
+            self.assertTrue(system.windows_registered(package))
+            manifest.unlink()
+            self.assertFalse(system.windows_registered(package))
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows account environment')
+    def test_refresh_uses_persisted_npm_default_in_current_process(self) -> None:
+        def query(handle: object, name: str) -> tuple[str, int]:
+            return {'Path': '', 'NPM_CONFIG_PREFIX': str(self.repo / 'npm')}[name], 1
+
+        with patch.dict(os.environ, NPM_CONFIG_PREFIX='stale-user-npm'), \
+                patch.object(system.winreg, 'OpenKey'), \
+                patch.object(system.winreg, 'QueryValueEx', side_effect=query):
+            system.refresh_path()
+            self.assertEqual(os.environ['NPM_CONFIG_PREFIX'], str(self.repo / 'npm'))
+
+    @unittest.skipUnless(os.name == 'nt', 'WinGet installation')
     def test_no_install_does_not_refresh_shared_npm_packages(self) -> None:
         package = system.Package('fixture', npm='@fixture/cli')
         with patch.dict(os.environ, RC_SETUP_UPDATE='1'), \

@@ -5,6 +5,12 @@ function Add-MachinePath([string]$Directory) {
     }
     $env:PATH = "$Directory;" + $env:PATH
 }
+function Set-MachineNpmPrefix([string]$Directory) {
+    if ([Environment]::GetEnvironmentVariable('NPM_CONFIG_PREFIX', 'Machine') -ne $Directory) {
+        [Environment]::SetEnvironmentVariable('NPM_CONFIG_PREFIX', $Directory, 'Machine')
+    }
+    $env:NPM_CONFIG_PREFIX = $Directory
+}
 # Install also upgrades a package WinGet correlates with the requested id. Correlation is unreliable
 # when another id installed the command (OpenJS.NodeJS.20 versus OpenJS.NodeJS.LTS), so `upgrade`
 # cannot be chosen from the command alone; the caller verifies minimum versions afterwards.
@@ -19,6 +25,7 @@ function Install-WindowsPackage($package) {
         if (!(Test-Path -LiteralPath (Join-Path $prefix "node_modules/$($package.npm)/package.json")) -or !(Test-Path -LiteralPath $command)) { throw "npm did not install $($package.command) into $prefix" }
         & $command --version
         if ($LASTEXITCODE -ne 0) { throw "Installed command failed: $command" }
+        Set-MachineNpmPrefix $prefix
         Add-MachinePath $prefix
         return
     }
