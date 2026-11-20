@@ -100,31 +100,139 @@ nnoremap <leader>gl :Gclog<CR>
 nnoremap <leader>g? :help fugitive-maps<CR>
 nnoremap <leader>gw :Gwrite<CR>
 
-" \gr: list the files of the commit being viewed (else HEAD) in quickfix.
-" Pass `rev^ rev` rather than `rev^!`: Fugitive rewrites `^!` so the newer
-" side becomes the work tree file.
-function! s:CommitFiles() abort
-  let l:rev = matchstr(FugitiveParse(expand('%'))[0], '^\x\{7,}$')
-  let l:rev = empty(l:rev) ? 'HEAD' : l:rev
-  execute 'Git difftool --name-status ' . l:rev . '^ ' . l:rev
+" \gr: list every commit of this branch, each followed by its changed files.
+" \gR: list the files changed by the whole branch as one diff.
+" The base is the remote's default branch; the cursor starts on the commit
+" being viewed (e.g. from \gl), else on the first commit.
+function! s:Git(args) abort
+  let l:r = FugitiveExecute(a:args)
+  if l:r.exit_status
+    throw 'git ' . join(a:args) . ': ' . join(l:r.stderr)
+  endif
+  return filter(l:r.stdout, '!empty(v:val)')
 endfunction
-nnoremap <silent> <leader>gr :call <SID>CommitFiles()<CR>
+function! s:BranchBase() abort
+  for l:ref in ['upstream/HEAD', 'origin/HEAD', 'origin/main', 'origin/master']
+    if FugitiveExecute(['rev-parse', '-q', '--verify', l:ref . '^{commit}']).exit_status == 0
+      return s:Git(['merge-base', 'HEAD', l:ref])[0]
+    endif
+  endfor
+  throw 'no upstream/HEAD, origin/HEAD, origin/main or origin/master'
+endfunction
+" One row per changed file. The listed file is the new side (the old side for
+" deletions); the row's left side ('' when there is none) is kept in context.
+function! s:FileRows(from, to, items, lefts) abort
+  let l:n = 0
+  for l:line in s:Git(['diff', '--name-status', '-M', a:from, a:to])
+    let l:f = split(l:line, '\t')
+    let l:st = l:f[0][0]
+    let l:old = l:f[1]
+    let l:new = l:f[-1]
+    let l:path = l:st ==# 'D' ? a:from . ':' . l:old : a:to . ':' . l:new
+    call add(a:items, {'valid': 1, 'filename': FugitiveFind(l:path), 'module': l:path,
+          \ 'text': l:st . '  ' . (l:st =~# '[RC]' ? l:old . ' -> ' . l:new : l:new)})
+    call add(a:lefts, l:st =~# '[AD]' ? '' : a:from . ':' . l:old)
+    let l:n += 1
+  endfor
+  return l:n
+endfunction
+function! s:Header(items, lefts) abort
+  call add(a:items, {'valid': 0, 'text': ''})
+  call add(a:lefts, '')
+  return len(a:items) - 1
+endfunction
+function! s:BranchReview(together) abort
+  try
+    let l:base = s:BranchBase()
+    let l:head = s:Git(['rev-parse', 'HEAD'])[0]
+    let l:shas = s:Git(['rev-list', '--reverse', '--no-merges', l:base . '..' . l:head])
+    if empty(l:shas)
+      echo 'No commits between ' . l:base[0:7] . ' and HEAD'
+      return
+    endif
+    let l:viewed = matchstr(FugitiveParse(expand('%'))[0], '^\x\{7,}$')
+    let l:items = []
+    let l:lefts = []
+    let l:target = 0
+    if a:together
+      let l:h = s:Header(l:items, l:lefts)
+      let l:n = s:FileRows(l:base, l:head, l:items, l:lefts)
+      let l:items[l:h].text = '▸ ' . l:base[0:7] . '..' . l:head[0:7] . '  '
+            \ . len(l:shas) . ' commits  (' . l:n . ' files)'
+    else
+      for l:sha in l:shas
+        let l:h = s:Header(l:items, l:lefts)
+        let l:n = s:FileRows(s:Git(['rev-parse', l:sha . '^'])[0], l:sha, l:items, l:lefts)
+        let l:items[l:h].text = '▸ ' . l:sha[0:7] . '  '
+              \ . s:Git(['log', '-1', '--format=%s', l:sha])[0]
+              \ . '  (' . l:n . (l:n == 1 ? ' file)' : ' files)')
+        if !empty(l:viewed) && stridx(l:sha, l:viewed) == 0
+          let l:target = l:h
+        endif
+      endfor
+    endif
+    call setqflist([], ' ', {'items': l:items,
+          \ 'title': 'Branch review: ' . (a:together ? 'together' : 'by commit')
+          \ . ' since ' . l:base[0:7],
+          \ 'context': {'branch_review_lefts': l:lefts},
+          \ 'quickfixtextfunc': function('s:BranchReviewText')})
+  catch
+    echohl ErrorMsg | echomsg v:exception | echohl None
+    return
+  endtry
+  botright copen
+  call s:OpenListedDiff(l:target + 1)
+endfunction
+function! s:BranchReviewText(info) abort
+  let l:items = getqflist({'id': a:info.id, 'items': 1}).items
+  return map(l:items[a:info.start_idx - 1 : a:info.end_idx - 1],
+        \ {_, it -> it.valid ? '    ' . it.text : it.text})
+endfunction
+nnoremap <silent> <leader>gr :call <SID>BranchReview(0)<CR>
+nnoremap <silent> <leader>gR :call <SID>BranchReview(1)<CR>
+" Compare the current quickfix entry with its left side: the one recorded by
+" \gr / \gR, else the commit's parent (as `:Git difftool` lists expect).
+function! s:DiffCurrentEntry() abort
+  let l:q = getqflist({'idx': 0, 'context': 0})
+  let l:ctx = l:q.context
+  if type(l:ctx) == v:t_dict && has_key(l:ctx, 'branch_review_lefts')
+    let l:left = l:ctx.branch_review_lefts[l:q.idx - 1]
+    if !empty(l:left)
+      execute 'keepalt Gvdiffsplit! ' . fnameescape(l:left)
+    endif
+  else
+    keepalt Gvdiffsplit!
+  endif
+endfunction
 " ]d / [d: close this comparison, go to the next/previous file, compare it.
 " Close first: once the file changes, Fugitive turns diff off in the old
-" pane and DiffClose no longer closes it.
-nnoremap <silent> ]d :call fugitive#DiffClose()<Bar>cnext<Bar>keepalt Gvdiffsplit!<CR>
-nnoremap <silent> [d :call fugitive#DiffClose()<Bar>cprevious<Bar>keepalt Gvdiffsplit!<CR>
-" Enter in a `:Git difftool` quickfix list opens that file's comparison;
-" other lists keep the default Enter.
+" pane and DiffClose no longer closes it. :cnext skips commit header rows.
+nnoremap <silent> ]d :call fugitive#DiffClose()<Bar>cnext<Bar>call <SID>DiffCurrentEntry()<CR>
+nnoremap <silent> [d :call fugitive#DiffClose()<Bar>cprevious<Bar>call <SID>DiffCurrentEntry()<CR>
+" Enter in a `:Git difftool` or branch review quickfix list opens that file's
+" comparison (a commit header opens its first file); other lists keep the
+" default Enter.
 function! s:IsDifftoolList() abort
-  return !getwininfo(win_getid())[0].loclist
-        \ && getqflist({'title': 0}).title =~# '^:Git\>.*\<difftool\>'
+  if getwininfo(win_getid())[0].loclist
+    return 0
+  endif
+  let l:q = getqflist({'title': 0, 'context': 0})
+  return l:q.title =~# '^:Git\>.*\<difftool\>'
+        \ || (type(l:q.context) == v:t_dict && has_key(l:q.context, 'branch_review_lefts'))
 endfunction
 function! s:OpenListedDiff(idx) abort
+  let l:items = getqflist()
+  let l:idx = a:idx
+  while l:idx <= len(l:items) && !l:items[l:idx - 1].valid
+    let l:idx += 1
+  endwhile
+  if l:idx > len(l:items)
+    return
+  endif
   wincmd p
   call fugitive#DiffClose()
-  execute 'cc ' . a:idx
-  keepalt Gvdiffsplit!
+  execute 'cc ' . l:idx
+  call s:DiffCurrentEntry()
 endfunction
 augroup difftoolEnter
   autocmd!
