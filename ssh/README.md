@@ -20,6 +20,8 @@ Linux session startup invokes the SSH hook inside first-time bootstrap, before a
 
 `AddKeysToAgent yes` lets ordinary SSH connections add a key to the local agent. `ForwardAgent no` is the default; opt in for individual trusted hosts in the private inventory when a second-hop connection needs your local agent. GitHub uses `ssh.github.com:443` and `accept-new`, preserving verification of previously recorded host keys. Keys, `known_hosts`, and incoming-access files remain local; setup does not replace the whole `.ssh` directory. Workflow-specific remote key transfers and pod connection options stay with their launchers in `scripts`.
 
+For SPUR, keep login aliases in the work vault's `ssh/config`; its `ssh/SPUR.md` records the account checks and development workflow. Native SSH aliases work in PowerShell and Linux without additional shell configuration. Keep changing job endpoints in local `~/.ssh/config.d/` files, and keep scheduler launchers in `scripts/board` if repeated use warrants one. Cluster access does not require copying the vault or activating its credentials on the cluster.
+
 ## Alternatives Considered
 
 Keeping the entire SSH config public would publish internal host details. Keeping it entirely untracked would lose reusable preferences. A small public entry point and one private included file preserve version control without a generated configuration or a second inventory format. Separate Windows and Linux host lists would drift; native `Include` and home-relative paths let both use the same files. Key handling belongs in the SSH package's credential hook so bootstrap and standalone installation share one implementation.
