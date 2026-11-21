@@ -30,3 +30,9 @@ To reload changes in an existing session, press the currently active prefix foll
 Prefix, then `t` enters resize mode, and the status bar shows `RESIZE`. In resize mode, `h`, `j`, `k`, and `l` move the pane edge in larger steps. Use `H`, `J`, `K`, and `L` for finer adjustments. Press Escape, Enter, or `q` to leave.
 
 Press the prefix, then `=` to equalize the top-row columns while preserving stacked panes and their heights. In resize mode, press `=` on its own and continue resizing. To open the paste-buffer chooser, use the prefix, then `:` and enter `choose-buffer`.
+
+## Ask about selected agent output
+
+In a Claude Code or Codex pane, press the prefix and then `[` to enter copy mode. Move to the passage, press `Space` to begin selecting (or `V` for whole lines), extend the selection, then press `a`. Type your question at `Question>`. Each question runs in a temporary fork of the source conversation. Follow-ups include the earlier side answers. Press Enter on an empty line to close and return to the source pane.
+
+The first question splits a neighbouring pane when one is available. Later selections in that window reuse the answer pane. With one pane, Linux tmux opens a popup and Windows psmux opens a right split. Windows uses Git Bash from Git for Windows to run the same question helper. When several saved Codex conversations share the pane's directory, choose the matching title or paste the session ID shown by `/status`.

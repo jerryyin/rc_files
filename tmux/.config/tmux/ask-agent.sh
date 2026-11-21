@@ -2,6 +2,7 @@
 # Ask a throwaway question about text selected in a Claude Code or Codex pane.
 #
 #   ask-agent.sh open <agent-pane-id>     selection on stdin (tmux copy-pipe)
+#   ask-agent.sh open-answer <agent-pane-id> <run-command>     Windows adapter
 #   ask-agent.sh run <agent-pane-id> <tool> <session-id> <cwd> <selection-file>
 #
 # `open` finds the agent session behind the pane and opens the answer pane by
@@ -9,10 +10,19 @@
 # answer pane is reused for later questions. `run` asks the question in a
 # temporary fork of the session; the original conversation is not changed.
 set -u
+umask 077
 export PATH="$HOME/.local/bin:$PATH"
 state="${TMPDIR:-/tmp}/ask-agent-$(id -u)"
 mkdir -p "$state"
 self=$(readlink -f "$0")
+
+# Git Bash uses the native psmux server. Keep format strings and commands
+# verbatim when the MSYS runtime passes them to the Windows executable.
+windows=false
+if [[ $(uname -s) == MINGW* ]]; then
+  windows=true
+  tmux() { MSYS2_ARG_CONV_EXCL='*' psmux.exe "$@"; }
+fi
 
 msg() { tmux display-message -d 4000 "ask-agent: $*"; }
 
@@ -33,40 +43,12 @@ find_session() {
     fi
     if [ "$comm" = codex ]; then
       cwd=$(readlink "/proc/$pid/cwd") || continue
-      sid=$(codex_thread "$pid" "$cwd") || return 1
+      sid=$(python3 -I "$(dirname "$self")/codex-session.py" "$pid" "$cwd") || return 1
       echo "codex $sid $cwd"
       return
     fi
   done
   return 1
-}
-
-# The Codex thread a process is writing: the rollout file it holds open, else
-# the most recently active thread started in its directory.
-codex_thread() {
-  python3 -I - "$1" "$2" "${CODEX_HOME:-$HOME/.codex}" <<'EOF'
-import glob, os, sqlite3, sys
-pid, cwd, home = sys.argv[1:]
-open_files = set()
-for fd in glob.glob(f"/proc/{pid}/fd/*"):
-    try:
-        open_files.add(os.readlink(fd))
-    except OSError:
-        pass
-dbs = sorted(glob.glob(os.path.join(home, "state_*.sqlite")))
-if not dbs:
-    sys.exit(1)
-db = sqlite3.connect(f"file:{dbs[-1]}?mode=ro", uri=True)
-rows = db.execute("select id, rollout_path, cwd from threads where archived = 0 "
-                  "order by recency_at_ms desc, updated_at desc").fetchall()
-for tid, path, _ in rows:
-    if path in open_files:
-        print(tid); sys.exit(0)
-for tid, _, tcwd in rows:
-    if tcwd == cwd:
-        print(tid); sys.exit(0)
-sys.exit(1)
-EOF
 }
 
 # The pane to split for the answer: another pane of the window, preferring one
@@ -83,32 +65,50 @@ pick_target() {
 }
 
 cmd_open() {
-  local agent=$1 found tool sid cwd sel answer target window
+  local agent=$1 found tool sid cwd sel
   if ! found=$(find_session "$(tmux display -p -t "$agent" '#{pane_pid}')"); then
     msg "no Claude Code or Codex session found in this pane"
     exit 0
   fi
   read -r tool sid cwd <<<"$found"
-  sel="$state/selection-${agent#%}.txt"
+  sel=$(mktemp "$state/selection-XXXXXX") || exit 1
   cat >"$sel"
   if [ ! -s "$sel" ]; then
+    rm -f -- "$sel"
     msg "nothing selected"
     exit 0
   fi
-  window=$(tmux display -p -t "$agent" '#{window_id}')
   local run
   run=$(printf '%q ' "$self" run "$agent" "$tool" "$sid" "$cwd" "$sel")
-  answer=$(tmux show -wqv -t "$window" @ask-agent-pane)
-  if [ -n "$answer" ] && tmux list-panes -t "$window" -F '#{pane_id}' | grep -qx -- "$answer"; then
-    tmux respawn-pane -k -t "$answer" "$run"
-    tmux select-pane -t "$answer"
-  elif target=$(pick_target "$agent") && [ -n "$target" ]; then
-    answer=$(tmux split-window -v -l 60% -t "$target" -P -F '#{pane_id}' "$run")
-    tmux set -w -t "$window" @ask-agent-pane "$answer"
-  else
-    # Alone in the window: an overlay leaves the agent pane's size alone.
-    tmux display-popup -E -x R -y 0 -w 45% -h 100% -T ' ask-agent ' "$run"
+  open_answer "$agent" "$run" || { rm -f -- "$sel"; return 1; }
+}
+
+open_answer() {
+  local agent=$1 run=$2 window answer target option=@ask-agent-pane
+  local scope=-w
+  window=$(tmux display -p -t "$agent" '#{window_id}') || return 1
+  # psmux 3.4 stores user-defined options globally, even with set -w.
+  if "$windows"; then
+    option+="-${window#@}"
+    scope=-g
   fi
+  answer=$(tmux display -p -t "$window" "#{${option}}")
+  if [ -n "$answer" ] && [ "$answer" != "$agent" ] && tmux list-panes -t "$window" -F '#{pane_id}' | grep -qx -- "$answer"; then
+    tmux respawn-pane -k -t "$answer" "$run" || return 1
+    tmux select-pane -t "$answer"
+    return
+  fi
+  local split=(-v -l 60%)
+  target=$(pick_target "$agent")
+  if [ -z "$target" ] && "$windows"; then
+    target=$agent
+    split=(-h -l 45%)
+  elif [ -z "$target" ]; then
+    tmux display-popup -E -x R -y 0 -w 45% -h 100% -T ' ask-agent ' "$run"
+    return
+  fi
+  answer=$(tmux split-window "${split[@]}" -t "$target" -P -F '#{pane_id}' "$run") || return 1
+  tmux set "$scope" -t "$window" "$option" "$answer"
 }
 
 # Ask one question in a fresh throwaway fork; the answer lands in $out.
@@ -126,7 +126,7 @@ ask() {
       claude) claude -p --resume "$sid" --fork-session --no-session-persistence \
                 --tools Read,Grep,Glob <<<"$prompt" >"$out" ;;
       codex) codex exec fork "$sid" --ephemeral -c 'sandbox_mode="read-only"' \
-               --skip-git-repo-check -o "$out" "$prompt" </dev/null >/dev/null ;;
+               --skip-git-repo-check -o "$out" - <<<"$prompt" >/dev/null ;;
     esac
   ) 2>"$err" &
   local job=$! t=0
@@ -144,13 +144,22 @@ ask() {
 cmd_run() {
   local agent=$1 tool=$2 sid=$3 cwd=$4 sel=$5
   local dim=$'\e[2m' bold=$'\e[1m' off=$'\e[0m'
-  local out="$state/answer-${agent#%}.txt" err="$state/error-${agent#%}.txt"
-  trap "tmux select-pane -t '$agent' 2>/dev/null" EXIT
+  local out="$sel.answer" err="$sel.error"
+  trap 'rm -f -- "$sel" "$out" "$err"; tmux select-pane -t "$agent" 2>/dev/null' EXIT
+  local passage
+  passage=$(cat -- "$sel") || exit 1
+  rm -f -- "$sel"
+  if [ "$sid" = choose ]; then
+    local session
+    session=$(py -3 -I "$(dirname "$self")/codex-session.py" choose "$cwd") || { read -r -p 'Press Enter to close.'; exit 1; }
+    [ -n "$session" ] || exit 0
+    IFS=$'\t' read -r sid cwd <<<"$session"
+  fi
   set -o history  # Up recalls earlier questions in this pane.
   printf '%s%s session %s · empty line closes%s\n\n' "$dim" "$tool" "${sid:0:8}" "$off"
   local lines
-  lines=$(wc -l <"$sel")
-  head -n 12 "$sel" | sed "s/^/${dim}│ /;s/\$/${off}/"
+  lines=$(wc -l <<<"$passage")
+  head -n 12 <<<"$passage" | sed "s/^/${dim}│ /;s/\$/${off}/"
   [ "$lines" -gt 12 ] && printf '%s│ … (%d more lines)%s\n' "$dim" $((lines - 12)) "$off"
 
   # Every question is a new fork of the unchanged main session, so a follow-up
@@ -165,7 +174,7 @@ cmd_run() {
     history -s -- "$question"
     prompt=$(printf '%s\n\n<passage>\n%s\n</passage>\n' \
       "This is a side question about a passage from the conversation above, which the user selected in the terminal. Answer only the question, concisely and in plain words. Do not continue the main task and do not change any files." \
-      "$(cat "$sel")")
+      "$passage")
     [ -n "$thread" ] && prompt+=$'\n'"Earlier side questions about this passage, with your answers:"$'\n'"$thread"
     prompt+=$'\n'"Question: $question"
     echo
@@ -177,11 +186,13 @@ cmd_run() {
       printf '%s%s failed:%s\n' "$bold" "$tool" "$off"
       tail -n 20 "$err"
     fi
+    rm -f -- "$out" "$err"
   done
 }
 
 case ${1:-} in
   open) shift; cmd_open "$@" ;;
+  open-answer) shift; open_answer "$@" ;;
   run) shift; cmd_run "$@" ;;
   *) echo "usage: $0 open <pane-id> | run ..." >&2; exit 2 ;;
 esac
