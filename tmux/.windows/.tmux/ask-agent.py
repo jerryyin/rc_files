@@ -17,7 +17,7 @@ from ask_pane import open_answer
 import codex_session
 
 
-def capture(pane: str, window: str, selected: str) -> None:
+def capture(pane: str, window: str, selected: str, layout: str = 'side') -> None:
     if selected != '1':
         raise ValueError('select text in copy mode first')
     copied = request('display-message -p "#{pane_id} #{pane_in_mode} #{selection_present}" ; '
@@ -42,7 +42,7 @@ def capture(pane: str, window: str, selected: str) -> None:
         selection = Path(f.name)
     try:
         args = [str(bash), str(shared / 'ask-agent.sh'), 'run-windows', pane.removeprefix('%'), str(selection)]
-        open_answer(pane, window, '--', *args, mux=mux)
+        open_answer(pane, window, layout, '--', *args, mux=mux)
     except Exception:
         selection.unlink(missing_ok=True)
         raise

@@ -53,6 +53,10 @@ class AskPaneTests(unittest.TestCase):
             def mux(*args: str) -> str:
                 return subprocess.check_output(['psmux.exe', *args], env=env, encoding='utf-8')
 
+            def bounds(pane: str) -> tuple[int, ...]:
+                fields = '#{pane_left} #{pane_top} #{pane_width} #{pane_height}'
+                return tuple(map(int, mux('display-message', '-p', '-t', pane, fields).split()))
+
             def see(text: str) -> str:
                 end = time.monotonic() + 20
                 while time.monotonic() < end:
@@ -87,6 +91,27 @@ class AskPaneTests(unittest.TestCase):
                 see(f'│ › {source_prompt}')
                 self.assertEqual(mux('display-message', '-p', '#{pane_id}').strip(), answer)
                 self.assertEqual(set(mux('list-panes', '-F', '#{pane_id}').split()), {origin, answer})
+                source_left, source_top, source_width, source_height = bounds(origin)
+                side_bounds = bounds(answer)
+                self.assertGreater(side_bounds[0], source_left)
+                bottom = None
+                for _ in range(2):
+                    mux('select-pane', '-t', origin)
+                    mux('copy-mode')
+                    mux('send-keys', '-X', 'history-top')
+                    mux('send-keys', '-X', 'select-line')
+                    mux('send-keys', 's')
+                    self.assertIn(selected, see('Question>'))
+                    active = mux('display-message', '-p', '#{pane_id}').strip()
+                    if bottom is None:
+                        bottom = active
+                    self.assertEqual(active, bottom)
+                    left, top, width, height = bounds(active)
+                    self.assertEqual((left, width), (source_left, source_width))
+                    self.assertEqual(top + height, source_top + source_height)
+                    self.assertAlmostEqual(height, source_height * 0.2, delta=1)
+                    self.assertEqual(bounds(answer), side_bounds)
+                    self.assertEqual(set(mux('list-panes', '-F', '#{pane_id}').split()), {origin, answer, bottom})
             finally:
                 if (server / 'ask.port').exists():
                     mux('kill-server')

@@ -1,4 +1,4 @@
-"""Open or replace the answer pane without resizing the source when a neighbour exists."""
+"""Open or reuse an answer beside or below the selected pane."""
 
 from collections.abc import Callable
 import os
@@ -10,21 +10,24 @@ def tmux(*args: str) -> str:
     return subprocess.check_output(['tmux', *args], encoding='utf-8').rstrip('\n')
 
 
-def open_answer(agent: str, window: str, *command: str, mux: Callable[..., str] = tmux) -> None:
+def open_answer(agent: str, window: str, layout: str, *command: str, mux: Callable[..., str] = tmux) -> None:
     windows = os.name == 'nt'
-    option = f'@ask-agent-pane-{window[1:]}' if windows else '@ask-agent-pane'
-    fields = '#{pane_id} #{pane_left} #{pane_width} #{pane_height} ' + '#{' + option + '}'
+    side_option = f'@ask-agent-pane-{window[1:]}' if windows else '@ask-agent-pane'
+    bottom_option = f'@ask-agent-bottom-{agent[1:]}'
+    option = {'side': side_option, 'bottom': bottom_option}[layout]
+    fields = '#{pane_id} #{pane_left} #{pane_width} #{pane_height} ' + '#{' + side_option + '}|#{' + bottom_option + '}'
     listing = mux('list-panes', '-t', agent, '-F', fields)
     panes = {}
-    answer = ''
+    side = bottom = ''
     for row in listing.splitlines():
-        pane, left, width, height, *saved = row.split()
+        pane, left, width, height, saved = row.split()
         panes[pane] = (int(left), int(width), int(height))
-        if pane == agent and saved:
-            answer = saved[0]
+        if pane == agent:
+            side, bottom = saved.split('|')
     if agent not in panes:
         raise ValueError('the source pane has closed')
     left, width, _ = panes.pop(agent)
+    answer = bottom if layout == 'bottom' else side
     if answer in panes:
         mux('respawn-pane', '-k', '-t', answer, *command)
         mux('select-pane', '-t', answer)
@@ -34,7 +37,10 @@ def open_answer(agent: str, window: str, *command: str, mux: Callable[..., str] 
         x, w, h = panes[pane]
         return x + w <= left or x >= left + width, w * h
 
-    if panes:
+    panes.pop(bottom, None)
+    if layout == 'bottom':
+        target, direction, size = agent, '-v', '20%'
+    elif panes:
         target, direction, size = max(panes, key=score), '-v', '60%'
     elif windows:
         target, direction, size = agent, '-h', '45%'

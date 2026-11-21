@@ -33,8 +33,8 @@ Press the prefix, then `=` to equalize the top-row columns while preserving stac
 
 ## Ask about selected agent output
 
-In a Claude Code or Codex pane, press the prefix and then `[` to enter copy mode. Move to the passage, press `Space` to begin selecting (or `V` for whole lines), extend the selection, then press `a`. Type your question at `Question>`. Each question runs in a temporary fork of the source conversation. Follow-ups include the earlier side answers. Press Enter on an empty line to close and return to the source pane.
+In a Claude Code or Codex pane, press the prefix and then `[` to enter copy mode. Move to the passage, press `Space` to begin selecting (or `V` for whole lines), extend the selection, then press `a` to ask beside the source or `s` to ask below it. Type your question at `Question>`. Each question runs in a temporary fork of the source conversation. Follow-ups include the earlier answers. Press Enter on an empty line to close and return to the source pane.
 
-The first question splits a neighbouring pane when one is available. Later selections in that window reuse the answer pane. With one pane, Linux tmux opens a popup and Windows psmux opens a right split. Both use the same question helper, with Git Bash on Windows.
+With `a`, the first question splits a neighbouring pane when available. On its own, the source opens a right-hand popup on Linux tmux or a right split on Windows psmux. With `s`, the answer takes the bottom 20% of the selected pane, like prefix-`s`. Repeating the shortcut reuses its answer pane while it is open. Both layouts use the same question helper.
 
 Windows psmux shows the selected passage immediately. New Codex sessions publish their thread ID through the terminal title with `terminal_title = ["thread-id"]` under `[tui]`. For a session opened with the old settings, the helper looks up a submitted prompt visible in that pane or the selected answer in local Codex history. If the source is still ambiguous, it asks you to pick the conversation before sending the question.

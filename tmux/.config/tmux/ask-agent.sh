@@ -64,7 +64,7 @@ cmd_open() {
   fi
   local run
   run=$(printf '%q ' "$self" run "$agent" "$tool" "$sid" "$cwd" "$sel")
-  python3 -I "$directory/ask_pane.py" "$agent" "$window" "$run" || { rm -f -- "$sel"; return 1; }
+  python3 -I "$directory/ask_pane.py" "$agent" "$window" "${2:-side}" "$run" || { rm -f -- "$sel"; return 1; }
 }
 
 # Ask one question in a fresh throwaway fork; the answer lands in $out.
