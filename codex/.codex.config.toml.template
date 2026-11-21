@@ -17,6 +17,7 @@ approval_policy = "never"
 sandbox_mode = "danger-full-access"
 
 [tui]
+terminal_title = ["thread-id"]
 alternate_screen = "never"
 theme = "gruvbox-material"
 

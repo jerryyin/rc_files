@@ -2,10 +2,9 @@
 
 from collections.abc import Iterator
 import json
-import os
-from pathlib import Path
-import socket
 import sys
+
+from psmux_client import request
 
 
 def top_columns(node: dict) -> int:
@@ -45,21 +44,7 @@ def split_commands(node: dict, widths: list[int], path: tuple[int, ...] = ()) ->
 
 
 def equal_columns(window: int, width: int) -> None:
-    directory = Path(os.environ.get("PSMUX_DATA_DIR") or Path.home() / ".psmux")
-    session = os.environ["PSMUX_TARGET_SESSION"]
-    port = int((directory / f"{session}.port").read_text())
-    key = (directory / f"{session}.key").read_text().strip()
-
-    def request(command: str) -> str:
-        with socket.create_connection(("127.0.0.1", port), timeout=3) as client, client.makefile("rb") as reply:
-            client.sendall(f"AUTH {key}\n".encode())
-            if reply.readline().strip() != b"OK":
-                raise RuntimeError("psmux rejected the session key")
-            client.sendall(f"TARGET @{window}\n{command}\n".encode())
-            client.shutdown(socket.SHUT_WR)
-            return reply.read().decode().strip()
-
-    layout = json.loads(request(f"window-layout {window}"))
+    layout = json.loads(request(f"window-layout {window}", f"@{window}"))
     count = top_columns(layout)
     cells, extra = divmod(width - (count - 1), count)
     # A native psmux pane needs at least two cells horizontally.
@@ -70,7 +55,7 @@ def equal_columns(window: int, width: int) -> None:
     commands = list(split_commands(layout, widths))
     if commands:
         for command in [*commands, "split-resize-done"]:
-            error = request(command)
+            error = request(command, f"@{window}")
             if error:
                 raise RuntimeError(error)
 
