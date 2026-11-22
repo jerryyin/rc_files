@@ -1,7 +1,6 @@
 """Open or reuse an answer beside or below the selected pane."""
 
 from collections.abc import Callable
-import os
 import subprocess
 import sys
 
@@ -10,9 +9,12 @@ def tmux(*args: str) -> str:
     return subprocess.check_output(['tmux', *args], encoding='utf-8').rstrip('\n')
 
 
-def open_answer(agent: str, window: str, layout: str, *command: str, mux: Callable[..., str] = tmux) -> None:
-    windows = os.name == 'nt'
-    side_option = f'@ask-agent-pane-{window[1:]}' if windows else '@ask-agent-pane'
+def open_answer(agent: str, window: str, layout: str, *command: str,
+                mux: Callable[..., str] = tmux, psmux: bool = False) -> None:
+    """Run command in the answer pane for agent: the one this layout opened earlier,
+    else a new split. psmux keeps options per server, sizes splits with -p, and has
+    no popups, so a lone pane is split instead."""
+    side_option = f'@ask-agent-pane-{window[1:]}' if psmux else '@ask-agent-pane'
     bottom_option = f'@ask-agent-bottom-{agent[1:]}'
     option = {'side': side_option, 'bottom': bottom_option}[layout]
     fields = '#{pane_id} #{pane_left} #{pane_width} #{pane_height} ' + '#{' + side_option + '}|#{' + bottom_option + '}'
@@ -42,18 +44,18 @@ def open_answer(agent: str, window: str, layout: str, *command: str, mux: Callab
         target, direction, size = agent, '-v', '20%'
     elif panes:
         target, direction, size = max(panes, key=score), '-v', '60%'
-    elif windows:
+    elif psmux:
         target, direction, size = agent, '-h', '45%'
     else:
         mux('display-popup', '-E', '-x', 'R', '-y', '0', '-w', '45%', '-h', '100%',
             '-T', ' ask-agent ', *command)
         return
-    length = ('-p', size.rstrip('%')) if windows else ('-l', size)
+    length = ('-p', size.rstrip('%')) if psmux else ('-l', size)
     new = mux('split-window', direction, *length, '-t', target,
               '-P', '-F', '#{pane_id}', *command).strip()
     if not new.startswith('%') or not new[1:].isdecimal():
         raise RuntimeError(f'could not open the answer pane: {new}')
-    mux('set-option', '-g' if windows else '-w', '-t', window, option, new)
+    mux('set-option', '-g' if psmux else '-w', '-t', window, option, new)
 
 
 if __name__ == '__main__':

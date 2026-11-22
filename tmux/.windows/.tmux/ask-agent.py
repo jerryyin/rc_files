@@ -37,19 +37,28 @@ def capture(pane: str, window: str, selected: str, layout: str = 'side') -> None
         git_core = subprocess.check_output([git, '--exec-path'], encoding='utf-8').strip()
         bash = Path(git_core).parents[2] / 'usr/bin/bash.exe'
     with tempfile.NamedTemporaryFile('w', encoding='utf-8', newline='', delete=False) as f:
-        f.write(json.dumps(dict(pid=pid, command=command, cwd=cwd, title=title, prompts=prompts)) + '\n')
         f.write(passage)
         selection = Path(f.name)
+    # The question loop deletes every file named after the passage file on exit.
+    context = selection.with_name(selection.name + '.context')
     try:
-        args = [str(bash), str(shared / 'ask-agent.sh'), 'run-windows', pane.removeprefix('%'), str(selection)]
-        open_answer(pane, window, layout, '--', *args, mux=mux)
+        context.write_text(json.dumps(dict(pid=pid, command=command, cwd=cwd, title=title, prompts=prompts))
+                           + '\n' + passage, encoding='utf-8', newline='')
+        args = [str(bash), str(Path(__file__).with_name('ask-agent-run.sh')), str(shared / 'ask-agent-chat.sh'),
+                pane.removeprefix('%'), str(selection), '--', 'py', '-3', str(Path(__file__)), 'resolve', str(context)]
+        open_answer(pane, window, layout, '--', *args, mux=mux, psmux=True)
     except Exception:
         selection.unlink(missing_ok=True)
+        context.unlink(missing_ok=True)
         raise
 
 
-def resolve() -> None:
-    context = json.loads(sys.stdin.buffer.readline())
+def resolve(path: str) -> None:
+    """Print "<tool>\t<session-id>\t<cwd>" for the source pane, asking the user to
+    pick the Codex conversation when it is ambiguous; print nothing if they decline."""
+    with open(path, 'rb') as stream:
+        context = json.loads(stream.readline())
+        passage = stream.read().decode('utf-8')
     tool = context['command'].lower().removesuffix('.exe')
     if tool != 'codex':
         probe = Path(__file__).with_suffix('.ps1')
@@ -62,15 +71,15 @@ def resolve() -> None:
             raise ValueError('no Claude or Codex session in the source pane')
     home = Path(os.environ.get('CODEX_HOME') or Path.home() / '.codex')
     with closing(codex_session.database()) as db:
-        found = codex_session.identify(db, home, context['title'], context['prompts'], sys.stdin.buffer.read().decode('utf-8'))
-        sid, cwd = found or ('choose', context['cwd'])
+        found = codex_session.identify(db, home, context['title'], context['prompts'], passage)
+        sid, cwd = found or codex_session.choose(db, context['cwd'])
     sys.stdout.buffer.write(f'codex\t{sid}\t{codex_session.local_path(cwd)}'.encode())
 
 
 if __name__ == '__main__':
     try:
         if sys.argv[1] == 'resolve':
-            resolve()
+            resolve(sys.argv[2])
         else:
             capture(*sys.argv[1:])
     except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:

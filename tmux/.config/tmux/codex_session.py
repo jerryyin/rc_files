@@ -110,10 +110,6 @@ def choose(db: sqlite3.Connection, directory: str) -> tuple[str, str]:
 if __name__ == '__main__':
     try:
         with closing(database()) as db:
-            if sys.argv[1] == 'choose':
-                sid, cwd = choose(db, sys.argv[2])
-                sys.stdout.buffer.write(f'{sid}\t{local_path(cwd)}'.encode())
-            else:
-                print(from_process(db, sys.argv[1], sys.argv[2]))
+            print(from_process(db, sys.argv[1], sys.argv[2]))
     except (ValueError, sqlite3.Error) as error:
         sys.exit(f'ask-agent: {error}')
