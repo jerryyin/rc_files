@@ -112,8 +112,11 @@ function! s:Git(args) abort
   return filter(l:r.stdout, '!empty(v:val)')
 endfunction
 function! s:BranchBase() abort
-  let l:refs = ['upstream/HEAD', 'upstream/main', 'upstream/master',
-        \ 'origin/HEAD', 'origin/main', 'origin/master']
+  " A remote's HEAD is its default branch, but only clone and remote set-head
+  " create it; a remote added later (a fork's upstream) has only its branches.
+  " Those come before origin's, which in a fork clone are the fork's own.
+  let l:refs = ['upstream/HEAD', 'origin/HEAD', 'upstream/main', 'upstream/master',
+        \ 'origin/main', 'origin/master']
   for l:ref in l:refs
     if FugitiveExecute(['rev-parse', '-q', '--verify', l:ref . '^{commit}']).exit_status == 0
       return s:Git(['merge-base', 'HEAD', l:ref])[0]
