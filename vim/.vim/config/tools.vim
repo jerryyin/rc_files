@@ -121,7 +121,11 @@ function! s:BranchBase() abort
 endfunction
 " One row per changed file. The listed file is the new side (the old side for
 " deletions); the row's left side ('' when there is none) is kept in context.
-function! s:FileRows(from, to, items, lefts) abort
+" a:dirty lists the files whose work-tree copy differs from HEAD, or is v:null
+" when a:to is not HEAD. A new side that matches the work tree is listed as the
+" work-tree file, so Coc's language servers (which only read files on disk)
+" work in it.
+function! s:FileRows(from, to, items, lefts, dirty) abort
   let l:n = 0
   for l:line in s:Git(['diff', '--name-status', '-M', a:from, a:to])
     let l:f = split(l:line, '\t')
@@ -129,7 +133,9 @@ function! s:FileRows(from, to, items, lefts) abort
     let l:old = l:f[1]
     let l:new = l:f[-1]
     let l:path = l:st ==# 'D' ? a:from . ':' . l:old : a:to . ':' . l:new
-    call add(a:items, {'valid': 1, 'filename': FugitiveFind(l:path), 'module': l:path,
+    let l:file = l:st !=# 'D' && type(a:dirty) == v:t_list && index(a:dirty, l:new) < 0
+          \ ? FugitiveWorkTree() . '/' . l:new : FugitiveFind(l:path)
+    call add(a:items, {'valid': 1, 'filename': l:file, 'module': l:path,
           \ 'text': l:st . '  ' . (l:st =~# '[RC]' ? l:old . ' -> ' . l:new : l:new)})
     call add(a:lefts, l:st =~# '[AD]' ? '' : a:from . ':' . l:old)
     let l:n += 1
@@ -154,15 +160,17 @@ function! s:BranchReview(together) abort
     let l:items = []
     let l:lefts = []
     let l:target = 0
+    let l:dirty = s:Git(['diff', '--name-only', 'HEAD'])
     if a:together
       let l:h = s:Header(l:items, l:lefts)
-      let l:n = s:FileRows(l:base, l:head, l:items, l:lefts)
+      let l:n = s:FileRows(l:base, l:head, l:items, l:lefts, l:dirty)
       let l:items[l:h].text = '▸ ' . l:base[0:7] . '..' . l:head[0:7] . '  '
             \ . len(l:shas) . ' commits  (' . l:n . ' files)'
     else
       for l:sha in l:shas
         let l:h = s:Header(l:items, l:lefts)
-        let l:n = s:FileRows(s:Git(['rev-parse', l:sha . '^'])[0], l:sha, l:items, l:lefts)
+        let l:n = s:FileRows(s:Git(['rev-parse', l:sha . '^'])[0], l:sha, l:items, l:lefts,
+              \ l:sha ==# l:head ? l:dirty : v:null)
         let l:items[l:h].text = '▸ ' . l:sha[0:7] . '  '
               \ . s:Git(['log', '-1', '--format=%s', l:sha])[0]
               \ . '  (' . l:n . (l:n == 1 ? ' file)' : ' files)')
@@ -265,11 +273,52 @@ inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-" GoTo code navigation
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+" GoTo code navigation. Language servers only read files on disk, so in a
+" fugitive:// buffer (a file as of some commit, e.g. a review diff pane) the
+" lookup runs from the work-tree copy, opened in a new tab on the same line
+" (the nearest identical line, else the nearest use of the word).
+function! s:CocJump(action) abort
+  let l:name = bufname('%')
+  if l:name =~# '^fugitive:'
+    let l:real = FugitiveReal(l:name)
+    if !filereadable(l:real)
+      echohl WarningMsg | echo 'Not in the work tree: ' . l:real | echohl None
+      return
+    endif
+    let [l:text, l:lnum, l:col, l:word] = [getline('.'), line('.'), col('.'), expand('<cword>')]
+    execute 'tabedit ' . fnameescape(l:real)
+    let l:pats = ['\V\^' . escape(l:text, '\') . '\$']
+    if !empty(l:word)
+      call add(l:pats, '\V\<' . escape(l:word, '\') . '\>')
+    endif
+    let l:found = 0
+    for l:pat in l:pats
+      call cursor(l:lnum, 1)
+      let l:hits = filter([search(l:pat, 'cnW'), search(l:pat, 'bnW')], 'v:val > 0')
+      if !empty(l:hits)
+        let l:best = sort(l:hits, {a, b -> abs(a - l:lnum) - abs(b - l:lnum)})[0]
+        call cursor(l:best, 1)
+        if l:pat ==# l:pats[0]
+          call cursor(l:best, l:col)
+        else
+          call search(l:pat, 'cW', l:best)
+        endif
+        let l:found = 1
+        break
+      endif
+    endfor
+    if !l:found
+      echohl WarningMsg | echo 'No "' . l:word . '" in the work-tree file' | echohl None
+      return
+    endif
+    call CocAction('ensureDocument')
+  endif
+  call CocActionAsync(a:action)
+endfunction
+nnoremap <silent> gd :call <SID>CocJump('jumpDefinition')<CR>
+nnoremap <silent> gy :call <SID>CocJump('jumpTypeDefinition')<CR>
+nnoremap <silent> gi :call <SID>CocJump('jumpImplementation')<CR>
+nnoremap <silent> gr :call <SID>CocJump('jumpReferences')<CR>
 
 nnoremap <silent> K :call ShowDocumentation()<CR>
 function! ShowDocumentation()
