@@ -145,7 +145,7 @@ endfunction
 " when a:to is not HEAD. A new side that matches the work tree is listed as the
 " work-tree file, so Coc's language servers (which only read files on disk)
 " work in it.
-function! s:FileRows(from, to, items, lefts, dirty) abort
+function! s:FileRows(from, to, items, lefts, dirty, blobs) abort
   let l:n = 0
   for l:line in s:Git(['diff', '--name-status', '-M', a:from, a:to])
     let l:f = split(l:line, '\t')
@@ -158,6 +158,15 @@ function! s:FileRows(from, to, items, lefts, dirty) abort
     call add(a:items, {'valid': 1, 'filename': l:file, 'module': l:path,
           \ 'text': l:st . '  ' . (l:st =~# '[RC]' ? l:old . ' -> ' . l:new : l:new)})
     call add(a:lefts, l:st =~# '[AD]' ? '' : a:from . ':' . l:old)
+    let l:change = {'from': a:from, 'to': a:to, 'old': l:old, 'new': l:new, 'idx': len(a:items)}
+    if l:st !=# 'A'
+      call add(get(extend(a:blobs, {a:from . ':' . l:old: []}, 'keep'), a:from . ':' . l:old),
+            \ extend({'side': 'old'}, l:change))
+    endif
+    if l:st !=# 'D'
+      call add(get(extend(a:blobs, {a:to . ':' . l:new: []}, 'keep'), a:to . ':' . l:new),
+            \ extend({'side': 'new'}, l:change))
+    endif
     let l:n += 1
   endfor
   return l:n
@@ -181,16 +190,17 @@ function! s:BranchReview(together) abort
     let l:lefts = []
     let l:target = 0
     let l:dirty = s:Git(['diff', '--name-only', 'HEAD'])
+    let l:blobs = {}
     if a:together
       let l:h = s:Header(l:items, l:lefts)
-      let l:n = s:FileRows(l:base, l:head, l:items, l:lefts, l:dirty)
+      let l:n = s:FileRows(l:base, l:head, l:items, l:lefts, l:dirty, l:blobs)
       let l:items[l:h].text = '▸ ' . l:base[0:7] . '..' . l:head[0:7] . '  '
             \ . len(l:shas) . ' commits  (' . l:n . ' files)'
     else
       for l:sha in l:shas
         let l:h = s:Header(l:items, l:lefts)
         let l:n = s:FileRows(s:Git(['rev-parse', l:sha . '^'])[0], l:sha, l:items, l:lefts,
-              \ l:sha ==# l:head ? l:dirty : v:null)
+              \ l:sha ==# l:head ? l:dirty : v:null, l:blobs)
         let l:items[l:h].text = '▸ ' . l:sha[0:7] . '  '
               \ . s:Git(['log', '-1', '--format=%s', l:sha])[0]
               \ . '  (' . l:n . (l:n == 1 ? ' file)' : ' files)')
@@ -204,6 +214,18 @@ function! s:BranchReview(together) abort
           \ . ' since ' . l:base[0:7],
           \ 'context': {'branch_review_lefts': l:lefts},
           \ 'quickfixtextfunc': function('s:BranchReviewText')})
+    let l:renames = {}
+    for l:line in s:Git(['diff', '--name-status', '-M', l:base])
+      let l:f = split(l:line, '\t')
+      if l:f[0] =~# '^R'
+        let l:renames[l:f[2]] = l:f[1]
+      endif
+    endfor
+    let s:review = {'base': l:base, 'gitdir': FugitiveGitDir(), 'root': FugitiveWorkTree(),
+          \ 'blobs': l:blobs, 'renames': l:renames}
+    for l:buf in getbufinfo({'bufloaded': 1})
+      call s:MarkBuffer(l:buf.bufnr)
+    endfor
   catch
     echohl ErrorMsg | echomsg v:exception | echohl None
     return
@@ -228,10 +250,91 @@ function! s:DiffCurrentEntry() abort
     if !empty(l:left)
       execute 'keepalt Gvdiffsplit! ' . fnameescape(l:left)
     endif
+    " A copy that is a side of several listed changes shows this one's.
+    for l:buf in tabpagebuflist()
+      call s:MarkBuffer(l:buf)
+    endfor
   else
     keepalt Gvdiffsplit!
   endif
 endfunction
+" Review signs: + added, - removed and ~ changed lines, _ under a line where
+" the other side has lines this one lacks (‾ on line 1 when they come first).
+" A work-tree file shows what the branch changed in it (the review base against
+" the saved file); a fugitive copy shows the listed change it is a side of,
+" preferring the current entry. They show until the next review, except while
+" the file is in a diff window, which already shows the change.
+for [s:name, s:text, s:signify, s:diff] in [['Added', '+', 'SignifySignAdd', 'DiffAdd'],
+      \ ['Removed', '-', 'SignifySignDelete', 'DiffDelete'],
+      \ ['Changed', '~', 'SignifySignChange', 'DiffChange'],
+      \ ['Gap', '_', 'SignifySignDelete', 'DiffDelete'],
+      \ ['GapFirst', '‾', 'SignifySignDelete', 'DiffDelete']]
+  call sign_define('BranchReview' . s:name, {'text': s:text,
+        \ 'texthl': hlexists(s:signify) ? s:signify : s:diff})
+endfor
+unlet s:name s:text s:signify s:diff
+let s:review = {}
+" [lnum, sign] pairs for one side ('old' or 'new') of `git diff -U0` output.
+function! s:HunkSigns(diff, side) abort
+  let l:signs = []
+  for l:hunk in a:diff
+    let l:m = matchlist(l:hunk, '^@@ -\(\d\+\)\%(,\(\d\+\)\)\? +\(\d\+\)\%(,\(\d\+\)\)\? @@')
+    if empty(l:m)
+      continue
+    endif
+    let l:old = [str2nr(l:m[1]), l:m[2] ==# '' ? 1 : str2nr(l:m[2])]
+    let l:new = [str2nr(l:m[3]), l:m[4] ==# '' ? 1 : str2nr(l:m[4])]
+    let [l:mine, l:theirs, l:only] = a:side ==# 'new' ? [l:new, l:old, 'Added'] : [l:old, l:new, 'Removed']
+    for l:i in range(l:mine[1])
+      call add(l:signs, [l:mine[0] + l:i, l:i < l:theirs[1] ? 'Changed' : l:only])
+    endfor
+    " With no lines on this side, the start is the line before the gap.
+    if l:mine[1] == 0
+      call add(l:signs, l:mine[0] == 0 ? [1, 'GapFirst'] : [l:mine[0], 'Gap'])
+    endif
+  endfor
+  return l:signs
+endfunction
+function! s:MarkBuffer(buf) abort
+  call sign_unplace('branch_review', {'buffer': a:buf})
+  if empty(s:review) || !empty(filter(win_findbuf(a:buf), 'getwinvar(v:val, "&diff")'))
+    return
+  endif
+  let l:name = bufname(a:buf)
+  if l:name =~# '^fugitive:'
+    let l:changes = get(s:review.blobs, FugitiveParse(l:name)[0], [])
+    if empty(l:changes)
+      return
+    endif
+    let l:q = getqflist({'idx': 0, 'context': 0})
+    let l:current = type(l:q.context) == v:t_dict && has_key(l:q.context, 'branch_review_lefts')
+          \ ? l:q.idx : -1
+    let l:c = get(filter(copy(l:changes), 'v:val.idx == l:current'), 0, l:changes[0])
+    let l:revs = [l:c.from, l:c.to]
+    let [l:old, l:new, l:side] = [l:c.old, l:c.new, l:c.side]
+  else
+    let l:root = s:review.root . '/'
+    let l:path = fnamemodify(l:name, ':p')
+    if empty(l:name) || stridx(l:path, l:root) != 0 || !filereadable(l:path)
+      return
+    endif
+    let l:revs = [s:review.base]
+    let l:new = l:path[len(l:root) :]
+    let l:old = get(s:review.renames, l:new, l:new)
+    let l:side = 'new'
+  endif
+  let l:r = FugitiveExecute(['diff', '-U0', '--no-color', '--no-ext-diff', '-M'] + l:revs
+        \ + ['--', l:old, l:new], s:review.gitdir)
+  if l:r.exit_status == 0
+    call sign_placelist(map(s:HunkSigns(l:r.stdout, l:side), {_, s -> {'group': 'branch_review',
+          \ 'buffer': a:buf, 'lnum': s[0], 'name': 'BranchReview' . s[1], 'priority': 20}}))
+  endif
+endfunction
+augroup branchReviewSigns
+  autocmd!
+  autocmd BufWinEnter,BufWritePost * call s:MarkBuffer(str2nr(expand('<abuf>')))
+  autocmd OptionSet diff call s:MarkBuffer(bufnr('%'))
+augroup END
 " ]d / [d: close this comparison, go to the next/previous file, compare it.
 " Close first: once the file changes, Fugitive turns diff off in the old
 " pane and DiffClose no longer closes it. :cnext skips commit header rows.
