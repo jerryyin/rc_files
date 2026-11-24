@@ -54,6 +54,13 @@ for s:diff_option in ['followwrap', 'inline:word', 'linematch:60']
   endtry
 endfor
 unlet s:diff_option
+" Keep diff windows compact: no fold column, and no sign column (Coc
+" diagnostics still show as virtual text).
+set diffopt+=foldcolumn:0
+augroup compactDiff
+  autocmd!
+  autocmd OptionSet diff if v:option_new | setlocal signcolumn=no | else | setlocal signcolumn< | endif
+augroup END
 
 " Make backspace behavior match normal editor
 set backspace=indent,eol,start
