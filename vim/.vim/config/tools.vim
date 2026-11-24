@@ -102,8 +102,9 @@ nnoremap <leader>gw :Gwrite<CR>
 
 " \gr: list every commit of this branch, each followed by its changed files.
 " \gR: list the files changed by the whole branch as one diff.
-" The base is the remote's default branch; the cursor starts on the commit
-" being viewed (e.g. from \gl), else on the first commit.
+" The base is the remote default branch HEAD forked from most recently; the
+" cursor starts on the commit being viewed (e.g. from \gl), else on the first
+" commit.
 function! s:Git(args) abort
   let l:r = FugitiveExecute(a:args)
   if l:r.exit_status
@@ -111,18 +112,32 @@ function! s:Git(args) abort
   endif
   return filter(l:r.stdout, '!empty(v:val)')
 endfunction
+" Git records no base branch (@{upstream} is where a branch is pushed), so
+" every remote's default branch is a candidate: <remote>/HEAD, which only clone
+" and remote set-head create, else <remote>/main or master. The base is the
+" merge-base that leaves the fewest commits on the branch, which is the
+" project's branch rather than a fork's stale main, whatever the remotes are
+" called.
 function! s:BranchBase() abort
-  " A remote's HEAD is its default branch, but only clone and remote set-head
-  " create it; a remote added later (a fork's upstream) has only its branches.
-  " Those come before origin's, which in a fork clone are the fork's own.
-  let l:refs = ['upstream/HEAD', 'origin/HEAD', 'upstream/main', 'upstream/master',
-        \ 'origin/main', 'origin/master']
-  for l:ref in l:refs
-    if FugitiveExecute(['rev-parse', '-q', '--verify', l:ref . '^{commit}']).exit_status == 0
-      return s:Git(['merge-base', 'HEAD', l:ref])[0]
-    endif
+  let l:best = {}
+  let l:tried = []
+  for l:remote in s:Git(['remote'])
+    for l:ref in [l:remote . '/HEAD', l:remote . '/main', l:remote . '/master']
+      if FugitiveExecute(['rev-parse', '-q', '--verify', l:ref . '^{commit}']).exit_status == 0
+        let l:mb = s:Git(['merge-base', 'HEAD', l:ref])[0]
+        let l:n = str2nr(s:Git(['rev-list', '--count', l:mb . '..HEAD'])[0])
+        if empty(l:best) || l:n < l:best.n
+          let l:best = {'n': l:n, 'base': l:mb}
+        endif
+        break
+      endif
+      call add(l:tried, l:ref)
+    endfor
   endfor
-  throw 'no base branch: tried ' . join(l:refs, ', ')
+  if empty(l:best)
+    throw 'no base branch: tried ' . join(l:tried, ', ')
+  endif
+  return l:best.base
 endfunction
 " One row per changed file. The listed file is the new side (the old side for
 " deletions); the row's left side ('' when there is none) is kept in context.
