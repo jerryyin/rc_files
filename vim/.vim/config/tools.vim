@@ -112,12 +112,14 @@ function! s:Git(args) abort
   return filter(l:r.stdout, '!empty(v:val)')
 endfunction
 function! s:BranchBase() abort
-  for l:ref in ['upstream/HEAD', 'origin/HEAD', 'origin/main', 'origin/master']
+  let l:refs = ['upstream/HEAD', 'upstream/main', 'upstream/master',
+        \ 'origin/HEAD', 'origin/main', 'origin/master']
+  for l:ref in l:refs
     if FugitiveExecute(['rev-parse', '-q', '--verify', l:ref . '^{commit}']).exit_status == 0
       return s:Git(['merge-base', 'HEAD', l:ref])[0]
     endif
   endfor
-  throw 'no upstream/HEAD, origin/HEAD, origin/main or origin/master'
+  throw 'no base branch: tried ' . join(l:refs, ', ')
 endfunction
 " One row per changed file. The listed file is the new side (the old side for
 " deletions); the row's left side ('' when there is none) is kept in context.
