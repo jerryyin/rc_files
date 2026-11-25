@@ -103,19 +103,17 @@ There is nothing to schedule and no wake loop to arm. `wait` blocks until the ru
 is terminal; `status` answers where it is now.
 
 A terminal run is *accepted* (its results validated), not yet *admitted* into the
-campaign's report. Owners listed as `writable_repositories` in `campaign.toml` already
-hold the workers' commits (each with its `Campaign-Request` trailer); push their branches
-and the `refs/campaign/*` pointers. Anything else waits for promotion, which only you can
-do: follow "Promote after every run" in `NEW-CAMPAIGN.md` — integrate each `tools_created`
-entry the results need where its `kind` sends it (an extension into its owner's repository,
-as a branch through that repository's review; a new tool into `~/scripts`), commit, bump
-the environment lock, and re-run each round's recipe on the run's inputs while the host has them.
-Then export one ledger per round with `export-evidence.py` into the campaign's `evidence/`:
-each ledger is named by its round's conclusion and holds the round's recipe, and the report
-holds only findings, linking each result to its ledger and worker. The state roots are not
-kept, so anything not exported, committed or pushed is lost.
-That work, like any Git change, follows the Git policy in the shared AGENTS.md rather than
-a standing push authorization; `publish-round` already delivered the orders.
+campaign's report. The post-run step does the admitting work when `campaign.toml` enables
+`[post_run]` ("The post-run step" in `NEW-CAMPAIGN.md`): `start` launches its watcher, and when
+the run ends an operator agent fixes every issue the run raised (the `operator_issues` of its
+results, failed checks, proposed diffs, abnormal events) at the layer it belongs to, merges the
+campaign tools branch, promotes workspace tools, and exports one ledger per round; then the
+script pushes every campaign branch that heads no open pull request, never forcing. Enable it
+when authoring a campaign. Afterwards, read `STATE/post-run/result.json` and `POST-RUN.md`:
+report each issue left `not_fixable_here` and each branch not pushed, with its reason, to the
+user. For a run started before its campaign enabled the step, launch
+`post-run.py watch` (or `run`) by hand from a detached worktree of the commit that enables it.
+The state roots are not kept, so anything not exported, committed or pushed is lost.
 
 To change a running campaign's rules, use `stop-now` and `continue-run` ("Changing a
 run's rules" in `NEW-CAMPAIGN.md`) rather than killing processes and rewriting orders by
